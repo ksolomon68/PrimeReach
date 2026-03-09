@@ -76,7 +76,28 @@ try {
     });
 
     // Serve Static Files
-    app.use(express.static(path.join(__dirname, '../')));
+    const publicPath = path.join(__dirname, '../');
+    console.log('CaltransBizConnect: Serving static files from:', publicPath);
+    app.use(express.static(publicPath));
+
+    // Explicit Root Route - Essential for some environments like Hostinger/Passenger
+    app.get('/', (req, res) => {
+        const indexPath = path.join(publicPath, 'index.html');
+        if (fs.existsSync(indexPath)) {
+            res.sendFile(indexPath);
+        } else {
+            res.status(404).send('CaltransBizConnect: Root file (index.html) not found in ' + publicPath);
+        }
+    });
+
+    // Fallback for .html files to support clean URLs if needed, but primarily for debugging
+    app.get('/:page.html', (req, res, next) => {
+        const filePath = path.join(publicPath, req.params.page + '.html');
+        if (fs.existsSync(filePath)) {
+            return res.sendFile(filePath);
+        }
+        next();
+    });
 
     // Initialize Database (Wrapped in try/catch in database.js)
     console.log('CaltransBizConnect: Initializing database...');
@@ -130,7 +151,11 @@ try {
                 timestamp: new Date().toISOString(),
                 env: {
                     node: process.version,
-                    passenger: !!(process.env.PHUSION_PASSENGER || process.env.PASSENGER_NODE_CONTROL_REPO)
+                    passenger: !!(process.env.PHUSION_PASSENGER || process.env.PASSENGER_NODE_CONTROL_REPO),
+                    cwd: process.cwd(),
+                    dirname: __dirname,
+                    publicPath: publicPath,
+                    indexExists: fs.existsSync(path.join(publicPath, 'index.html'))
                 }
             });
         }
