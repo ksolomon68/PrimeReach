@@ -3,7 +3,8 @@ const cors = require('cors');
 const path = require('path');
 const { initDatabase } = require('./database');
 
-console.log('CaltransBizConnect: Starting server initialization...');
+const VERSION = '2.0.7-redeploy-db';
+console.log(`CaltransBizConnect: Starting server initialization (v${VERSION})...`);
 
 const app = express();
 // Priority: Phusion Passenger (PASSENGER_NODE_CONTROL_REPO), process.env.PORT, default 3000
@@ -139,25 +140,25 @@ try {
 
         // If JSON is requested (like from health API)
         if (req.path.includes('/api/health')) {
-            return res.json({
-                status: 'ok',
-                database: {
-                    status: dbStatus,
+            status: 'ok',
+                version: VERSION,
+                    database: {
+                status: dbStatus,
                     detail: detail,
-                    path: getDbPath(),
-                    exists: checkDbFile()
-                },
-                uptime: process.uptime(),
+                        path: getDbPath(),
+                            exists: checkDbFile()
+            },
+            uptime: process.uptime(),
                 timestamp: new Date().toISOString(),
-                env: {
-                    node: process.version,
+                    env: {
+                node: process.version,
                     passenger: !!(process.env.PHUSION_PASSENGER || process.env.PASSENGER_NODE_CONTROL_REPO),
-                    cwd: process.cwd(),
-                    dirname: __dirname,
-                    publicPath: publicPath,
-                    indexExists: fs.existsSync(path.join(publicPath, 'index.html'))
-                }
-            });
+                        cwd: process.cwd(),
+                            dirname: __dirname,
+                                publicPath: publicPath,
+                                    indexExists: fs.existsSync(path.join(publicPath, 'index.html')),
+                                        serverFiles: fs.readdirSync(__dirname)
+            }
         }
 
         // Default HTML response
