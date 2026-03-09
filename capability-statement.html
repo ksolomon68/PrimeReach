@@ -9,6 +9,7 @@
     <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/accessibility-widget.css">
 </head>
 
 <body>
@@ -20,7 +21,7 @@
                 <img src="images/caltrans-logo.png" alt="Caltrans">
             </a>
             <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false"><span></span></button>
-            <nav class="main-nav" role="navigation">
+            <nav class="main-nav" aria-label="Main navigation" role="navigation">
                 <ul>
                     <li><a href="dashboard-vendor.html">Dashboard</a></li>
                     <li><a href="opportunities.html">Search Opportunities</a></li>
@@ -40,7 +41,7 @@
                     <ul class="dashboard-nav">
                         <li><a href="dashboard-vendor.html">Dashboard</a></li>
                         <li><a href="vendor-profile.html">My Profile</a></li>
-                        <li><a href="capability-statement.html" class="active">Capability Statement</a></li>
+                        <li><a href="capability-statement.html" class="active" aria-current="page">Capability Statement</a></li>
                         <li><a href="search-opportunities.html">Search Opportunities</a></li>
                         <li><a href="saved-opportunities.html">Saved Opportunities</a></li>
 
@@ -353,6 +354,7 @@
             }
         });
     </script>
+  <script src="js/accessibility-widget.js"></script>
 </body>
 
 </html>

@@ -739,23 +739,72 @@ tr:hover {
 
 .skip-link {
   position: absolute;
-  top: -40px;
-  left: 0;
+  top: -100px;
+  left: 8px;
   background: var(--color-primary);
   color: var(--color-text-inverse);
-  padding: var(--space-sm) var(--space-md);
+  padding: var(--space-sm) var(--space-lg);
   text-decoration: none;
   z-index: var(--z-tooltip);
+  border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-base);
+  border: 2px solid var(--color-secondary);
+  transition: top 0.1s ease;
 }
 
 .skip-link:focus {
   top: 0;
+  outline: 3px solid var(--color-secondary);
+  outline-offset: 2px;
 }
 
 /* Focus visible for keyboard navigation */
 :focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+}
+
+/* Ensure interactive elements always have a visible focus state */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* aria-current page indicator in navigation */
+.main-nav a[aria-current="page"] {
+  background-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+/* Reduced motion: respect OS preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal-fade,
+  .reveal-slide-up,
+  .reveal-slide-left,
+  .reveal-slide-right {
+    opacity: 1 !important;
+    transform: none !important;
+    pointer-events: auto !important;
+  }
 }
 
 /* ============================================

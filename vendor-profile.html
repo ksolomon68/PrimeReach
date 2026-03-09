@@ -212,6 +212,7 @@
             }
         }
     </style>
+  <link rel="stylesheet" href="css/accessibility-widget.css">
 </head>
 
 <body class="dashboard-v2">
@@ -246,7 +247,7 @@
                 <!-- Side Navigation -->
                 <div class="profile-nav-card">
                     <nav>
-                        <a href="#basic-info" class="profile-nav-item active">
+                        <a href="#basic-info" class="profile-nav-item active" aria-current="page">
                             <span>🏢</span> Basic Information
                         </a>
                         <a href="#contact-details" class="profile-nav-item">
@@ -331,12 +332,12 @@
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label for="firstName" class="required">First Name</label>
-                                    <input type="text" id="firstName" name="first_name" class="form-control" required>
+                                    <input type="text" id="firstName" name="first_name" class="form-control" required autocomplete="given-name">
                                     <div class="readonly-value" id="view_firstName" style="display: none;">--</div>
                                 </div>
                                 <div class="form-group">
                                     <label for="lastName" class="required">Last Name</label>
-                                    <input type="text" id="lastName" name="last_name" class="form-control" required>
+                                    <input type="text" id="lastName" name="last_name" class="form-control" required autocomplete="family-name">
                                     <div class="readonly-value" id="view_lastName" style="display: none;">--</div>
                                 </div>
                                 <div class="form-group">
@@ -349,7 +350,7 @@
                                 <div class="form-group">
                                     <label for="phone">Phone Number</label>
                                     <input type="tel" id="phone" name="phone" class="form-control"
-                                        placeholder="(555) 000-0000">
+                                        placeholder="(555) 000-0000" autocomplete="tel" autocomplete="tel">
                                     <div class="readonly-value" id="view_phone" style="display: none;">--</div>
                                 </div>
                             </div>
@@ -826,6 +827,7 @@
             });
         });
     </script>
+  <script src="js/accessibility-widget.js"></script>
 </body>
 
 </html>
