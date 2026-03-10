@@ -8,7 +8,7 @@ const path = require('path');
 const fs = require('fs');
 const { initDatabase, getDb } = require('./database');
 
-const VERSION = '2.1.0-mysql-final';
+const VERSION = '2.1.1-mysql-ipv4-fix';
 console.log(`CaltransBizConnect: Starting server initialization (v${VERSION})...`);
 
 const app = express();
