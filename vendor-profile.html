@@ -805,7 +805,7 @@
 
             } catch (error) {
                 console.error('Upload Error:', error);
-                status.textContent = '❌ Upload failed. Please try again.';
+                status.textContent = `❌ Upload failed: ${error.message || 'Please try again.'}`;
                 status.style.color = 'var(--color-error)';
             } finally {
                 btn.disabled = false;

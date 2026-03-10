@@ -56,10 +56,21 @@ const startServer = async () => {
                 dbStatus = 'error';
                 dbError = e.message;
             }
+            const uploadsDir = path.join(__dirname, '../uploads');
+            let uploadsWritable = false;
+            try {
+                const testFile = path.join(uploadsDir, '.health-test');
+                fs.writeFileSync(testFile, 'ok');
+                fs.unlinkSync(testFile);
+                uploadsWritable = true;
+            } catch (e) {
+                // not writable
+            }
             res.json({
                 status: 'ok',
                 version: VERSION,
                 database: { status: dbStatus, error: dbError },
+                uploads: { path: uploadsDir, exists: fs.existsSync(uploadsDir), writable: uploadsWritable },
                 env: process.env.NODE_ENV || 'production',
                 passenger: !!(process.env.PHUSION_PASSENGER || process.env.PASSENGER_NODE_CONTROL_REPO)
             });

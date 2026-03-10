@@ -6,8 +6,18 @@ const router = express.Router();
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(__dirname, '../../uploads');
+console.log('CaltransBizConnect Upload: uploads dir =', uploadsDir);
 if (!fs.existsSync(uploadsDir)) {
+    console.log('CaltransBizConnect Upload: Creating uploads directory...');
     fs.mkdirSync(uploadsDir, { recursive: true });
+}
+try {
+    const testFile = path.join(uploadsDir, '.write-test');
+    fs.writeFileSync(testFile, 'ok');
+    fs.unlinkSync(testFile);
+    console.log('CaltransBizConnect Upload: Directory is writable.');
+} catch (e) {
+    console.error('CaltransBizConnect Upload: NOT writable -', e.message);
 }
 
 // Multer storage config
@@ -43,6 +53,7 @@ const upload = multer({
 router.post('/', (req, res) => {
     upload.single('file')(req, res, (err) => {
         if (err) {
+            console.error('CaltransBizConnect Upload: Multer error -', err);
             return res.status(400).json({ error: err.message || 'Upload failed' });
         }
         if (!req.file) {
