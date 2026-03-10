@@ -232,7 +232,7 @@ body {
     margin-bottom: -1px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1100px) {
     .nav-toggle {
         display: flex;
         align-items: center;
