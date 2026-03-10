@@ -19,41 +19,45 @@ const storage = multer.diskStorage({
     }
 });
 
+const ALLOWED_MIMETYPES = [
+    'application/pdf',
+    'application/x-pdf',
+    'application/acrobat',
+    'application/octet-stream' // some browsers send this for PDF
+];
+
 const upload = multer({
     storage,
     limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
     fileFilter: (req, file, cb) => {
-        if (file.mimetype === 'application/pdf') {
+        const ext = path.extname(file.originalname).toLowerCase();
+        if (ALLOWED_MIMETYPES.includes(file.mimetype) || ext === '.pdf') {
             cb(null, true);
         } else {
-            cb(new Error('Only PDF files are allowed'));
+            cb(new multer.MulterError('LIMIT_UNEXPECTED_FILE', 'Only PDF files are allowed'));
         }
     }
 });
 
 // POST /api/upload-cs
-router.post('/', upload.single('file'), (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded' });
-    }
+router.post('/', (req, res) => {
+    upload.single('file')(req, res, (err) => {
+        if (err) {
+            return res.status(400).json({ error: err.message || 'Upload failed' });
+        }
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
 
-    const filePath = `/uploads/${req.file.filename}`;
-
-    res.json({
-        path: filePath,
-        originalName: req.file.originalname,
-        fileName: req.file.filename,
-        date: new Date().toISOString(),
-        size: req.file.size
+        const filePath = `/uploads/${req.file.filename}`;
+        res.json({
+            path: filePath,
+            originalName: req.file.originalname,
+            fileName: req.file.filename,
+            date: new Date().toISOString(),
+            size: req.file.size
+        });
     });
-});
-
-// Multer error handler
-router.use((err, req, res, next) => {
-    if (err instanceof multer.MulterError || err.message === 'Only PDF files are allowed') {
-        return res.status(400).json({ error: err.message });
-    }
-    next(err);
 });
 
 module.exports = router;

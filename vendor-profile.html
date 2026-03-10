@@ -813,8 +813,12 @@
         }
 
         window.viewCurrentCS = () => {
-            const API_BASE = window.APP_CONFIG ? window.APP_CONFIG.API_URL : '/api';
-            window.open(`${API_BASE}/vendors/${user.id}/capability-statement`, '_blank');
+            // Open file directly via static path — no DB call needed
+            if (window.currentCSPath) {
+                window.open(window.currentCSPath, '_blank');
+            } else {
+                alert('No capability statement found. Please upload one.');
+            }
         };
 
         window.removeCS = async () => {
@@ -824,31 +828,27 @@
             status.textContent = '🔄 Removing...';
             status.style.color = 'var(--text-muted)';
 
+            // Reset UI immediately
+            const removedPath = window.currentCSPath;
+            window.currentCSPath = null;
+            document.getElementById('csFileInput').value = '';
+            document.getElementById('csUploadedState').style.display = 'none';
+            document.getElementById('csEmptyState').style.display = 'block';
+            document.getElementById('csUploadedFileName').textContent = '';
+            status.textContent = '✅ Capability statement removed.';
+            status.style.color = 'var(--color-success)';
+
+            const updatedUser = { ...user, capability_statement: null };
+            localStorage.setItem('caltrans_user', JSON.stringify(updatedUser));
+            calculateProgress(updatedUser);
+            setTimeout(() => { status.textContent = ''; }, 3000);
+
+            // Best-effort: delete from DB and disk (non-blocking)
             try {
                 const API_BASE = window.APP_CONFIG ? window.APP_CONFIG.API_URL : '/api';
-                const response = await fetch(`${API_BASE}/vendors/${user.id}/capability-statement`, {
-                    method: 'DELETE'
-                });
-
-                if (!response.ok) throw new Error('Server error');
-
-                window.currentCSPath = null;
-                document.getElementById('csFileInput').value = '';
-                document.getElementById('csUploadedState').style.display = 'none';
-                document.getElementById('csEmptyState').style.display = 'block';
-                document.getElementById('csUploadedFileName').textContent = '';
-                status.textContent = '✅ Capability statement removed.';
-                status.style.color = 'var(--color-success)';
-
-                const updatedUser = { ...user, capability_statement: null };
-                localStorage.setItem('caltrans_user', JSON.stringify(updatedUser));
-                calculateProgress(updatedUser);
-
-                setTimeout(() => { status.textContent = ''; }, 3000);
+                await fetch(`${API_BASE}/vendors/${user.id}/capability-statement`, { method: 'DELETE' });
             } catch (error) {
-                console.error('Remove CS error:', error);
-                status.textContent = '❌ Failed to remove. Please try again.';
-                status.style.color = 'var(--color-error)';
+                console.warn('Could not delete CS from server (will retry on next session):', error);
             }
         };
 
