@@ -161,6 +161,24 @@ async function initDatabase() {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         `);
 
+        // Safe migrations — add columns that may be missing from existing tables
+        console.log('CaltransBizConnect DB: Running safe column migrations...');
+        const migrations = [
+            `ALTER TABLE users ADD COLUMN IF NOT EXISTS capability_statement TEXT`,
+            `ALTER TABLE users ADD COLUMN IF NOT EXISTS website VARCHAR(255)`,
+            `ALTER TABLE users ADD COLUMN IF NOT EXISTS address VARCHAR(255)`,
+            `ALTER TABLE users ADD COLUMN IF NOT EXISTS city VARCHAR(100)`,
+            `ALTER TABLE users ADD COLUMN IF NOT EXISTS state VARCHAR(50)`,
+            `ALTER TABLE users ADD COLUMN IF NOT EXISTS zip VARCHAR(20)`,
+            `ALTER TABLE users ADD COLUMN IF NOT EXISTS years_in_business VARCHAR(50)`,
+            `ALTER TABLE users ADD COLUMN IF NOT EXISTS certifications TEXT`,
+            `ALTER TABLE users ADD COLUMN IF NOT EXISTS saved_opportunities TEXT`
+        ];
+        for (const sql of migrations) {
+            await db.execute(sql).catch(() => {}); // Ignore if column already exists
+        }
+        console.log('CaltransBizConnect DB: Migrations complete.');
+
         console.log('CaltransBizConnect DB: All MySQL tables initialized successfully.');
     } catch (err) {
         console.error('CaltransBizConnect DB CRITICAL ERROR: Database initialization failed.');

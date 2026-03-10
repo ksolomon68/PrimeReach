@@ -19,8 +19,9 @@ build/
 data/
 data-export.json
 
-# User Uploads
-uploads/
+# User Uploads — track directory but not contents
+uploads/*
+!uploads/.gitkeep
 
 # IDE
 .vscode/
