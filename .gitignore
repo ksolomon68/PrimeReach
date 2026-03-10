@@ -1,29 +1,40 @@
-# Build and dependency directories
+# Dependencies
 node_modules/
 dist/
 build/
 
-# Databases
-data.db
-server/data.db
-server/data1.db
-server/*.db-shm
-server/*.db-wal
-
-# User-specific or sensitive files
+# Environment
 .env
+.env.example
 .env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# Project specific
+# Database
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+data/
+data-export.json
+
+# User Uploads
 uploads/
-*.zip
 
-# System files
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
 .DS_Store
 Thumbs.db
 
-# Workspace files
-.vscode/
-.idea/
-.gemini/
-.antigravity/
+# Legacy and Misc
+seed_users.js
+logs/
+*.log
+DESIGN.md
+SITE.md
