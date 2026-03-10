@@ -3,7 +3,7 @@ const { db } = require('../database');
 const router = express.Router();
 
 // Get public users list (filtered by type, district, category)
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
     const { type, district, category, search } = req.query;
 
     try {
@@ -16,9 +16,6 @@ router.get('/', (req, res) => {
         }
 
         if (district) {
-            // Check if districts JSON array contains the district
-            // SQLite doesn't have great JSON support in older versions, so we might need to filter in JS or use LIKE
-            // Assuming simpler implementation for now: plain text search in JSON string
             query += " AND districts LIKE ?";
             params.push(`%${district}%`);
         }
@@ -36,15 +33,15 @@ router.get('/', (req, res) => {
 
         query += " ORDER BY created_at DESC LIMIT 50";
 
-        const users = db.prepare(query).all(params);
+        const [rows] = await db.execute(query, params);
 
         // Parse JSON fields safely
-        const processedUsers = users.map(user => {
+        const processedUsers = rows.map(user => {
             let districts = [];
             let categories = [];
             try {
-                districts = user.districts ? (typeof user.districts === 'string' && user.districts.startsWith('[') ? JSON.parse(user.districts) : [user.districts]) : [];
-                categories = user.categories ? (typeof user.categories === 'string' && user.categories.startsWith('[') ? JSON.parse(user.categories) : [user.categories]) : [];
+                districts = user.districts ? (typeof user.districts === 'string' && user.districts.startsWith('[') ? JSON.parse(user.districts) : (Array.isArray(user.districts) ? user.districts : [user.districts])) : [];
+                categories = user.categories ? (typeof user.categories === 'string' && user.categories.startsWith('[') ? JSON.parse(user.categories) : (Array.isArray(user.categories) ? user.categories : [user.categories])) : [];
             } catch (e) {
                 console.warn(`Failed to parse fields for user ${user.id}`, e);
                 districts = user.districts ? [user.districts] : [];
@@ -60,27 +57,29 @@ router.get('/', (req, res) => {
 });
 
 // Get public user profile by ID
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
     const { id } = req.params;
     console.log(`Fetching user profile for ID: ${id}`);
 
     try {
-        const user = db.prepare(`
+        const [rows] = await db.execute(`
             SELECT id, email, type, business_name, organization_name, contact_name, 
                    phone, ein, certification_number, districts, categories, business_description, 
                    capability_statement, website, address, city, state, zip, years_in_business, certifications, created_at 
             FROM users WHERE id = ?
-        `).get(id);
+        `, [id]);
 
-        if (!user) {
+        if (rows.length === 0) {
             console.warn(`User with ID ${id} not found in database.`);
             return res.status(404).json({ error: 'User not found' });
         }
 
+        const user = rows[0];
+
         // Parse JSON fields safely
         try {
-            user.districts = user.districts ? (typeof user.districts === 'string' && user.districts.startsWith('[') ? JSON.parse(user.districts) : [user.districts]) : [];
-            user.categories = user.categories ? (typeof user.categories === 'string' && user.categories.startsWith('[') ? JSON.parse(user.categories) : [user.categories]) : [];
+            user.districts = user.districts ? (typeof user.districts === 'string' && user.districts.startsWith('[') ? JSON.parse(user.districts) : (Array.isArray(user.districts) ? user.districts : [user.districts])) : [];
+            user.categories = user.categories ? (typeof user.categories === 'string' && user.categories.startsWith('[') ? JSON.parse(user.categories) : (Array.isArray(user.categories) ? user.categories : [user.categories])) : [];
         } catch (e) {
             console.warn(`Failed to parse fields for user ${user.id}`, e);
             user.districts = user.districts ? [user.districts] : [];
@@ -95,30 +94,23 @@ router.get('/:id', (req, res) => {
 });
 
 // Update user profile
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const {
         business_name, organization_name, contact_name, phone,
         website, address, city, state, zip, description,
-        certifications, years_in_business, districts, categories,
-        email_notifications, weekly_reports, deadline_alerts
+        certifications, years_in_business, districts, categories
     } = req.body;
 
-    // Use business_description or description
     const bizDesc = description || req.body.business_description;
 
     try {
         // Fetch existing user to prevent overwriting with nulls
-        const existingUser = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
-        if (!existingUser) {
+        const [existingRows] = await db.execute('SELECT * FROM users WHERE id = ?', [id]);
+        if (existingRows.length === 0) {
             return res.status(404).json({ error: 'User not found' });
         }
-
-        // Merge existing data with new data (preserving existing if new is undefined/null)
-        // For partial updates, we check if key exists in body. 
-        // But body might be partial. using || existing might keep old value if we want to clear it?
-        // Assuming we want to update only provided fields or use existing.
-        // If the frontend explicitly sends null, we might want to clear it, but here we assume missing in payload means "keep existing".
+        const existingUser = existingRows[0];
 
         const safeVal = (newVal, oldVal) => (newVal !== undefined ? newVal : oldVal);
 
@@ -146,30 +138,26 @@ router.put('/:id', (req, res) => {
             newCategories = Array.isArray(categories) ? JSON.stringify(categories) : categories;
         }
 
-        const stmt = db.prepare(`
+        const sql = `
             UPDATE users SET 
                 business_name = ?, organization_name = ?, contact_name = ?, phone = ?,
                 website = ?, address = ?, city = ?, state = ?, zip = ?,
                 business_description = ?, certifications = ?, years_in_business = ?,
                 districts = ?, categories = ?
             WHERE id = ?
-        `);
+        `;
 
-        const result = stmt.run(
+        const [result] = await db.execute(sql, [
             newBusinessName, newOrgName, newContactName, newPhone,
             newWebsite, newAddress, newCity, newState, newZip,
             newDesc, newCerts, newYears,
             newDistricts, newCategories,
             id
-        );
-
-        if (result.changes === 0) {
-            return res.status(404).json({ error: 'User not found' });
-        }
+        ]);
 
         // Fetch updated user to return
-        const updatedUser = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
-        res.json(updatedUser);
+        const [updatedRows] = await db.execute('SELECT * FROM users WHERE id = ?', [id]);
+        res.json(updatedRows[0]);
     } catch (error) {
         console.error('Update user error:', error);
         res.status(500).json({ error: error.message });

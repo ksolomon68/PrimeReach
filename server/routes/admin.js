@@ -1,5 +1,6 @@
 const express = require('express');
 const { db } = require('../database');
+const bcrypt = require('bcryptjs');
 const router = express.Router();
 
 // Root admin endpoint
@@ -9,14 +10,10 @@ router.get('/', (req, res) => {
 
 // Middleware to check if user is admin
 const requireAdmin = (req, res, next) => {
-    // For now, we'll use a simple header-based auth
-    // In production, you'd use JWT tokens or sessions
     const adminEmail = req.headers['x-admin-email'];
     console.log(`Admin middleware: ${req.method} ${req.originalUrl}`);
-    console.log(`Headers:`, req.headers);
-    console.log(`Admin Email: ${adminEmail}`);
 
-    const isAdminEmail = adminEmail && (adminEmail.includes('admin') || adminEmail === 'ks@evobrand.net');
+    const isAdminEmail = adminEmail && (adminEmail.toLowerCase().includes('admin') || adminEmail === 'ks@evobrand.net');
 
     if (!isAdminEmail) {
         console.log('Admin access denied');
@@ -27,29 +24,29 @@ const requireAdmin = (req, res, next) => {
 };
 
 // Get admin dashboard data
-router.get('/dashboard', requireAdmin, (req, res) => {
+router.get('/dashboard', requireAdmin, async (req, res) => {
     try {
         // Get stats
-        const totalVendors = db.prepare("SELECT COUNT(*) as count FROM users WHERE type = 'vendor'").get().count;
-        const totalAgencies = db.prepare("SELECT COUNT(*) as count FROM users WHERE type = 'agency'").get().count;
-        const pendingApprovals = db.prepare("SELECT COUNT(*) as count FROM opportunities WHERE status = 'pending'").get().count;
+        const [[vendorCount]] = await db.execute("SELECT COUNT(*) as count FROM users WHERE type = 'vendor'");
+        const [[agencyCount]] = await db.execute("SELECT COUNT(*) as count FROM users WHERE type = 'agency'");
+        const [[pendingCount]] = await db.execute("SELECT COUNT(*) as count FROM opportunities WHERE status = 'pending'");
 
         // Get pending opportunities
-        const pendingOpportunities = db.prepare(`
+        const [pendingOpportunities] = await db.execute(`
             SELECT o.*, u.business_name as posted_by_name, u.email as posted_by_email
             FROM opportunities o
             LEFT JOIN users u ON o.posted_by = u.id
             WHERE o.status = 'pending'
             ORDER BY o.posted_date DESC
-        `).all();
+        `);
 
-        // Get recent activity (simplified)
-        const recentUsers = db.prepare(`
+        // Get recent activity (recent registrations)
+        const [recentUsers] = await db.execute(`
             SELECT email, type, created_at
             FROM users
             ORDER BY created_at DESC
             LIMIT 5
-        `).all();
+        `);
 
         const recentActivity = recentUsers.map(user => ({
             type: user.type === 'vendor' ? 'user_reg' : 'agency_reg',
@@ -59,9 +56,9 @@ router.get('/dashboard', requireAdmin, (req, res) => {
 
         const data = {
             stats: {
-                totalVendors,
-                totalAgencies,
-                pendingApprovals,
+                totalVendors: vendorCount.count,
+                totalAgencies: agencyCount.count,
+                pendingApprovals: pendingCount.count,
                 siteUptime: '99.9%'
             },
             pendingOpportunities,
@@ -70,36 +67,37 @@ router.get('/dashboard', requireAdmin, (req, res) => {
 
         res.json(data);
     } catch (error) {
+        console.error('Admin dashboard error:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
 // Get all users for management
-router.get('/users', requireAdmin, (req, res) => {
+router.get('/users', requireAdmin, async (req, res) => {
     try {
-        const users = db.prepare(`
+        const [users] = await db.execute(`
             SELECT id, email, type, business_name, organization_name, contact_name, 
                    phone, ein, created_at
             FROM users
             ORDER BY created_at DESC
-        `).all();
+        `);
 
         res.json(users);
     } catch (error) {
+        console.error('Admin fetch users error:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// Update user status (Legacy, keeping for compatibility but will be superseded by PUT /users/:id)
-router.put('/users/:id/status', requireAdmin, (req, res) => {
+// Update user status
+router.put('/users/:id/status', requireAdmin, async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
     try {
-        const stmt = db.prepare('UPDATE users SET status = ? WHERE id = ?');
-        const result = stmt.run(status, id);
+        const [result] = await db.execute('UPDATE users SET status = ? WHERE id = ?', [status, id]);
 
-        if (result.changes === 0) {
+        if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'User not found' });
         }
 
@@ -110,7 +108,6 @@ router.put('/users/:id/status', requireAdmin, (req, res) => {
 });
 
 // Create new user
-const bcrypt = require('bcryptjs');
 router.post('/users', requireAdmin, async (req, res) => {
     const { email, password, type, business_name, organization_name, status } = req.body;
 
@@ -120,15 +117,23 @@ router.post('/users', requireAdmin, async (req, res) => {
 
     try {
         const password_hash = await bcrypt.hash(password, 10);
-        const stmt = db.prepare(`
+        const sql = `
             INSERT INTO users (email, password_hash, type, business_name, organization_name, status)
             VALUES (?, ?, ?, ?, ?, ?)
-        `);
-        const result = stmt.run(email, password_hash, type, business_name || null, organization_name || null, status || 'active');
+        `;
+        const [result] = await db.execute(sql, [
+            email,
+            password_hash,
+            type,
+            business_name || null,
+            organization_name || null,
+            status || 'active'
+        ]);
 
-        res.status(201).json({ id: result.lastInsertRowid, email, type });
+        res.status(201).json({ id: result.insertId, email, type });
     } catch (error) {
-        if (error.message.includes('UNIQUE constraint failed')) {
+        console.error('Admin create user error:', error);
+        if (error.code === 'ER_DUP_ENTRY' || error.message.includes('UNIQUE')) {
             return res.status(400).json({ error: 'Email already exists' });
         }
         res.status(500).json({ error: error.message });
@@ -136,12 +141,13 @@ router.post('/users', requireAdmin, async (req, res) => {
 });
 
 // Get user by ID
-router.get('/users/:id', requireAdmin, (req, res) => {
+router.get('/users/:id', requireAdmin, async (req, res) => {
     const { id } = req.params;
     try {
-        const user = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
-        if (!user) return res.status(404).json({ error: 'User not found' });
+        const [rows] = await db.execute('SELECT * FROM users WHERE id = ?', [id]);
+        if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
 
+        const user = rows[0];
         const { password_hash, ...userWithoutPassword } = user;
         res.json(userWithoutPassword);
     } catch (error) {
@@ -155,7 +161,6 @@ router.put('/users/:id', requireAdmin, async (req, res) => {
     const data = req.body;
 
     try {
-        // Build dynamic update query
         const allowedFields = ['business_name', 'organization_name', 'contact_name', 'phone', 'ein', 'status', 'type'];
         const updates = [];
         const params = [];
@@ -178,10 +183,10 @@ router.put('/users/:id', requireAdmin, async (req, res) => {
         }
 
         params.push(id);
-        const stmt = db.prepare(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`);
-        const result = stmt.run(...params);
+        const sql = `UPDATE users SET ${updates.join(', ')} WHERE id = ?`;
+        const [result] = await db.execute(sql, params);
 
-        if (result.changes === 0) {
+        if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'User not found' });
         }
 
@@ -192,11 +197,11 @@ router.put('/users/:id', requireAdmin, async (req, res) => {
 });
 
 // Delete user
-router.delete('/users/:id', requireAdmin, (req, res) => {
+router.delete('/users/:id', requireAdmin, async (req, res) => {
     const { id } = req.params;
     try {
-        const result = db.prepare('DELETE FROM users WHERE id = ?').run(id);
-        if (result.changes === 0) {
+        const [result] = await db.execute('DELETE FROM users WHERE id = ?', [id]);
+        if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'User not found' });
         }
         res.json({ success: true });

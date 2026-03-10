@@ -36,12 +36,12 @@ router.post('/register', async (req, res) => {
     try {
         const password_hash = await bcrypt.hash(password, 10);
 
-        const stmt = db.prepare(`
+        const sql = `
             INSERT INTO users (email, password_hash, type, business_name, contact_name, phone, ein, certification_number, organization_name, address, city, zip, website, status)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')
-        `);
+        `;
 
-        const result = stmt.run(
+        const [result] = await db.execute(sql, [
             email,
             password_hash,
             type,
@@ -55,10 +55,11 @@ router.post('/register', async (req, res) => {
             profileData.city || null,
             profileData.zip || profileData.zipCode || profileData.zip_code || null,
             profileData.website || null
-        );
+        ]);
 
-        console.log(`CaltransBizConnect Auth: Registration successful for ${email}, ID: ${result.lastInsertRowid}`);
-        const newUser = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid);
+        console.log(`CaltransBizConnect Auth: Registration successful for ${email}, ID: ${result.insertId}`);
+        const [rows] = await db.execute('SELECT * FROM users WHERE id = ?', [result.insertId]);
+        const newUser = rows[0];
         const { password_hash: _, ...userWithoutPassword } = newUser;
 
         res.status(201).json({
@@ -68,7 +69,7 @@ router.post('/register', async (req, res) => {
         });
     } catch (error) {
         console.error(`CaltransBizConnect Auth Error during registration for ${email}:`, error);
-        if (error.message.includes('UNIQUE constraint failed')) {
+        if (error.code === 'ER_DUP_ENTRY' || (error.message && error.message.includes('UNIQUE constraint failed'))) {
             return res.status(409).json({
                 success: false,
                 message: 'Email already exists'
@@ -97,14 +98,12 @@ router.post('/login', async (req, res) => {
     console.log(`CaltransBizConnect Auth: Login attempt for ${email}`);
 
     try {
-        const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+        const [rows] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
+        const user = rows[0];
         const match = user ? await bcrypt.compare(password, user.password_hash) : false;
 
         if (!user || !match) {
             console.warn(`CaltransBizConnect Auth Fail: [${email}] userFound=${!!user}, passwordMatch=${match}`);
-            if (user && !match) {
-                console.warn(`CaltransBizConnect Auth Hint: Password mismatch for ${email}. Verify hash in DB against bcryptjs.`);
-            }
             return res.status(401).json({
                 success: false,
                 message: 'Invalid email or password'
@@ -134,7 +133,7 @@ router.put('/:id', async (req, res) => {
     const profileData = req.body;
 
     try {
-        const stmt = db.prepare(`
+        const sql = `
             UPDATE users SET 
                 business_name = COALESCE(?, business_name),
                 contact_name = COALESCE(?, contact_name),
@@ -154,9 +153,9 @@ router.put('/:id', async (req, res) => {
                 business_description = COALESCE(?, business_description),
                 certifications = COALESCE(?, certifications)
             WHERE id = ?
-        `);
+        `;
 
-        stmt.run(
+        await db.execute(sql, [
             profileData.businessName || profileData.business_name || null,
             profileData.contactName || profileData.contact_name || null,
             profileData.phone || null,
@@ -175,12 +174,19 @@ router.put('/:id', async (req, res) => {
             profileData.businessDescription || profileData.business_description || null,
             profileData.certifications || null,
             id
-        );
+        ]);
 
-        const updatedUser = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
+        const [rows] = await db.execute('SELECT * FROM users WHERE id = ?', [id]);
+        const updatedUser = rows[0];
+
+        if (!updatedUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
         const { password_hash, ...userWithoutPassword } = updatedUser;
         res.json(userWithoutPassword);
     } catch (error) {
+        console.error('Profile update error:', error);
         res.status(500).json({ error: error.message });
     }
 });

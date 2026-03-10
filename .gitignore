@@ -3,10 +3,9 @@ node_modules/
 dist/
 build/
 
-# Local databases (Removed to allow tracking per user request)
-# *.db
-# *.sqlite
-# server/data.db
+# Databases
+data.db
+server/data.db
 server/data1.db
 server/*.db-shm
 server/*.db-wal
