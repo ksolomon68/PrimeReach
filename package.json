@@ -29,7 +29,5 @@
     "mysql2": "^3.11.5",
     "playwright": "^1.58.1"
   },
-  "devDependencies": {
-    "better-sqlite3": "^11.7.0"
-  }
+  "devDependencies": {}
 }
