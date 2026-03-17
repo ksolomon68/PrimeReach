@@ -76,6 +76,7 @@ const startServer = async () => {
         app.use('/api/admin', require('./routes/admin'));
         app.use('/api/upload-cs', require('./routes/upload'));
         app.use('/api/vendors', require('./routes/vendors'));
+        app.use('/api/cms', require('./routes/cms'));
 
         // Health Check
         app.get('/api/health', async (req, res) => {

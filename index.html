@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="css/accessibility-widget.css">
 </head>
 
-<body>
+<body data-cms-page="index">
   <!-- Skip to main content link for accessibility -->
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
@@ -47,10 +47,12 @@
     <!-- Hero Section -->
     <section class="hero" aria-labelledby="hero-title">
       <div class="container">
-        <h1 id="hero-title" class="hero-title reveal-slide-up">
+        <h1 id="hero-title" class="hero-title reveal-slide-up"
+            data-cms-field="hero.title">
           Build. Compete. Win.
         </h1>
-        <p class="hero-subtitle reveal-slide-up" data-delay="100ms">
+        <p class="hero-subtitle reveal-slide-up" data-delay="100ms"
+           data-cms-field="hero.subtitle">
           Caltrans delivers statewide supportive services to help SBEs strengthen readiness for transportation
           contracting opportunities through structured training, technical assistance, and resource navigation.
         </p>
@@ -58,12 +60,16 @@
         <!-- Dual Pathway Cards -->
         <div class="pathway-cards">
           <!-- SBE/Vendor Pathway -->
-          <a href="for-vendors.html" class="pathway-card reveal-slide-left" data-delay="200ms">
+          <a href="for-vendors.html" class="pathway-card reveal-slide-left" data-delay="200ms"
+             data-cms-field="pathway-cards.vendorCard.href" data-cms-type="href">
             <div class="pathway-icon">
-              <img src="images/vendor-pathway.jpg" alt="Construction professionals reviewing plans on site">
+              <img src="images/vendor-pathway.jpg" alt="Construction professionals reviewing plans on site"
+                   data-cms-field="pathway-cards.vendorCard.image" data-cms-type="src">
             </div>
-            <h2 id="vendor-pathway-title" class="pathway-title">For Vendors & SBEs</h2>
-            <p class="pathway-description">
+            <h2 id="vendor-pathway-title" class="pathway-title"
+                data-cms-field="pathway-cards.vendorCard.title">For Vendors & SBEs</h2>
+            <p class="pathway-description"
+               data-cms-field="pathway-cards.vendorCard.description">
               Find contracting opportunities, upload your capability statement, and connect with agencies seeking your
               expertise.
             </p>
@@ -72,12 +78,16 @@
           </a>
 
           <!-- Agency Pathway -->
-          <a href="for-agencies.html" class="pathway-card reveal-slide-right" data-delay="200ms">
+          <a href="for-agencies.html" class="pathway-card reveal-slide-right" data-delay="200ms"
+             data-cms-field="pathway-cards.agencyCard.href" data-cms-type="href">
             <div class="pathway-icon">
-              <img src="images/agency-pathway.jpg" alt="Construction professional reviewing blueprints">
+              <img src="images/agency-pathway.jpg" alt="Construction professional reviewing blueprints"
+                   data-cms-field="pathway-cards.agencyCard.image" data-cms-type="src">
             </div>
-            <h2 id="agency-pathway-title" class="pathway-title">For Agencies & Primes</h2>
-            <p class="pathway-description">
+            <h2 id="agency-pathway-title" class="pathway-title"
+                data-cms-field="pathway-cards.agencyCard.title">For Agencies & Primes</h2>
+            <p class="pathway-description"
+               data-cms-field="pathway-cards.agencyCard.description">
               Post structured opportunities, find qualified Small Business Enterprises, and manage your contracting
               needs efficiently.
             </p>
@@ -90,7 +100,8 @@
 
     <!-- Value Proposition Section -->
     <section class="container" style="padding: var(--space-4xl) var(--container-padding);">
-      <h2 id="why-choose" class="text-center mb-lg reveal-fade">Why Choose CaltransBizConnect?</h2>
+      <h2 id="why-choose" class="text-center mb-lg reveal-fade"
+          data-cms-field="value-tiles.heading">Why Choose CaltransBizConnect?</h2>
 
       <div class="action-tiles">
         <!-- Feature Card 1: Bid Readiness Support -->
@@ -168,10 +179,12 @@
 
     <!-- Events Section -->
     <section id="events" class="container reveal-fade" style="padding-bottom: var(--space-4xl);">
-      <h2 class="text-center mb-xl">Upcoming Events</h2>
+      <h2 class="text-center mb-xl"
+          data-cms-field="events.heading">Upcoming Events</h2>
       <div class="iframe-cropper-container">
         <iframe src="https://dot.ca.gov/programs/civil-rights/caltrans-events-calendar"
-          title="Caltrans Events Calendar"></iframe>
+          title="Caltrans Events Calendar"
+          data-cms-field="events.iframeSrc" data-cms-type="iframe-src"></iframe>
       </div>
       <p class="text-center mt-lg">
         <a href="https://dot.ca.gov/programs/civil-rights/caltrans-events-calendar" target="_blank"
@@ -184,7 +197,8 @@
     <section class="container reveal-slide-up" style="padding: var(--space-2xl) var(--container-padding);">
       <div
         style="background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%); color: white; padding: var(--space-3xl); border-radius: var(--border-radius-lg); box-shadow: var(--shadow-xl);">
-        <h2 class="mb-lg" style="color: white; font-size: var(--font-size-3xl);">Get Started Today</h2>
+        <h2 class="mb-lg" style="color: white; font-size: var(--font-size-3xl);"
+            data-cms-field="get-started.heading">Get Started Today</h2>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-xl);">
           <div>
             <h3 class="mb-sm" style="color: white;">New to the Platform?</h3>
@@ -258,13 +272,13 @@
           <h3>Forms & Services</h3>
           <ul>
             <li><a href="https://app.smartsheet.com/b/form/b0a6941664cd453da6912c4c96d83530" target="_blank"
-                rel="noopener noreferrer">Service Request Form <span class="sr-only">(opens in new window)</span>&nearrow;</a></li>
+                rel="noopener noreferrer" data-cms-smartsheet="serviceRequest">Service Request Form <span class="sr-only">(opens in new window)</span>&nearrow;</a></li>
             <li><a href="https://app.smartsheet.com/b/form/5a91fd621bf6473cbe2e8dd2a5b1ecdd" target="_blank"
-                rel="noopener noreferrer">Text Notifications <span class="sr-only">(opens in new window)</span>&nearrow;</a></li>
+                rel="noopener noreferrer" data-cms-smartsheet="textNotifications">Text Notifications <span class="sr-only">(opens in new window)</span>&nearrow;</a></li>
             <li><a href="https://app.smartsheet.com/b/form/d10fcca77e37449abbf81c035b7945f6" target="_blank"
-                rel="noopener noreferrer">BDP Interest Form <span class="sr-only">(opens in new window)</span>&nearrow;</a></li>
+                rel="noopener noreferrer" data-cms-smartsheet="bdpInterest">BDP Interest Form <span class="sr-only">(opens in new window)</span>&nearrow;</a></li>
             <li><a href="https://app.smartsheet.com/b/form/2070c1554666487584e007173d2208ed" target="_blank"
-                rel="noopener noreferrer">Workforce Development <span class="sr-only">(opens in new window)</span>&nearrow;</a></li>
+                rel="noopener noreferrer" data-cms-smartsheet="workforceDevelopment">Workforce Development <span class="sr-only">(opens in new window)</span>&nearrow;</a></li>
           </ul>
         </div>
 
@@ -275,7 +289,8 @@
             <li><a href="https://dot.ca.gov/programs/civil-rights" target="_blank" rel="noopener noreferrer">Civil Rights <span class="sr-only">(opens in new window)</span>&nearrow;</a></li>
             <li><a href="https://dot.ca.gov/programs/civil-rights/small-business-and-workforce-development"
                 target="_blank" rel="noopener noreferrer">SB & Workforce Dev <span class="sr-only">(opens in new window)</span>&nearrow;</a></li>
-            <li><a href="https://ccop.dot.ca.gov/" target="_blank" rel="noopener noreferrer">Contracting Portal <span class="sr-only">(opens in new window)</span>&nearrow;</a>
+            <li><a href="https://ccop.dot.ca.gov/" target="_blank" rel="noopener noreferrer"
+                data-cms-portal="ccop">Contracting Portal <span class="sr-only">(opens in new window)</span>&nearrow;</a>
             </li>
             <li><a href="https://dot.ca.gov/programs/construction/construction-mentor-protege-program" target="_blank"
                 rel="noopener noreferrer">Mentor Protege <span class="sr-only">(opens in new window)</span>&nearrow;</a></li>
@@ -298,8 +313,8 @@
       </div>
 
       <div class="footer-bottom">
-        <p>&copy; 2026 California Department of Transportation. All rights reserved.</p>
-        <p>CaltransBizConnect - Small Business Enterprise Supportive Services Business Development Program</p>
+        <p data-cms-copyright>&copy; 2026 California Department of Transportation. All rights reserved.</p>
+        <p data-cms-global="site.programName">CaltransBizConnect - Small Business Enterprise Supportive Services Business Development Program</p>
       </div>
     </div>
   </footer>
@@ -311,6 +326,7 @@
   <script src="js/utils/animations.js"></script>
   <script src="js/utils/data-resilience.js"></script>
   <script src="js/accessibility-widget.js"></script>
+  <script src="js/cms-renderer.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async function () {
       // Fetch latest opportunities

@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="css/accessibility-widget.css">
 </head>
 
-<body>
+<body data-cms-page="for-vendors">
     <a href="#main-content" class="skip-link">Skip to main content</a>
 
     <header class="site-header" role="banner">
@@ -41,8 +41,8 @@
     <main id="main-content">
         <section class="hero hero-inner">
             <div class="container">
-                <h1 class="hero-title">For Vendors & Small Business Enterprises</h1>
-                <p class="hero-subtitle">
+                <h1 class="hero-title" data-cms-field="hero.title">For Vendors & Small Business Enterprises</h1>
+                <p class="hero-subtitle" data-cms-field="hero.subtitle">
                     Connect with Caltrans contracting opportunities, showcase your capabilities, and grow your business
                     through our streamlined platform.
                 </p>
@@ -54,7 +54,7 @@
         </section>
 
         <section class="container" style="padding: var(--space-4xl) var(--container-padding);">
-            <h2 class="text-center mb-xl">How CaltransBizConnect Helps You Succeed</h2>
+            <h2 class="text-center mb-xl" data-cms-field="how-we-help.heading">How CaltransBizConnect Helps You Succeed</h2>
 
             <div
                 style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-2xl); margin-bottom: var(--space-4xl);">
@@ -107,7 +107,7 @@
                 </ol>
             </div>
 
-            <h2 id="get-started" class="mb-lg">What You Need to Get Started</h2>
+            <h2 id="get-started" class="mb-lg" data-cms-field="requirements.heading">What You Need to Get Started</h2>
             <div class="alert alert-info mb-xl">
                 <strong>Required Information:</strong>
                 <ul style="margin-top: var(--space-md); margin-bottom: 0;">
@@ -274,6 +274,7 @@
     <script src="js/main.js"></script>
     <script src="js/auth.js"></script>
   <script src="js/accessibility-widget.js"></script>
+  <script src="js/cms-renderer.js"></script>
 </body>
 
 </html>

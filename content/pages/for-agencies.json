@@ -1,0 +1,92 @@
+{
+  "slug": "for-agencies",
+  "isSystem": true,
+  "updatedAt": "2026-03-17T19:30:31.291Z",
+  "meta": {
+    "title": "For Agencies & Prime Contractors - CaltransBizConnect",
+    "description": "Agencies and prime contractors: Post opportunities, find qualified Small Business Enterprises, and manage your contracting needs."
+  },
+  "header": {
+    "backgroundImage": "",
+    "logoImage": "images/caltrans-logo.png",
+    "logoAlt": "Caltrans"
+  },
+  "sections": [
+    {
+      "id": "hero",
+      "type": "hero-inner",
+      "fields": {
+        "title": "For Agencies & Prime Contractors",
+        "subtitle": "Find qualified Small Business Enterprises, post structured opportunities, and streamline your contractor outreach with CaltransBizConnect.",
+        "primaryButton": {
+          "label": "Create Agency Account",
+          "href": "register-agency.html"
+        },
+        "secondaryButton": {
+          "label": "Search Vendors",
+          "href": "search-vendors.html"
+        }
+      }
+    },
+    {
+      "id": "how-we-help",
+      "type": "card-grid",
+      "fields": {
+        "heading": "How CaltransBizConnect Helps Agencies",
+        "cards": [
+          {
+            "id": "post-opportunities",
+            "title": "Post Structured Opportunities",
+            "body": "Create detailed opportunity listings that attract the most qualified SBE vendors for your project requirements."
+          },
+          {
+            "id": "find-vendors",
+            "title": "Find Qualified Vendors",
+            "body": "Search our directory of pre-screened SBEs by district, certification, and work category to find the right partners."
+          },
+          {
+            "id": "manage-contracts",
+            "title": "Manage Contracting",
+            "body": "Track applications, communicate with vendors, and manage your contracting workflow all in one place."
+          }
+        ]
+      }
+    },
+    {
+      "id": "posting-requirements",
+      "type": "text-block",
+      "fields": {
+        "heading": "Opportunity Posting Requirements",
+        "body": "All agency opportunity postings must include a clear project description, required certifications, district location, estimated value, and submission deadline. This ensures vendors can accurately assess fit and submit complete proposals."
+      }
+    },
+    {
+      "id": "cta",
+      "type": "cta-banner",
+      "fields": {
+        "heading": "Start Finding Qualified SBEs",
+        "text": "Register your agency today to post opportunities and connect with our SBE network.",
+        "columns": [
+          {
+            "buttonLabel": "Create Agency Account",
+            "buttonHref": "register-agency.html"
+          },
+          {
+            "buttonLabel": "Search Vendors",
+            "buttonHref": "search-vendors.html"
+          }
+        ]
+      }
+    },
+    {
+      "id": "hero-1773775831281",
+      "type": "hero",
+      "fields": {
+        "title": "",
+        "subtitle": "",
+        "backgroundImage": "",
+        "backgroundImageAlt": ""
+      }
+    }
+  ]
+}
