@@ -85,7 +85,7 @@
             </section>
 
             <div class="vendor-list-container">
-                <div id="appliedVendorsList">
+                <div id="appliedSmall BusinessesList">
                     <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
                         Loading applications...
                     </div>
@@ -134,11 +134,11 @@
             }
 
             Navigation.init('agency');
-            loadAppliedVendors(opportunityId);
+            loadAppliedSmall Businesses(opportunityId);
         });
 
-        async function loadAppliedVendors(id) {
-            const listEl = document.getElementById('appliedVendorsList');
+        async function loadAppliedSmall Businesses(id) {
+            const listEl = document.getElementById('appliedSmall BusinessesList');
             try {
                 // Fetch opportunity details for the title
                 const opp = await DataService.fetch(`/opportunities/${id}`);
@@ -148,15 +148,15 @@
 
                 // Fetch applications
                 const apps = await DataService.fetch(`/applications/opportunity/${id}`);
-                renderVendors(apps);
+                renderSmall Businesses(apps);
             } catch (error) {
                 console.error('Error loading applications:', error);
                 listEl.innerHTML = '<div style="color: var(--color-error); text-align: center; padding: 2rem;">Error loading applications.</div>';
             }
         }
 
-        function renderVendors(apps) {
-            const listEl = document.getElementById('appliedVendorsList');
+        function renderSmall Businesses(apps) {
+            const listEl = document.getElementById('appliedSmall BusinessesList');
             if (!apps || apps.length === 0) {
                 listEl.innerHTML = '<div class="content-card" style="text-align: center; padding: 3rem;">No applications received yet.</div>';
                 return;
@@ -165,7 +165,7 @@
             listEl.innerHTML = apps.map(app => `
                 <div class="vendor-item-card">
                     <div class="vendor-info-main">
-                        <h3>${app.business_name || app.vendor_name || 'Anonymous Vendor'}</h3>
+                        <h3>${app.business_name || app.vendor_name || 'Anonymous Small Business'}</h3>
                         <div class="vendor-meta">
                             <span>👤 ${app.contact_name || 'N/A'}</span>
                             <span>📅 Applied: ${new Date(app.applied_date).toLocaleDateString()}</span>

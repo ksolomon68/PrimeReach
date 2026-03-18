@@ -253,7 +253,7 @@
                         </div>
                         <div class="stat-card">
                             <div class="stat-number">248</div>
-                            <div class="stat-label">Registered Vendors</div>
+                            <div class="stat-label">Registered Small Businesses</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-number">15</div>
@@ -328,7 +328,7 @@
     <script src="js/utils/data-resilience.js"></script>
     <script src="js/components/navigation.js"></script>
     <script>
-        // Initialize Agency dashboard
+        // Initialize Prime Contractor dashboard
         document.addEventListener('DOMContentLoaded', async function () {
             setTimeout(() => {
                 Navigation.init('agency');
@@ -342,7 +342,7 @@
 
             try {
                 // Set organization name in welcome section
-                const orgName = user.organization_name || user.business_name || user.contact_name || 'Agency Partner';
+                const orgName = user.organization_name || user.business_name || user.contact_name || 'Prime Contractor Partner';
                 const welcomeEl = document.querySelector('.hero-welcome h1');
                 if (welcomeEl) {
                     welcomeEl.textContent = `Welcome, ${orgName}`;

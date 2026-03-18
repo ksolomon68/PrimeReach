@@ -215,8 +215,8 @@
                 <div class="form-group" style="margin-bottom: 1rem;">
                     <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Account Type</label>
                     <select id="modalUserType" class="form-input" style="width: 100%;">
-                        <option value="vendor">Vendor</option>
-                        <option value="agency">Agency</option>
+                        <option value="vendor">Small Business</option>
+                        <option value="agency">Prime Contractor</option>
                         <option value="admin">Administrator</option>
                     </select>
                 </div>
@@ -226,7 +226,7 @@
                         <option value="active">Active</option>
                         <option value="pending">Pending Verification</option>
                         <option value="suspended">Suspended</option>
-                        <option value="verified">Verified Vendor</option>
+                        <option value="verified">Verified Small Business</option>
                     </select>
                 </div>
                 <div style="display: flex; gap: 1rem; justify-content: space-between;">
@@ -300,8 +300,8 @@
                 const status = u.status || 'active';
 
                 const typeBadge = u.type === 'vendor'
-                    ? '<span class="badge badge-secondary">Vendor</span>'
-                    : (u.type === 'agency' ? '<span class="badge badge-primary">Agency</span>'
+                    ? '<span class="badge badge-secondary">Small Business</span>'
+                    : (u.type === 'agency' ? '<span class="badge badge-primary">Prime Contractor</span>'
                         : '<span class="badge badge-outline">Admin</span>');
 
                 let statusColor = 'var(--color-success)';

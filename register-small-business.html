@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
         content="Create your vendor account on CaltransBizConnect to access contracting opportunities.">
-    <title>Vendor Registration - CaltransBizConnect</title>
+    <title>Small Business Registration - CaltransBizConnect</title>
     <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="css/design-system.css?v=2.0.4">
     <link rel="stylesheet" href="css/main.css?v=2.0.4">
@@ -23,15 +23,17 @@
             </a>
             <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false"><span></span></button>
             <nav class="main-nav" aria-label="Main navigation" role="navigation">
-                <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="opportunities.html">Opportunities</a></li>
-                    <li class="nav-has-dropdown">
-                      <a href="how-it-works.html">How It Works</a>
-                      <ul class="nav-dropdown">
-                        <li><a href="for-small-businesses.html">For Small Businesses</a></li>
-                        <li><a href="for-prime-contractors.html">For Prime Contractors</a></li>
-                      </ul>
+                                <ul>
+                  <li><a href="index.html">Home</a></li>
+                  <li><a href="for-small-businesses.html">Small Businesses</a></li>
+                  <li><a href="for-prime-contractors.html">Prime Contractors</a></li>
+                  <li><a href="opportunities.html">Opportunities</a></li>
+                  <li><a href="how-it-works.html">How It Works</a></li>
+                  <li><a href="resources.html">Resources</a></li>
+                  <li><a href="faq.html">FAQ</a></li>
+                  <li><a href="contact.html">Contact</a></li>
+                  <li><a href="login.html" class="btn btn-secondary btn-small">Log In</a></li>
+                </ul>
                     </li>
                     <li><a href="resources.html">Resources</a></li>
                     <li><a href="faq.html">FAQ</a></li>
@@ -45,7 +47,7 @@
     <main id="main-content" class="auth-page">
         <div class="auth-container">
             <div class="auth-header">
-                <h1>Create Your Vendor Account</h1>
+                <h1>Create Your Small Business Account</h1>
                 <p>Join CaltransBizConnect to access contracting opportunities</p>
             </div>
 
@@ -185,13 +187,13 @@
 
                         <div class="form-group">
                             <label class="checkbox-label">
-                                <input type="checkbox" id="isSBE" name="isSBE">
-                                <span>My business is SBE certified</span>
+                                <input type="checkbox" id="isSmall Business" name="isSmall Business">
+                                <span>My business is Small Business certified</span>
                             </label>
                         </div>
 
                         <div class="form-group" id="sbeNumberGroup" style="display: none;">
-                            <label for="sbeNumber" class="form-label">SBE Certification Number</label>
+                            <label for="sbeNumber" class="form-label">Small Business Certification Number</label>
                             <input type="text" id="sbeNumber" name="sbeNumber" class="form-input">
                         </div>
                     </fieldset>
@@ -256,7 +258,7 @@
                     <ul>
                         <li><a href="contact.html">Contact Us</a></li>
                         <li><a href="report-issue.html">Report Site Issue</a></li>
-                        <li><a href="mailto:SBEss@dot.ca.gov">SBEss@dot.ca.gov</a></li>
+                        <li><a href="mailto:Small Businessess@dot.ca.gov">Small Businessess@dot.ca.gov</a></li>
                     </ul>
                 </div>
 
@@ -299,14 +301,14 @@
                         <li><a href="https://www.californiaucp.com" target="_blank" rel="noopener noreferrer">California
                                 UCP &nearrow;</a></li>
                         <li><a href="https://www.ecfr.gov/current/title-49/subtitle-A/part-26" target="_blank"
-                                rel="noopener noreferrer">Federal SBE Regs &nearrow;</a></li>
+                                rel="noopener noreferrer">Federal Small Business Regs &nearrow;</a></li>
                     </ul>
                 </div>
             </div>
 
             <div class="footer-bottom">
                 <p>&copy; 2026 California Department of Transportation. All rights reserved.</p>
-                <p>CaltransBizConnect - Small Business Enterprise Supportive Services Business Development Program</p>
+                <p>CaltransBizConnect - Small Business Supportive Services Program</p>
             </div>
         </div>
     </footer>
@@ -315,8 +317,8 @@
     <script src="js/main.js"></script>
     <script src="js/auth.js"></script>
     <script>
-        // Show/hide SBE number field
-        document.getElementById('isSBE').addEventListener('change', function () {
+        // Show/hide Small Business number field
+        document.getElementById('isSmall Business').addEventListener('change', function () {
             document.getElementById('sbeNumberGroup').style.display = this.checked ? 'block' : 'none';
         });
     </script>
