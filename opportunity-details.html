@@ -345,7 +345,7 @@
             if (!currentOpportunity) return;
             const agencyId = currentOpportunity.posted_by || currentOpportunity.postedBy;
             if (agencyId) {
-                window.location.href = `agency-profile.html?id=${agencyId}`;
+                window.location.href = `prime-contractor-profile.html?id=${agencyId}`;
             } else {
                 alert('Agency information not available.');
             }
