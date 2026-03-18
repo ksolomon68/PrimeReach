@@ -116,11 +116,32 @@ async function login(email, password) {
     }
 }
 
-// Logout function
-window.logout = function () {
+// Logout function - clears session and calls API
+window.handleLogout = async function() {
+    try {
+        // Call server API to clear server-side session
+        await fetch(`${API_URL}/auth/logout`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include' // Include cookies if using session auth
+        });
+    } catch (error) {
+        console.warn('CaltransBizConnect: Logout API call failed (continuing anyway):', error);
+    }
+
+    // Clear all client-side storage
     localStorage.removeItem('caltrans_user');
-    window.location.href = 'index.html';
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userType');
+    sessionStorage.clear();
+
+    console.log('CaltransBizConnect: User session cleared');
+    // Redirect to login page
+    window.location.href = 'login.html';
 }
+
+// Keep backward compatibility
+window.logout = window.handleLogout;
 
 // Register vendor
 async function registerVendor(formData) {

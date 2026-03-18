@@ -145,6 +145,7 @@
                                 <option value="rejected" ${opp.status === 'rejected' ? 'selected' : ''}>Rejected</option>
                                 <option value="closed" ${opp.status === 'closed' ? 'selected' : ''}>Closed</option>
                             </select>
+                            <button class="btn btn-small btn-primary" onclick="viewOpportunity('${opp.id}')">View</button>
                             <button class="btn btn-small btn-primary" onclick="approveOpportunity('${opp.id}')">Approve</button>
                              <button class="btn btn-small btn-outline" onclick="editOpportunity('${opp.id}')">Edit</button>
                             <button class="btn btn-small btn-danger" onclick="deleteOpportunity('${opp.id}')">Delete</button>
@@ -158,6 +159,7 @@
                                 <option value="closed" ${opp.status === 'closed' ? 'selected' : ''}>Closed</option>
                                 <option value="awarded" ${opp.status === 'awarded' ? 'selected' : ''}>Awarded</option>
                             </select>
+                            <button class="btn btn-small btn-primary" onclick="viewOpportunity('${opp.id}')">View</button>
                             <button class="btn btn-small btn-outline" onclick="editOpportunity('${opp.id}')">Edit</button>
                         </div>
                     `;
@@ -221,6 +223,9 @@
             window.updateOpportunityStatus(id, 'published');
         };
 
+        window.viewOpportunity = function (opportunityId) {
+            window.location.href = `opportunity-details.html?id=${opportunityId}`;
+        };
 
         window.deleteOpportunity = async function (id) {
             if (!confirm('Are you sure you want to delete this opportunity? This action cannot be undone.')) return;

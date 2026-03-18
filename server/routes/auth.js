@@ -191,4 +191,17 @@ router.put('/:id', async (req, res) => {
     }
 });
 
+// Logout endpoint
+router.post('/logout', (req, res) => {
+    try {
+        // In a session-based auth system, we would clear server-side sessions here
+        // For now, client-side clears localStorage
+        console.log('CaltransBizConnect Auth: User logged out');
+        res.json({ success: true, message: 'Logged out successfully' });
+    } catch (error) {
+        console.error('Logout error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 module.exports = router;

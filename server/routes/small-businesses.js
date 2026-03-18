@@ -4,7 +4,7 @@ const fs = require('fs');
 const { db } = require('../database');
 const router = express.Router();
 
-// GET /api/vendors — search/list vendors (type=vendor users)
+// GET /api/small-businesses — search/list small businesses (type=vendor users)
 // Supports query params: district, category, search
 router.get('/', async (req, res) => {
     const { type, district, category, search } = req.query;
@@ -34,7 +34,7 @@ router.get('/', async (req, res) => {
 
         const [rows] = await db.execute(query, params);
 
-        const vendors = rows.map(user => {
+        const smallBusinesses = rows.map(user => {
             let districts = [], categories = [];
             try {
                 districts  = user.districts  ? (typeof user.districts  === 'string' && user.districts.startsWith('[')  ? JSON.parse(user.districts)  : [user.districts])  : [];
@@ -46,19 +46,19 @@ router.get('/', async (req, res) => {
             return { ...user, districts, categories };
         });
 
-        res.json(vendors);
+        res.json(smallBusinesses);
     } catch (error) {
-        console.error('Error fetching vendors:', error);
+        console.error('Error fetching small businesses:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// GET /api/vendors/:id/capability-statement — serve the PDF
+// GET /api/small-businesses/:id/capability-statement — serve the PDF
 router.get('/:id/capability-statement', async (req, res) => {
     const { id } = req.params;
     try {
         const [rows] = await db.execute('SELECT capability_statement FROM users WHERE id = ?', [id]);
-        if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
+        if (rows.length === 0) return res.status(404).json({ error: 'Small Business not found' });
 
         const csPath = rows[0].capability_statement;
         if (!csPath || !csPath.startsWith('/uploads/')) {
@@ -79,12 +79,12 @@ router.get('/:id/capability-statement', async (req, res) => {
     }
 });
 
-// DELETE /api/vendors/:id/capability-statement — remove the record (and optionally the file)
+// DELETE /api/small-businesses/:id/capability-statement — remove the record (and optionally the file)
 router.delete('/:id/capability-statement', async (req, res) => {
     const { id } = req.params;
     try {
         const [rows] = await db.execute('SELECT capability_statement FROM users WHERE id = ?', [id]);
-        if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
+        if (rows.length === 0) return res.status(404).json({ error: 'Small Business not found' });
 
         const csPath = rows[0].capability_statement;
 

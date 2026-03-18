@@ -161,6 +161,25 @@ async function initDatabase() {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         `);
 
+        // 6. Districts Table
+        console.log('CaltransBizConnect DB: Ensuring "districts" table exists...');
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS districts (
+                id VARCHAR(50) PRIMARY KEY,
+                name VARCHAR(100) NOT NULL,
+                region VARCHAR(100)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        `);
+
+        // 7. Work Categories Table
+        console.log('CaltransBizConnect DB: Ensuring "work_categories" table exists...');
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS work_categories (
+                id VARCHAR(100) PRIMARY KEY,
+                name VARCHAR(100) NOT NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        `);
+
         // Safe migrations — add columns that may be missing from existing tables
         console.log('CaltransBizConnect DB: Running safe column migrations...');
         const migrations = [
