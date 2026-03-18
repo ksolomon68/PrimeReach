@@ -25,10 +25,14 @@
             <nav class="main-nav" aria-label="Main navigation" role="navigation">
                 <ul>
                     <li><a href="index.html">Home</a></li>
-                    <li><a href="for-small-businesses.html">For Small Businesses</a></li>
-                    <li><a href="for-prime-contractors.html">For Prime Contractors</a></li>
                     <li><a href="opportunities.html">Opportunities</a></li>
-                    <li><a href="how-it-works.html" class="active" aria-current="page">How It Works</a></li>
+                    <li class="nav-has-dropdown">
+                      <a href="how-it-works.html" class="active" aria-current="page">How It Works</a>
+                      <ul class="nav-dropdown">
+                        <li><a href="for-small-businesses.html">For Small Businesses</a></li>
+                        <li><a href="for-prime-contractors.html">For Prime Contractors</a></li>
+                      </ul>
+                    </li>
                     <li><a href="resources.html">Resources</a></li>
                     <li><a href="faq.html">FAQ</a></li>
                     <li><a href="contact.html">Contact</a></li>
@@ -51,7 +55,7 @@
             <!-- For Small Businesses Section -->
             <div class="card mb-2xl">
                 <div class="card-header">
-                    <h2 class="card-title">For Small Businesses & Small Business Enterprises</h2>
+                    <h2 class="card-title">For Small Businesses</h2>
                 </div>
                 <div class="card-body">
                     <div style="display: grid; gap: var(--space-2xl);">
@@ -122,7 +126,7 @@
             <!-- For Prime Contractors Section -->
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">For Prime Contractors & Prime Contractors</h2>
+                    <h2 class="card-title">For Prime Contractors</h2>
                 </div>
                 <div class="card-body">
                     <div style="display: grid; gap: var(--space-2xl);">
