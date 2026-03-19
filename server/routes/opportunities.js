@@ -267,14 +267,21 @@ router.post('/:id/invite', requireRole('prime_contractor'), async (req, res) => 
         if (oppRows.length === 0) return res.status(404).json({ error: 'Opportunity not found' });
         const oppTitle = oppRows[0].title;
 
+        // Check for existing invitation
+        const [existingInvites] = await db.execute(
+            'SELECT id FROM messages WHERE sender_id = ? AND receiver_id = ? AND opportunity_id = ? AND message_type = "invite"',
+            [senderId, smallBusinessId, opportunityId]
+        );
+        if (existingInvites.length > 0) {
+            return res.status(400).json({ error: 'You have already invited this Small Business to this opportunity.' });
+        }
+
         const appUrl = process.env.PUBLIC_URL || 'http://localhost:3001';
         let body = `You've been invited to apply for this opportunity.\n\nOpportunity: ${oppTitle}\n\nPlease review the details and submit your application if it aligns with your interests, or reply to this message if you'd like to discuss further.`;
         
         if (note) {
             body = `${note}\n\n---\n${body}`;
         }
-        
-        body += `\n\nView Opportunity: ${appUrl}/opportunity-details.html?id=${opportunityId}`;
         
         // Insert Message
         const [msgResult] = await db.execute(`
