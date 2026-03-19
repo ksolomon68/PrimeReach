@@ -159,10 +159,8 @@
 
                     <div class="action-bar" style="flex-wrap: wrap;">
                         <button id="saveBtn" class="btn btn-outline" onclick="toggleSave()">Save Opportunity</button>
-                        <button id="viewPrime ContractorBtn" class="btn btn-outline" onclick="viewPrime ContractorProfile()">View Prime Contractor
-                            Profile</button>
-                        <button id="contactPrime ContractorBtn" class="btn btn-secondary" onclick="contactPrime Contractor()">Contact
-                            Prime Contractor</button>
+                        <button id="viewPrimeContractorBtn" class="btn btn-outline" onclick="viewPrimeContractorProfile()">View Prime Contractor Profile</button>
+                        <button id="contactPrimeContractorBtn" class="btn btn-secondary" onclick="contactPrimeContractor()">Contact Prime Contractor</button>
                     </div>
                 </div>
             </div>
@@ -182,7 +180,7 @@
 
         document.addEventListener('DOMContentLoaded', async () => {
             // Initialize Navigation
-            const user = getCurrentUser();
+            const user = Auth.getUser();
             if (user) {
                 setTimeout(() => {
                     Navigation.init(user.type);
@@ -323,7 +321,7 @@
             }
         }
 
-        function contactPrime Contractor() {
+        function contactPrimeContractor() {
             if (!currentOpportunity) return;
             const user = Auth.getUser();
             if (!user) {
@@ -341,7 +339,7 @@
             }
         }
 
-        function viewPrime ContractorProfile() {
+        function viewPrimeContractorProfile() {
             if (!currentOpportunity) return;
             const primeContractorId = currentOpportunity.posted_by || currentOpportunity.postedBy;
             if (primeContractorId) {

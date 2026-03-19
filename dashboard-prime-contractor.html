@@ -248,20 +248,20 @@
                     </div>
                     <div class="stats-grid">
                         <div class="stat-card">
-                            <div class="stat-number">12</div>
-                            <div class="stat-label">Active Opportunities</div>
+                            <div class="stat-number">—</div>
+                            <div class="stat-label">My Active Postings</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-number">248</div>
+                            <div class="stat-number">—</div>
                             <div class="stat-label">Registered Small Businesses</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-number">15</div>
-                            <div class="stat-label">Pending Reviews</div>
+                            <div class="stat-number">—</div>
+                            <div class="stat-label">Pending Applications</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-number">8</div>
-                            <div class="stat-label">Awarded This Month</div>
+                            <div class="stat-number">—</div>
+                            <div class="stat-label">Awarded Contracts</div>
                         </div>
                     </div>
                 </div>
@@ -349,22 +349,31 @@
                 }
 
                 // Load real stats
-                const [opps, small businesses, apps] = await Promise.all([
-                    DataService.fetch(`/opportunities/prime-contractor/${user.id}`),
-                    DataService.fetch('/small-businesses?type=small business'),
+                const [opps, smallBusinesses, apps] = await Promise.all([
+                    DataService.fetch('/opportunities').catch(() => []),
+                    DataService.fetch('/small-businesses').catch(() => []),
                     DataService.fetch(`/applications?primeContractorId=${user.id}`).catch(() => [])
                 ]);
 
+                // Filter opps to this prime contractor's own postings
+                const myOpps = Array.isArray(opps)
+                    ? opps.filter(o => String(o.posted_by) === String(user.id) || String(o.postedBy) === String(user.id))
+                    : [];
+
                 const statNumbers = document.querySelectorAll('.stat-number');
                 if (statNumbers.length >= 4) {
-                    statNumbers[0].textContent = opps ? (Array.isArray(opps) ? opps.length : 0) : 0;
-                    statNumbers[1].textContent = small businesses ? (Array.isArray(small businesses) ? small businesses.length : 0) : 0;
+                    statNumbers[0].textContent = myOpps.length;
+                    statNumbers[1].textContent = Array.isArray(smallBusinesses) ? smallBusinesses.length : 0;
+                    statNumbers[2].textContent = Array.isArray(apps) ? apps.filter(a => a.status === 'pending').length : 0;
+                    statNumbers[3].textContent = Array.isArray(apps) ? apps.filter(a => a.status === 'awarded').length : 0;
 
-                    const pendingApps = apps ? (Array.isArray(apps) ? apps.filter(a => a.status === 'pending') : []) : [];
-                    statNumbers[2].textContent = pendingApps.length;
-
-                    const awardedApps = apps ? (Array.isArray(apps) ? apps.filter(a => a.status === 'awarded') : []) : [];
-                    statNumbers[3].textContent = awardedApps.length;
+                    const labels = document.querySelectorAll('.stat-label');
+                    if (labels.length >= 4) {
+                        labels[0].textContent = 'My Active Postings';
+                        labels[1].textContent = 'Registered Small Businesses';
+                        labels[2].textContent = 'Pending Applications';
+                        labels[3].textContent = 'Awarded Contracts';
+                    }
                 }
 
                 // Animate stats after loading
