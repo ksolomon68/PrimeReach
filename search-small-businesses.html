@@ -289,7 +289,7 @@
             </section>
 
             <!-- Invite Mode Banner -->
-            <div id="inviteBanner" style="display:none;margin-bottom:var(--space-lg);border-radius:var(--border-radius-lg);padding:var(--space-md) var(--space-lg);background:linear-gradient(135deg,#fff8e1,#fffde7);border-left:4px solid var(--color-secondary);display:flex;align-items:center;gap:var(--space-md);">
+            <div id="inviteBanner" style="display:none;margin-bottom:var(--space-lg);border-radius:var(--border-radius-lg);padding:var(--space-md) var(--space-lg);background:linear-gradient(135deg,#fff8e1,#fffde7);border-left:4px solid var(--color-secondary);align-items:center;gap:var(--space-md);">
                 <span style="font-size:1.5rem;">✉️</span>
                 <div style="flex:1;font-weight:500;color:var(--color-text-primary);">
                     <strong>Invite Mode</strong> — Browse the directory and click <strong>Invite to Apply</strong> on any small business to send them a direct invitation to one of your open opportunities.
@@ -532,9 +532,11 @@
             const user = JSON.parse(localStorage.getItem('caltrans_user'));
             const userRole = user ? user.type : 'staff';
 
-            // Check for ?invite=true
+            // Check for ?invite=true — normalize type so 'agency' (legacy DB value) also works
+            const _typeMap = { vendor: 'small_business', agency: 'prime_contractor', caltrans_admin: 'staff' };
+            const normalizedType = user ? (_typeMap[user.type] || user.type) : '';
             const params = new URLSearchParams(window.location.search);
-            if (params.get('invite') === 'true' && user && user.type === 'prime_contractor') {
+            if (params.get('invite') === 'true' && user && normalizedType === 'prime_contractor') {
                 window._inviteMode = true;
                 document.getElementById('inviteBanner').style.display = 'flex';
                 document.getElementById('pageTitle').textContent = 'Invite a Small Business to Apply';
