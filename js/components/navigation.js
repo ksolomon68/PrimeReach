@@ -4,18 +4,21 @@
  */
 
 const Navigation = {
-    // Role configurations
+    // Role configurations — keys must match Navigation.init() call values
     config: {
-        small business: {
+        small_business: {
             title: 'Small Business Portal',
             items: [
+                { label: 'Dashboard', href: 'dashboard-small-business.html', icon: '🏠' },
                 { label: 'Search Opportunities', href: 'search-opportunities.html', icon: '🏢' },
+                { label: 'My Applications', href: 'small-business-applications.html', icon: '📋' },
                 { label: 'Saved Items', href: 'saved-opportunities.html', icon: '⭐' },
                 { label: 'Messages', href: 'messages.html', icon: '✉️' },
-                { label: 'My Profile', href: 'small-business-profile.html', icon: '👤' }
+                { label: 'My Profile', href: 'small-business-profile.html', icon: '👤' },
+                { label: 'Settings', href: 'small-business-settings.html', icon: '⚙️' }
             ]
         },
-        prime contractor: {
+        prime_contractor: {
             title: 'Prime Contractor Portal',
             items: [
                 { label: 'Dashboard', href: 'dashboard-prime-contractor.html', icon: '🏠' },
@@ -48,6 +51,16 @@ const Navigation = {
         }
     },
 
+    // Map legacy DB role values to config keys
+    _normalizeRole(role) {
+        const map = {
+            'vendor': 'small_business',
+            'agency': 'prime_contractor',
+            'caltrans_admin': 'staff'
+        };
+        return map[role] || role;
+    },
+
     _isMobile() {
         return window.innerWidth <= 1024;
     },
@@ -59,6 +72,8 @@ const Navigation = {
             role = user ? user.type : 'small_business';
         }
 
+        role = this._normalizeRole(role);
+
         this.renderSidebar(role);
         this.renderHeader(role);
         this.setupMobileToggle();
@@ -68,7 +83,7 @@ const Navigation = {
         const sidebar = document.getElementById('sidebar') || document.querySelector('.sidebar');
         if (!sidebar) return;
 
-        const config = this.config[role] || this.config.small business;
+        const config = this.config[role] || this.config['small_business'];
         const currentPath = window.location.pathname.split('/').pop() || 'index.html';
 
         let html = `
@@ -76,7 +91,7 @@ const Navigation = {
                 <button class="sidebar-close-btn" aria-label="Close menu">&times;</button>
             </div>
             <nav class="sidebar-nav" style="padding: 1rem 0; flex: 1; overflow-y: auto;">
-                <div style="padding: 0 1.5rem 0.5rem; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">
+                <div style="padding: 0 1.5rem 0.5rem; font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-secondary); font-weight: 700;">
                     ${config.title}
                 </div>
         `;
@@ -85,17 +100,19 @@ const Navigation = {
             const isActive = currentPath === item.href ? 'active' : '';
             html += `
                 <a href="${item.href}" class="nav-item ${isActive}" style="
-                    display: flex; 
-                    align-items: center; 
-                    gap: 0.75rem; 
-                    padding: 0.875rem 1.5rem; 
-                    color: var(--text-primary); 
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                    padding: 0.875rem 1.5rem;
+                    color: var(--color-text-primary);
                     text-decoration: none;
                     background: ${isActive ? 'var(--color-bg-tertiary)' : 'transparent'};
                     border-left: 4px solid ${isActive ? 'var(--color-primary)' : 'transparent'};
+                    font-weight: ${isActive ? '600' : '500'};
+                    transition: all 0.2s ease;
                 ">
                     <span style="font-size: 1.25rem;">${item.icon}</span>
-                    <span style="font-weight: 500;">${item.label}</span>
+                    <span>${item.label}</span>
                 </a>
             `;
         });
@@ -106,7 +123,7 @@ const Navigation = {
                 <a href="index.html" class="sidebar-footer-link">
                     <span style="font-size: 1.25rem;">🌐</span> Back to Public Site
                 </a>
-                <button onclick="if(typeof logout === 'function') { logout() } else { localStorage.removeItem('caltrans_user'); window.location.href='index.html'; }" 
+                <button onclick="if(typeof logout === 'function') { logout() } else { localStorage.removeItem('caltrans_user'); window.location.href='index.html'; }"
                     class="sidebar-footer-link sidebar-signout-btn">
                     <span style="font-size: 1.25rem;">🚪</span> Sign Out
                 </button>
@@ -132,6 +149,7 @@ const Navigation = {
 
         const user = JSON.parse(localStorage.getItem('caltrans_user')) || { name: 'Portal User' };
         const userName = user.business_name || user.organization_name || user.contact_name || user.name || 'User';
+        const config = this.config[role] || this.config['small_business'];
 
         header.innerHTML = `
             <div style="display: flex; align-items: center; gap: 1rem;">
@@ -148,11 +166,12 @@ const Navigation = {
                         <span style="font-weight: 700; color: var(--color-primary); font-size: 1.1rem; letter-spacing: -0.01em; margin-left: 0.5rem; border-left: 1px solid var(--color-border); padding-left: 0.5rem;">BizConnect</span>
                     </a>
                 </div>
+                <span class="header-portal-title" style="font-size: 0.85rem; color: var(--color-text-secondary); margin-left: 0.5rem;">${config.title}</span>
             </div>
             <div style="display: flex; align-items: center; gap: 1rem;">
                 <div class="header-user-info">
-                    <div style="font-weight: 600; font-size: 0.9rem;">${userName}</div>
-                    <div style="font-size: 0.75rem; color: var(--color-text-muted); text-transform: capitalize;">${role} Role</div>
+                    <div style="font-weight: 600; font-size: 0.9rem; color: var(--color-text-primary);">${userName}</div>
+                    <div style="font-size: 0.75rem; color: var(--color-text-secondary); text-transform: capitalize;">${config.title}</div>
                 </div>
                 <div class="header-avatar">
                     ${userName.charAt(0).toUpperCase()}
@@ -169,7 +188,7 @@ const Navigation = {
         const overlay = document.getElementById('sidebar-overlay');
         if (sidebar) sidebar.classList.add('active');
         if (overlay) overlay.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Prevent scroll behind
+        document.body.style.overflow = 'hidden';
     },
 
     closeSidebar() {
@@ -197,10 +216,10 @@ const Navigation = {
     }
 };
 
-// Global init trigger
+// Global init trigger — fires if page doesn't call Navigation.init() explicitly
 document.addEventListener('DOMContentLoaded', () => {
     const user = JSON.parse(localStorage.getItem('caltrans_user'));
-    if (user && user.type) {
+    if (user && user.type && !window._navInitialized) {
         Navigation.init(user.type);
     }
 });

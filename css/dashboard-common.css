@@ -10,6 +10,9 @@
 
 /* Header Standardization */
 .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     height: var(--header-height);
     padding: 0 var(--space-xl);
     background: var(--color-bg-primary);
@@ -70,9 +73,9 @@ textarea {
 .dashboard-v2 .content-card,
 .dashboard-v2 .standard-card,
 .dashboard-v2 .enhanced-card {
-    background: var(--bg-white);
+    background: var(--color-bg-primary);
     border: 1px solid var(--color-border-light);
-    color: var(--text-primary);
+    color: var(--color-text-primary);
 }
 
 /* Touch Targets for Mobile */
@@ -343,7 +346,7 @@ textarea {
 }
 
 .sidebar-signout-btn {
-    color: var(--text-primary);
+    color: var(--color-text-primary);
     font-weight: 500;
 }
 
