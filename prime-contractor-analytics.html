@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="css/dashboard-new.css">
     <link rel="stylesheet" href="css/dashboard-common.css">
     <style>
-        /* Enhanced agency analytics styling */
+        /* Enhanced prime contractor analytics styling */
         body.dashboard-v2 {
             background: linear-gradient(135deg, var(--color-bg-secondary) 0%, var(--color-bg-tertiary) 100%);
             min-height: 100vh;
@@ -325,7 +325,7 @@
                 <div class="enhanced-card">
                     <div class="card-header">
                         <h3 class="card-title">📈 Engagement Metrics</h3>
-                        <div class="card-subtitle">Track vendor interactions and opportunity engagement over time</div>
+                        <div class="card-subtitle">Track small business interactions and opportunity engagement over time</div>
                     </div>
                     <div class="chart-container">
                         <canvas id="engagementChart" width="400" height="200"></canvas>
@@ -376,7 +376,7 @@
                 <div class="enhanced-card">
                     <div class="card-header">
                         <h3 class="card-title">⚙️ Quick Actions</h3>
-                        <div class="card-subtitle">Manage your agency dashboard and access key administrative functions
+                        <div class="card-subtitle">Manage your prime contractor dashboard and access key administrative functions
                         </div>
                     </div>
                     <div class="metric-grid">
@@ -397,7 +397,7 @@
                         <div class="metric-item">
                             <span class="metric-icon">📈</span>
                             <div class="metric-action">
-                                <a href="agency-reports.html" class="metric-value">View</a>
+                                <a href="prime-contractor-reports.html" class="metric-value">View</a>
                                 <div class="metric-label">Full Reports</div>
                             </div>
                         </div>
@@ -423,7 +423,7 @@
         // Initialize Prime Contractor Analytics dashboard with enhanced design
         document.addEventListener('DOMContentLoaded', async function () {
             setTimeout(() => {
-                Navigation.init('agency');
+                Navigation.init('prime_contractor');
                 initAnalyticsData();
             }, 50);
         });

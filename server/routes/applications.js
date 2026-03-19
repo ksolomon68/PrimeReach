@@ -8,11 +8,11 @@ router.get('/:id', async (req, res) => {
     try {
         const [rows] = await db.execute(`
             SELECT a.*, o.title as opportunity_title, o.category, o.district as district_id, o.category_name as project_type,
-                   u.organization_name as agency_name, v.business_name as vendor_name, v.email as vendor_email
+                   u.organization_name as prime_contractor_name, v.business_name as business_name, v.email as small_business_email
             FROM applications a
             JOIN opportunities o ON a.opportunity_id = o.id
             JOIN users u ON o.posted_by = u.id
-            JOIN users v ON a.vendor_id = v.id
+            JOIN users v ON a.small_business_id = v.id
             WHERE a.id = ?
         `, [id]);
 
@@ -24,29 +24,29 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// Get applications (filtered by vendor or agency)
+// Get applications (filtered by small business or prime contractor)
 router.get('/', async (req, res) => {
-    const { vendorId, agencyId } = req.query;
+    const { smallBusinessId, primeContractorId } = req.query;
 
     try {
         let query = `
-            SELECT a.*, o.title as project_title, o.district_name, u.organization_name as agency_name, v.business_name as vendor_name
+            SELECT a.*, o.title as project_title, o.district_name, u.organization_name as prime_contractor_name, v.business_name as business_name
             FROM applications a
             JOIN opportunities o ON a.opportunity_id = o.id
             JOIN users u ON o.posted_by = u.id
-            JOIN users v ON a.vendor_id = v.id
+            JOIN users v ON a.small_business_id = v.id
             WHERE 1=1
         `;
         const params = [];
 
-        if (vendorId) {
-            query += " AND a.vendor_id = ?";
-            params.push(vendorId);
+        if (smallBusinessId) {
+            query += " AND a.small_business_id = ?";
+            params.push(smallBusinessId);
         }
 
-        if (agencyId) {
-            query += " AND a.agency_id = ?";
-            params.push(agencyId);
+        if (primeContractorId) {
+            query += " AND a.prime_contractor_id = ?";
+            params.push(primeContractorId);
         }
 
         query += " ORDER BY a.applied_date DESC";
@@ -61,25 +61,25 @@ router.get('/', async (req, res) => {
 
 // Submit new application / interest
 router.post('/', async (req, res) => {
-    const { opportunityId, vendorId, notes } = req.body;
+    const { opportunityId, smallBusinessId, notes } = req.body;
 
-    if (!opportunityId || !vendorId) {
+    if (!opportunityId || !smallBusinessId) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
     try {
-        // Find agency ID from opportunity
+        // Find prime contractor ID from opportunity
         const [oppRows] = await db.execute('SELECT posted_by FROM opportunities WHERE id = ?', [opportunityId]);
         if (oppRows.length === 0) return res.status(404).json({ error: 'Opportunity not found' });
 
         const opp = oppRows[0];
 
         const sql = `
-            INSERT INTO applications (opportunity_id, vendor_id, agency_id, notes)
+            INSERT INTO applications (opportunity_id, small_business_id, prime_contractor_id, notes)
             VALUES (?, ?, ?, ?)
         `;
 
-        await db.execute(sql, [opportunityId, vendorId, opp.posted_by, notes || null]);
+        await db.execute(sql, [opportunityId, smallBusinessId, opp.posted_by, notes || null]);
         res.status(201).json({ message: 'Interest submitted successfully' });
     } catch (error) {
         console.error('Error submitting application:', error);
@@ -90,21 +90,21 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Get applications for a specific opportunity (Agency view)
+// Get applications for a specific opportunity (Prime Contractor view)
 router.get('/opportunity/:opportunityId', async (req, res) => {
     const { opportunityId } = req.params;
     try {
         const [rows] = await db.execute(`
             SELECT a.id as application_id, a.applied_date, a.status, a.notes,
-                   u.id as vendor_id, u.business_name, u.email, u.phone, u.contact_name,
+                   u.id as small_business_id, u.business_name, u.email, u.phone, u.contact_name,
                    u.districts, u.categories, u.capability_statement
             FROM applications a
-            JOIN users u ON a.vendor_id = u.id
+            JOIN users u ON a.small_business_id = u.id
             WHERE a.opportunity_id = ?
             ORDER BY a.applied_date DESC
         `, [opportunityId]);
 
-        // Parse JSON fields for vendors
+        // Parse JSON fields for small businesses
         const processed = rows.map(app => ({
             ...app,
             districts: app.districts ? (typeof app.districts === 'string' && app.districts.startsWith('[') ? JSON.parse(app.districts) : (Array.isArray(app.districts) ? app.districts : [app.districts])) : [],
@@ -118,21 +118,21 @@ router.get('/opportunity/:opportunityId', async (req, res) => {
     }
 });
 
-// Get applications for a specific vendor
-router.get('/vendor/:vendorId', async (req, res) => {
-    const { vendorId } = req.params;
+// Get applications for a specific small business
+router.get('/small-business/:smallBusinessId', async (req, res) => {
+    const { smallBusinessId } = req.params;
     try {
         const [rows] = await db.execute(`
-            SELECT a.*, o.title as project_title, o.district_name, u.organization_name as agency_name
+            SELECT a.*, o.title as project_title, o.district_name, u.organization_name as prime_contractor_name
             FROM applications a
             JOIN opportunities o ON a.opportunity_id = o.id
             JOIN users u ON o.posted_by = u.id
-            WHERE a.vendor_id = ?
+            WHERE a.small_business_id = ?
             ORDER BY a.applied_date DESC
-        `, [vendorId]);
+        `, [smallBusinessId]);
         res.json(rows);
     } catch (error) {
-        console.error('Error fetching applications for vendor:', error);
+        console.error('Error fetching applications for small business:', error);
         res.status(500).json({ error: error.message });
     }
 });

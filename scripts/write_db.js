@@ -104,24 +104,24 @@ async function initDatabase() {
     await pool.execute('CREATE TABLE IF NOT EXISTS \`applications\` (' +
         '\`id\` INT NOT NULL AUTO_INCREMENT,' +
         '\`opportunity_id\` VARCHAR(100) NOT NULL,' +
-        '\`vendor_id\` INT NOT NULL,' +
-        '\`agency_id\` INT DEFAULT NULL,' +
+        '\`small_business_id\` INT NOT NULL,' +
+        '\`prime_contractor_id\` INT DEFAULT NULL,' +
         '\`status\` VARCHAR(50) NOT NULL DEFAULT \\'pending\\',' +
         '\`applied_date\` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,' +
         '\`notes\` TEXT DEFAULT NULL,' +
         'PRIMARY KEY (\`id\`),' +
         'CONSTRAINT \`fk_apps_opportunity\` FOREIGN KEY (\`opportunity_id\`) REFERENCES \`opportunities\` (\`id\`) ON DELETE CASCADE,' +
-        'CONSTRAINT \`fk_apps_vendor\` FOREIGN KEY (\`vendor_id\`) REFERENCES \`users\` (\`id\`) ON DELETE CASCADE' +
+        'CONSTRAINT \`fk_apps_vendor\` FOREIGN KEY (\`small_business_id\`) REFERENCES \`users\` (\`id\`) ON DELETE CASCADE' +
         ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
 
     await pool.execute('CREATE TABLE IF NOT EXISTS \`saved_opportunities\` (' +
         '\`id\` INT NOT NULL AUTO_INCREMENT,' +
-        '\`vendor_id\` INT NOT NULL,' +
+        '\`small_business_id\` INT NOT NULL,' +
         '\`opportunity_id\` VARCHAR(100) NOT NULL,' +
         '\`saved_at\` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,' +
         'PRIMARY KEY (\`id\`),' +
-        'UNIQUE KEY \`uq_saved\` (\`vendor_id\`, \`opportunity_id\`),' +
-        'CONSTRAINT \`fk_saved_vendor\` FOREIGN KEY (\`vendor_id\`) REFERENCES \`users\` (\`id\`) ON DELETE CASCADE,' +
+        'UNIQUE KEY \`uq_saved\` (\`small_business_id\`, \`opportunity_id\`),' +
+        'CONSTRAINT \`fk_saved_vendor\` FOREIGN KEY (\`small_business_id\`) REFERENCES \`users\` (\`id\`) ON DELETE CASCADE,' +
         'CONSTRAINT \`fk_saved_opportunity\` FOREIGN KEY (\`opportunity_id\`) REFERENCES \`opportunities\` (\`id\`) ON DELETE CASCADE' +
         ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
 

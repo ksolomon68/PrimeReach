@@ -20,8 +20,8 @@ function isStorageAvailable() {
 
 // Simulated user database (in production, this would be server-side)
 const users = {
-    vendors: [],
-    agencies: []
+    small businesses: [],
+    prime contractors: []
 };
 
 const API_URL = window.APP_CONFIG ? window.APP_CONFIG.API_URL : '/api';
@@ -143,13 +143,13 @@ window.handleLogout = async function() {
 // Keep backward compatibility
 window.logout = window.handleLogout;
 
-// Register vendor
-async function registerVendor(formData) {
+// Register small business
+async function registerSmallBusiness(formData) {
     try {
         const response = await fetch(`${API_URL}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...formData, type: 'vendor' })
+            body: JSON.stringify({ ...formData, type: 'small_business' })
         });
 
         const data = await safeParseJson(response);
@@ -160,7 +160,7 @@ async function registerVendor(formData) {
 
         const user = data.user || data;
         localStorage.setItem('caltrans_user', JSON.stringify(user));
-        console.log('CaltransBizConnect: Vendor registered:', user.businessName || user.email);
+        console.log('CaltransBizConnect: Small Business registered:', user.businessName || user.email);
         return user;
     } catch (error) {
         // Mock fallback if API is unreachable
@@ -169,7 +169,7 @@ async function registerVendor(formData) {
             const mockUser = {
                 id: 'v-' + Date.now(),
                 ...formData,
-                type: 'vendor',
+                type: 'small_business',
                 password: null
             };
             localStorage.setItem('caltrans_user', JSON.stringify(mockUser));
@@ -179,13 +179,13 @@ async function registerVendor(formData) {
     }
 }
 
-// Register agency
-async function registerAgency(formData) {
+// Register prime contractor
+async function registerPrimeContractor(formData) {
     try {
         const response = await fetch(`${API_URL}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...formData, type: 'agency' })
+            body: JSON.stringify({ ...formData, type: 'prime_contractor' })
         });
 
         const data = await safeParseJson(response);
@@ -196,7 +196,7 @@ async function registerAgency(formData) {
 
         const user = data.user || data;
         localStorage.setItem('caltrans_user', JSON.stringify(user));
-        console.log('CaltransBizConnect: Agency registered:', user.organizationName || user.email);
+        console.log('CaltransBizConnect: Prime Contractor registered:', user.organizationName || user.email);
         return user;
     } catch (error) {
         // Mock fallback if API is unreachable
@@ -205,7 +205,7 @@ async function registerAgency(formData) {
             const mockUser = {
                 id: 'a-' + Date.now(),
                 ...formData,
-                type: 'agency',
+                type: 'prime_contractor',
                 password: null
             };
             localStorage.setItem('caltrans_user', JSON.stringify(mockUser));
@@ -219,10 +219,10 @@ async function registerAgency(formData) {
 function redirectToDashboard(user) {
     if (user.type === 'admin') {
         window.location.href = 'dashboard-admin.html';
-    } else if (user.type === 'vendor') {
+    } else if (user.type === 'small_business') {
         window.location.href = 'dashboard-small-business.html';
-    } else if (user.type === 'agency') {
-        window.location.href = 'dashboard-prime-contractor.html';
+    } else if (user.type === 'prime_contractor') {
+        window.location.href = 'dashboard-prime-contractor-contractor-contractor.html';
     }
 }
 
@@ -261,14 +261,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Vendor registration form handler
-    const vendorRegForm = document.getElementById('vendorRegistrationForm');
+    // Small Business registration form handler
+    const smallBusinessRegForm = document.getElementById('vendorRegistrationForm');
 
-    if (vendorRegForm) {
-        vendorRegForm.addEventListener('submit', function (e) {
+    if (smallBusinessRegForm) {
+        smallBusinessRegForm.addEventListener('submit', function (e) {
             e.preventDefault();
 
-            const submitBtn = vendorRegForm.querySelector('button[type="submit"]');
+            const submitBtn = smallBusinessRegForm.querySelector('button[type="submit"]');
             const originalText = submitBtn.textContent;
             submitBtn.disabled = true;
             submitBtn.textContent = 'Creating Account...';
@@ -294,33 +294,33 @@ document.addEventListener('DOMContentLoaded', function () {
             };
 
             if (formData.password !== formData.confirmPassword) {
-                showErrorMessage('Passwords do not match.', vendorRegForm.parentElement);
+                showErrorMessage('Passwords do not match.', smallBusinessRegForm.parentElement);
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
                 return;
             }
 
-            registerVendor(formData)
+            registerSmallBusiness(formData)
                 .then(user => {
                     alert('Account created successfully! Redirecting...');
                     window.location.href = 'dashboard-small-business.html';
                 })
                 .catch(error => {
-                    showErrorMessage(error.message, vendorRegForm.parentElement);
+                    showErrorMessage(error.message, smallBusinessRegForm.parentElement);
                     submitBtn.disabled = false;
                     submitBtn.textContent = originalText;
                 });
         });
     }
 
-    // Agency registration form handler
-    const agencyRegForm = document.getElementById('agencyRegistrationForm');
+    // Prime Contractor registration form handler
+    const primeContractorRegForm = document.getElementById('agencyRegistrationForm');
 
-    if (agencyRegForm) {
-        agencyRegForm.addEventListener('submit', function (e) {
+    if (primeContractorRegForm) {
+        primeContractorRegForm.addEventListener('submit', function (e) {
             e.preventDefault();
 
-            const submitBtn = agencyRegForm.querySelector('button[type="submit"]');
+            const submitBtn = primeContractorRegForm.querySelector('button[type="submit"]');
             const originalText = submitBtn.textContent;
             submitBtn.disabled = true;
             submitBtn.textContent = 'Creating Account...';
@@ -343,19 +343,19 @@ document.addEventListener('DOMContentLoaded', function () {
             };
 
             if (formData.password !== formData.confirmPassword) {
-                showErrorMessage('Passwords do not match.', agencyRegForm.parentElement);
+                showErrorMessage('Passwords do not match.', primeContractorRegForm.parentElement);
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
                 return;
             }
 
-            registerAgency(formData)
+            registerPrimeContractor(formData)
                 .then(user => {
                     alert('Account created successfully! Redirecting...');
-                    window.location.href = 'dashboard-prime-contractor.html';
+                    window.location.href = 'dashboard-prime-contractor-contractor-contractor.html';
                 })
                 .catch(error => {
-                    showErrorMessage(error.message, agencyRegForm.parentElement);
+                    showErrorMessage(error.message, primeContractorRegForm.parentElement);
                     submitBtn.disabled = false;
                     submitBtn.textContent = originalText;
                 });
@@ -390,7 +390,7 @@ function syncNavHeader() {
     if (user && loginBtn) {
         const li = loginBtn.parentElement;
         let dashboardUrl = 'dashboard-small-business.html';
-        if (user.type === 'agency') dashboardUrl = 'dashboard-prime-contractor.html';
+        if (user.type === 'prime_contractor') dashboardUrl = 'dashboard-prime-contractor-contractor-contractor.html';
         if (user.type === 'admin') dashboardUrl = 'dashboard-admin.html';
 
         li.innerHTML = `
@@ -426,8 +426,8 @@ window.Auth = {
     getUser: getCurrentUser,
     login,
     logout: window.logout,
-    registerVendor,
-    registerAgency,
+    registerSmallBusiness,
+    registerPrimeContractor,
     redirectToDashboard,
     protectPage,
     syncNavHeader

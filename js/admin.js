@@ -30,8 +30,8 @@ async function initAdminDataFromServer() {
         // Fallback to simulated data
         const fallbackData = {
             stats: {
-                totalVendors: 142,
-                totalAgencies: 28,
+                totalSmallBusinesses: 142,
+                totalPrimeContractors: 28,
                 pendingApprovals: 3,
                 siteUptime: '99.9%'
             },
@@ -52,8 +52,8 @@ function initAdminData() {
     if (!localStorage.getItem(ADMIN_DATA_KEY)) {
         const fallbackData = {
             stats: {
-                totalVendors: 142,
-                totalAgencies: 28,
+                totalSmallBusinesses: 142,
+                totalPrimeContractors: 28,
                 pendingApprovals: 0,
                 siteUptime: '99.9%'
             },

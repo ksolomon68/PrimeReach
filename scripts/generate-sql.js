@@ -90,27 +90,27 @@ CREATE TABLE \`opportunities\` (
 CREATE TABLE \`applications\` (
     \`id\` INT AUTO_INCREMENT PRIMARY KEY,
     \`opportunity_id\` VARCHAR(100) NOT NULL,
-    \`vendor_id\` INT NOT NULL,
-    \`agency_id\` INT,
+    \`small_business_id\` INT NOT NULL,
+    \`prime_contractor_id\` INT,
     \`status\` VARCHAR(50) NOT NULL DEFAULT 'pending',
     \`applied_date\` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     \`notes\` TEXT,
-    UNIQUE(\`opportunity_id\`, \`vendor_id\`),
+    UNIQUE(\`opportunity_id\`, \`small_business_id\`),
     INDEX (\`opportunity_id\`),
-    INDEX (\`vendor_id\`),
+    INDEX (\`small_business_id\`),
     FOREIGN KEY (\`opportunity_id\`) REFERENCES \`opportunities\`(\`id\`) ON DELETE CASCADE,
-    FOREIGN KEY (\`vendor_id\`) REFERENCES \`users\`(\`id\`) ON DELETE CASCADE
+    FOREIGN KEY (\`small_business_id\`) REFERENCES \`users\`(\`id\`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE \`saved_opportunities\` (
     \`id\` INT AUTO_INCREMENT PRIMARY KEY,
-    \`vendor_id\` INT NOT NULL,
+    \`small_business_id\` INT NOT NULL,
     \`opportunity_id\` VARCHAR(100) NOT NULL,
     \`saved_at\` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(\`vendor_id\`, \`opportunity_id\`),
+    UNIQUE(\`small_business_id\`, \`opportunity_id\`),
     INDEX (\`opportunity_id\`),
-    INDEX (\`vendor_id\`),
-    FOREIGN KEY (\`vendor_id\`) REFERENCES \`users\`(\`id\`) ON DELETE CASCADE,
+    INDEX (\`small_business_id\`),
+    FOREIGN KEY (\`small_business_id\`) REFERENCES \`users\`(\`id\`) ON DELETE CASCADE,
     FOREIGN KEY (\`opportunity_id\`) REFERENCES \`opportunities\`(\`id\`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

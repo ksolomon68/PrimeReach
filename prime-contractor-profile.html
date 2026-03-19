@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Prime Contractor Profile - View details about the contracting agency.">
+    <meta name="description" content="Prime Contractor Profile - View details about the contracting primeContractor.">
     <title>Prime Contractor Profile - CaltransBizConnect</title>
     <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="css/design-system.css">
@@ -28,7 +28,7 @@
             margin-bottom: var(--space-xl);
         }
 
-        .agency-meta {
+        .prime-contractor-meta {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: var(--space-xl);
@@ -83,28 +83,28 @@
             </a>
 
             <section class="hero-section">
-                <h1 id="agencyName">Prime Contractor Name</h1>
-                <p id="agencyTagline">District Office</p>
+                <h1 id="primeContractorName">Prime Contractor Name</h1>
+                <p id="primeContractorTagline">District Office</p>
             </section>
 
             <div class="profile-card">
                 <h3>About the Prime Contractor</h3>
-                <p id="agencyDescription" style="line-height: 1.6; color: var(--text-secondary);">
-                    Loading agency information...
+                <p id="primeContractorDescription" style="line-height: 1.6; color: var(--text-secondary);">
+                    Loading prime contractor information...
                 </p>
 
-                <div class="agency-meta">
+                <div class="prime-contractor-meta">
                     <div class="meta-item">
                         <span class="meta-label">District</span>
-                        <div id="agencyDistrict" class="meta-value">--</div>
+                        <div id="primeContractorDistrict" class="meta-value">--</div>
                     </div>
                     <div class="meta-item">
                         <span class="meta-label">Contact Person</span>
-                        <div id="agencyContact" class="meta-value">--</div>
+                        <div id="primeContractorContact" class="meta-value">--</div>
                     </div>
                     <div class="meta-item">
                         <span class="meta-label">Total Postings</span>
-                        <div id="agencyPostCount" class="meta-value">--</div>
+                        <div id="primeContractorPostCount" class="meta-value">--</div>
                     </div>
                 </div>
 
@@ -126,39 +126,39 @@
             if (user) Navigation.init(user.type);
 
             const params = new URLSearchParams(window.location.search);
-            const agencyId = params.get('id');
+            const primeContractorId = params.get('id');
 
-            if (!agencyId) {
+            if (!primeContractorId) {
                 alert('Prime Contractor ID required');
                 history.back();
                 return;
             }
 
-            await loadPrime ContractorProfile(agencyId);
+            await loadPrime ContractorProfile(primeContractorId);
         });
 
         async function loadPrime ContractorProfile(id) {
             try {
-                const agency = await DataService.fetch(`/users/${id}`);
+                const prime contractor = await DataService.fetch(`/users/${id}`);
                 const allOpps = await DataService.fetch('/opportunities');
 
-                // Filter opportunities posted by this agency
-                const agencyOpps = allOpps.filter(o => o.posted_by == id || o.postedBy == id);
+                // Filter opportunities posted by this prime contractor
+                const primeContractorOpps = allOpps.filter(o => o.posted_by == id || o.postedBy == id);
 
-                document.getElementById('agencyName').textContent = agency.organization_name || agency.contact_name || 'Prime Contractor Office';
-                document.getElementById('agencyTagline').textContent = agency.district_name || `District ${agency.district}`;
-                document.getElementById('agencyDescription').textContent = agency.description || 'This agency manages various transportation projects and contracting opportunities for the California Department of Transportation.';
+                document.getElementById('primeContractorName').textContent = primeContractor.organization_name || primeContractor.contact_name || 'Prime Contractor Office';
+                document.getElementById('primeContractorTagline').textContent = primeContractor.district_name || `District ${primeContractor.district}`;
+                document.getElementById('primeContractorDescription').textContent = primeContractor.description || 'This prime contractor manages various transportation projects and contracting opportunities for the California Department of Transportation.';
 
-                document.getElementById('agencyDistrict').textContent = agency.district_name || `District ${agency.district}`;
-                document.getElementById('agencyContact').textContent = agency.contact_name || 'Procurement Officer';
-                document.getElementById('agencyPostCount').textContent = agencyOpps.length;
+                document.getElementById('primeContractorDistrict').textContent = primeContractor.district_name || `District ${primeContractor.district}`;
+                document.getElementById('primeContractorContact').textContent = primeContractor.contact_name || 'Procurement Officer';
+                document.getElementById('primeContractorPostCount').textContent = primeContractorOpps.length;
 
                 const oppsList = document.getElementById('activeOppsList');
-                if (agencyOpps.length === 0) {
+                if (primeContractorOpps.length === 0) {
                     oppsList.innerHTML = '<p style="color: var(--text-muted);">No active opportunities at this time.</p>';
                 } else {
                     oppsList.innerHTML = '';
-                    agencyOpps.forEach(opp => {
+                    primeContractorOpps.forEach(opp => {
                         const div = document.createElement('div');
                         div.className = 'opportunity-card';
                         div.onclick = () => window.location.href = `opportunity-details.html?id=${opp.id}`;
@@ -176,8 +176,8 @@
                 }
 
             } catch (error) {
-                console.error('Error loading agency:', error);
-                alert('Failed to load agency profile.');
+                console.error('Error loading prime contractor:', error);
+                alert('Failed to load prime contractor profile.');
             }
         }
     </script>

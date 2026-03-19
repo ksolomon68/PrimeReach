@@ -144,7 +144,7 @@
                     <div class="form-group mb-md">
                         <label for="descriptionInput">Organization Description</label>
                         <textarea id="descriptionInput" class="form-control" rows="5"
-                            placeholder="Briefly describe your agency and the types of contracts you typically offer..."></textarea>
+                            placeholder="Briefly describe your prime contractor and the types of contracts you typically offer..."></textarea>
                     </div>
                 </div>
 
@@ -156,7 +156,7 @@
                         <label class="checkbox-label">
                             <input type="checkbox" id="emailNotifications">
                             <span class="checkmark"></span>
-                            Email notifications for new vendor applications
+                            Email notifications for new small business applications
                         </label>
                     </div>
                     <div class="form-group mb-md">
@@ -220,7 +220,7 @@
                         <ul>
                             <li><a href="contact.html">Contact Us</a></li>
                             <li><a href="report-issue.html">Report Site Issue</a></li>
-                            <li><a href="mailto:Small Businessess@dot.ca.gov">Small Businessess@dot.ca.gov</a></li>
+                            <li><a href="mailto:smallbusinesses@dot.ca.gov">smallbusinesses@dot.ca.gov</a></li>
                         </ul>
                     </div>
                 </div>
@@ -249,7 +249,7 @@
 
             // Initialize navigation based on role
             setTimeout(() => {
-                Navigation.init(user.type || 'agency');
+                Navigation.init(user.type || 'prime_contractor');
             }, 50);
 
             // Update Page Title for Admin

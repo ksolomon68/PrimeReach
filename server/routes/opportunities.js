@@ -15,8 +15,8 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Get opportunities by agency ID
-router.get('/agency/:id', async (req, res) => {
+// Get opportunities by prime contractor ID
+router.get('/prime-contractor/:id', async (req, res) => {
     const { id } = req.params;
     try {
         const [rows] = await db.execute('SELECT * FROM opportunities WHERE posted_by = ? ORDER BY posted_date DESC', [id]);
@@ -29,7 +29,7 @@ router.get('/agency/:id', async (req, res) => {
 // Get single opportunity by ID
 router.get('/:id', async (req, res) => {
     const { id } = req.params;
-    if (id === 'agency' || id === 'saved' || id === 'save' || id === 'unsave') return res.status(404).json({ error: 'Not found' });
+    if (id === 'prime_contractor' || id === 'saved' || id === 'save' || id === 'unsave') return res.status(404).json({ error: 'Not found' });
 
     try {
         const [rows] = await db.execute('SELECT * FROM opportunities WHERE id = ?', [id]);
@@ -159,16 +159,16 @@ router.delete('/:id', async (req, res) => {
 
 // --- Saved Opportunities Endpoints ---
 
-// Get saved opportunities for a vendor
-router.get('/saved/:vendorId', async (req, res) => {
-    const { vendorId } = req.params;
+// Get saved opportunities for a small business
+router.get('/saved/:smallBusinessId', async (req, res) => {
+    const { smallBusinessId } = req.params;
     try {
         const [rows] = await db.execute(`
             SELECT o.* FROM opportunities o
             JOIN saved_opportunities s ON o.id = s.opportunity_id
-            WHERE s.vendor_id = ?
+            WHERE s.small_business_id = ?
             ORDER BY s.saved_at DESC
-        `, [vendorId]);
+        `, [smallBusinessId]);
         res.json(rows);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -177,16 +177,16 @@ router.get('/saved/:vendorId', async (req, res) => {
 
 // Save an opportunity
 router.post('/save', async (req, res) => {
-    const { vendorId, opportunityId } = req.body;
-    if (!vendorId || !opportunityId) {
-        return res.status(400).json({ error: 'Vendor ID and Opportunity ID are required' });
+    const { smallBusinessId, opportunityId } = req.body;
+    if (!smallBusinessId || !opportunityId) {
+        return res.status(400).json({ error: 'Small Business ID and Opportunity ID are required' });
     }
     try {
         const sql = `
-            INSERT IGNORE INTO saved_opportunities (vendor_id, opportunity_id)
+            INSERT IGNORE INTO saved_opportunities (small_business_id, opportunity_id)
             VALUES (?, ?)
         `;
-        await db.execute(sql, [vendorId, opportunityId]);
+        await db.execute(sql, [smallBusinessId, opportunityId]);
         res.status(201).json({ message: 'Opportunity saved successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -195,15 +195,15 @@ router.post('/save', async (req, res) => {
 
 // Unsave an opportunity
 router.post('/unsave', async (req, res) => {
-    const { vendorId, opportunityId } = req.body;
-    if (!vendorId || !opportunityId) {
-        return res.status(400).json({ error: 'Vendor ID and Opportunity ID are required' });
+    const { smallBusinessId, opportunityId } = req.body;
+    if (!smallBusinessId || !opportunityId) {
+        return res.status(400).json({ error: 'Small Business ID and Opportunity ID are required' });
     }
     try {
         const [result] = await db.execute(`
             DELETE FROM saved_opportunities 
-            WHERE vendor_id = ? AND opportunity_id = ?
-        `, [vendorId, opportunityId]);
+            WHERE small_business_id = ? AND opportunity_id = ?
+        `, [smallBusinessId, opportunityId]);
         res.status(200).json({ message: 'Opportunity unsaved successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -211,10 +211,10 @@ router.post('/unsave', async (req, res) => {
 });
 
 // Unsave an opportunity (DELETE method)
-router.delete('/unsave/:vendorId/:opportunityId', async (req, res) => {
-    const { vendorId, opportunityId } = req.params;
+router.delete('/unsave/:smallBusinessId/:opportunityId', async (req, res) => {
+    const { smallBusinessId, opportunityId } = req.params;
     try {
-        const [result] = await db.execute('DELETE FROM saved_opportunities WHERE vendor_id = ? AND opportunity_id = ?', [vendorId, opportunityId]);
+        const [result] = await db.execute('DELETE FROM saved_opportunities WHERE small_business_id = ? AND opportunity_id = ?', [smallBusinessId, opportunityId]);
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Saved opportunity not found' });
         }

@@ -6,7 +6,7 @@
 const Navigation = {
     // Role configurations
     config: {
-        vendor: {
+        small business: {
             title: 'Small Business Portal',
             items: [
                 { label: 'Search Opportunities', href: 'search-opportunities.html', icon: '🏢' },
@@ -15,16 +15,16 @@ const Navigation = {
                 { label: 'My Profile', href: 'small-business-profile.html', icon: '👤' }
             ]
         },
-        agency: {
+        prime contractor: {
             title: 'Prime Contractor Portal',
             items: [
-                { label: 'Dashboard', href: 'dashboard-prime-contractor.html', icon: '🏠' },
+                { label: 'Dashboard', href: 'dashboard-prime-contractor-contractor-contractor.html', icon: '🏠' },
                 { label: 'Post Opportunity', href: 'post-opportunity.html', icon: '➕' },
                 { label: 'Manage Postings', href: 'manage-opportunities.html', icon: '📂' },
                 { label: 'Search Small Businesses', href: 'search-small-businesses.html', icon: '🔍' },
                 { label: 'Messages', href: 'messages.html', icon: '📬' },
-                { label: 'Analytics', href: 'prime-contractor-analytics.html', icon: '📈' },
-                { label: 'Settings', href: 'prime-contractor-settings.html', icon: '⚙️' }
+                { label: 'Analytics', href: 'prime contractor-contractor-analytics.html', icon: '📈' },
+                { label: 'Settings', href: 'prime contractor-contractor-settings.html', icon: '⚙️' }
             ]
         },
         admin: {
@@ -34,14 +34,14 @@ const Navigation = {
                 { label: 'User Management', href: 'admin-users.html', icon: '👥' },
                 { label: 'Opportunity Approval', href: 'manage-opportunities.html', icon: '✅' },
                 { label: 'Messages', href: 'messages.html', icon: '📬' },
-                { label: 'System Settings', href: 'prime-contractor-settings.html', icon: '⚙️' }
+                { label: 'System Settings', href: 'prime contractor-contractor-settings.html', icon: '⚙️' }
             ]
         },
         staff: {
             title: 'Staff Dashboard',
             items: [
                 { label: 'Overview', href: 'dashboard-caltrans.html', icon: '🏠' },
-                { label: 'Analytics', href: 'prime-contractor-analytics.html', icon: '📈' },
+                { label: 'Analytics', href: 'prime contractor-contractor-analytics.html', icon: '📈' },
                 { label: 'Support Services', href: 'support-services.html', icon: '🎧' },
                 { label: 'Search Small Businesses', href: 'search-small-businesses.html', icon: '🔍' }
             ]
@@ -56,7 +56,7 @@ const Navigation = {
         // Fallback to localStorage if no role provided
         if (!role) {
             const user = JSON.parse(localStorage.getItem('caltrans_user'));
-            role = user ? user.type : 'vendor';
+            role = user ? user.type : 'small_business';
         }
 
         this.renderSidebar(role);
@@ -68,7 +68,7 @@ const Navigation = {
         const sidebar = document.getElementById('sidebar') || document.querySelector('.sidebar');
         if (!sidebar) return;
 
-        const config = this.config[role] || this.config.vendor;
+        const config = this.config[role] || this.config.small business;
         const currentPath = window.location.pathname.split('/').pop() || 'index.html';
 
         let html = `

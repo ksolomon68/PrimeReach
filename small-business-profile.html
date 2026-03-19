@@ -356,7 +356,7 @@
                             </div>
 
                             <!-- Prime Contractor Contact Actions -->
-                            <div id="agencyActions" class="contact-card-actions" style="display: none;">
+                            <div id="primeContractorActions" class="contact-card-actions" style="display: none;">
                                 <button type="button" class="btn btn-primary" id="btnMessage">Send Message</button>
                                 <button type="button" class="btn btn-outline" id="btnEmail">Direct Email</button>
                             </div>
@@ -419,7 +419,7 @@
                             <!-- Edit Mode Upload -->
                             <div class="edit-only">
                                 <p class="text-muted mb-md">Upload a professional PDF of your Capability Statement. This
-                                    will be visible to Prime Contractors and Prime Contractors.</p>
+                                    will be visible to Prime Contractors.</p>
                                 <div
                                     style="border: 2px dashed var(--color-bg-tertiary); padding: var(--space-xl); border-radius: var(--border-radius-lg); text-align: center;">
                                     <input type="file" id="csFileInput" accept=".pdf" style="display: none;">
@@ -518,11 +518,11 @@
             const targetId = params.get('id');
 
             // Mode Logic
-            // 1. Prime Contractor viewing a vendor (targetId is present and currentUser is agency)
-            // 2. Small Business viewing another vendor (targetId present and != currentUser.id)
+            // 1. Prime Contractor viewing a small business (targetId is present and currentUser is prime contractor)
+            // 2. Small Business viewing another small business (targetId present and != currentUser.id)
             if (targetId && targetId != user.id) {
                 isViewMode = true;
-            } else if (user.type === 'agency' && !targetId) {
+            } else if (user.type === 'prime_contractor' && !targetId) {
                 // Prime Contractor should not be on this page without an ID
                 alert('Redirecting to dashboard...');
                 window.location.href = 'dashboard-prime-contractor.html';
@@ -685,7 +685,7 @@
             };
             document.getElementById('btnDownloadCS').onclick = () => {
                 const API_BASE = window.APP_CONFIG ? window.APP_CONFIG.API_URL : '/api';
-                window.open(`${API_BASE}/vendors/${data.id}/capability-statement`, '_blank');
+                window.open(`${API_BASE}/small-businesses/${data.id}/capability-statement`, '_blank');
             };
         }
 

@@ -44,8 +44,8 @@ content/
 ├── global.json          ← Navigation, footer, external links, Smartsheet URLs, districts
 ├── pages/
 │   ├── index.json       ← Home page content
-│   ├── for-vendors.json
-│   ├── for-agencies.json
+│   ├── for-small businesses.json
+│   ├── for-prime contractors.json
 │   ├── resources.json
 │   └── *.json           ← One file per CMS-managed page
 └── schemas/
@@ -110,11 +110,11 @@ Every page file follows this schema:
 
 ```json
 {
-  "slug": "for-vendors",
+  "slug": "for-small businesses",
   "isSystem": true,
   "updatedAt": "2026-03-17T00:00:00.000Z",
   "meta": {
-    "title": "For Vendors & SBEs - CaltransBizConnect",
+    "title": "For Small Businesses - CaltransBizConnect",
     "description": "SEO description here."
   },
   "header": {
@@ -127,7 +127,7 @@ Every page file follows this schema:
       "id": "hero",
       "type": "hero-inner",
       "fields": {
-        "title": "For Vendors & Small Business Enterprises",
+        "title": "For Small Businesses",
         "subtitle": "Connect with opportunities…"
       }
     }
@@ -363,7 +363,7 @@ Each `type` value maps to a schema entry in `content/schemas/component-types.jso
 | `iframe-embed`    | Embedded iFrame        | `heading`, `iframeSrc`, `iframeTitle`             |
 | `alert`           | Alert / Info Box       | `heading`, `alertType`, `alertLabel`, `items[]`   |
 | `steps`           | Numbered Steps         | `heading`, `steps[]`                              |
-| `pathway-cards`   | Dual Pathway Cards     | `vendorCard`, `agencyCard`                        |
+| `pathway-cards`   | Dual Pathway Cards     | `smallBusinessCard`, `primeContractorCard`                        |
 
 To add a new component type:
 1. Add an entry to `content/schemas/component-types.json`.

@@ -10,11 +10,11 @@
     <link rel="stylesheet" href="css/dashboard-new.css">
     <link rel="stylesheet" href="css/dashboard-common.css">
     <style>
-        .vendor-list-container {
+        .small-business-list-container {
             margin-top: var(--space-xl);
         }
 
-        .vendor-item-card {
+        .small-business-item-card {
             background: var(--card-bg);
             border: 1px solid var(--color-border-light);
             border-radius: var(--border-radius-lg);
@@ -26,41 +26,41 @@
             transition: all 0.3s ease;
         }
 
-        .vendor-item-card:hover {
+        .small-business-item-card:hover {
             transform: translateX(8px);
             border-color: var(--color-primary);
             box-shadow: var(--shadow-md);
         }
 
-        .vendor-info-main h3 {
+        .small-business-info-main h3 {
             margin: 0 0 var(--space-xs) 0;
             color: var(--color-primary);
         }
 
-        .vendor-meta {
+        .small-business-meta {
             display: flex;
             gap: var(--space-md);
             color: var(--text-muted);
             font-size: 0.9rem;
         }
 
-        .vendor-actions {
+        .small-business-actions {
             display: flex;
             gap: var(--space-sm);
         }
 
         @media (max-width: 768px) {
-            .vendor-item-card {
+            .small-business-item-card {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: var(--space-md);
             }
 
-            .vendor-actions {
+            .small-business-actions {
                 width: 100%;
             }
 
-            .vendor-actions button {
+            .small-business-actions button {
                 flex: 1;
             }
         }
@@ -84,8 +84,8 @@
                 </div>
             </section>
 
-            <div class="vendor-list-container">
-                <div id="appliedSmall BusinessesList">
+            <div class="small-business-list-container">
+                <div id="appliedSmallBusinessesList">
                     <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
                         Loading applications...
                     </div>
@@ -128,17 +128,17 @@
             const opportunityId = params.get('id');
             const user = Auth.getUser();
 
-            if (!opportunityId || !user || user.type !== 'agency') {
+            if (!opportunityId || !user || user.type !== 'prime_contractor') {
                 location.href = 'manage-opportunities.html';
                 return;
             }
 
-            Navigation.init('agency');
-            loadAppliedSmall Businesses(opportunityId);
+            Navigation.init('prime_contractor');
+            loadAppliedSmallBusinesses(opportunityId);
         });
 
-        async function loadAppliedSmall Businesses(id) {
-            const listEl = document.getElementById('appliedSmall BusinessesList');
+        async function loadAppliedSmallBusinesses(id) {
+            const listEl = document.getElementById('appliedSmallBusinessesList');
             try {
                 // Fetch opportunity details for the title
                 const opp = await DataService.fetch(`/opportunities/${id}`);
@@ -148,25 +148,25 @@
 
                 // Fetch applications
                 const apps = await DataService.fetch(`/applications/opportunity/${id}`);
-                renderSmall Businesses(apps);
+                renderSmallBusinesses(apps);
             } catch (error) {
                 console.error('Error loading applications:', error);
                 listEl.innerHTML = '<div style="color: var(--color-error); text-align: center; padding: 2rem;">Error loading applications.</div>';
             }
         }
 
-        function renderSmall Businesses(apps) {
-            const listEl = document.getElementById('appliedSmall BusinessesList');
+        function renderSmallBusinesses(apps) {
+            const listEl = document.getElementById('appliedSmallBusinessesList');
             if (!apps || apps.length === 0) {
                 listEl.innerHTML = '<div class="content-card" style="text-align: center; padding: 3rem;">No applications received yet.</div>';
                 return;
             }
 
             listEl.innerHTML = apps.map(app => `
-                <div class="vendor-item-card">
-                    <div class="vendor-info-main">
-                        <h3>${app.business_name || app.vendor_name || 'Anonymous Small Business'}</h3>
-                        <div class="vendor-meta">
+                <div class="small-business-item-card">
+                    <div class="small-business-info-main">
+                        <h3>${app.business_name || app.business_name || 'Anonymous Small Business'}</h3>
+                        <div class="small-business-meta">
                             <span>👤 ${app.contact_name || 'N/A'}</span>
                             <span>📅 Applied: ${new Date(app.applied_date).toLocaleDateString()}</span>
                             <span>📋 Status: ${app.status}</span>
@@ -175,9 +175,9 @@
                             ${app.notes ? `Note: "${app.notes}"` : 'No submittal notes provided.'}
                         </div>
                     </div>
-                    <div class="vendor-actions">
-                        <button class="btn btn-outline btn-small" onclick="location.href='small-business-profile.html?id=${app.vendor_id}'">View Profile</button>
-                        <button class="btn btn-primary btn-small" onclick="openMessageModal('${app.vendor_id}', '${app.business_name || app.vendor_name}')">Message</button>
+                    <div class="small-business-actions">
+                        <button class="btn btn-outline btn-small" onclick="location.href='small-business-profile.html?id=${app.small_business_id}'">View Profile</button>
+                        <button class="btn btn-primary btn-small" onclick="openMessageModal('${app.small_business_id}', '${app.business_name || app.business_name}')">Message</button>
                     </div>
                 </div>
             `).join('');
@@ -186,10 +186,10 @@
         let currentRecipientId = null;
         let currentOpportunityId = null;
 
-        function openMessageModal(vendorId, vendorName) {
-            currentRecipientId = vendorId;
+        function openMessageModal(smallBusinessId, businessName) {
+            currentRecipientId = smallBusinessId;
             currentOpportunityId = new URLSearchParams(window.location.search).get('id');
-            document.getElementById('modalTitle').textContent = `Message to ${vendorName}`;
+            document.getElementById('modalTitle').textContent = `Message to ${businessName}`;
             document.getElementById('msgSubject').value = `Re: Application for Opportunity ${currentOpportunityId}`;
             document.getElementById('messageModal').style.display = 'block';
         }

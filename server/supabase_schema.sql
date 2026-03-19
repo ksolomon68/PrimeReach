@@ -56,8 +56,8 @@ CREATE TABLE IF NOT EXISTS opportunities (
 CREATE TABLE IF NOT EXISTS applications (
     id SERIAL PRIMARY KEY,
     opportunity_id TEXT NOT NULL REFERENCES opportunities (id),
-    vendor_id INTEGER NOT NULL REFERENCES users (id),
-    agency_id INTEGER REFERENCES users (id),
+    small_business_id INTEGER NOT NULL REFERENCES users (id),
+    prime_contractor_id INTEGER REFERENCES users (id),
     status TEXT DEFAULT 'pending',
     applied_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     notes TEXT
@@ -66,10 +66,10 @@ CREATE TABLE IF NOT EXISTS applications (
 -- Saved Opportunities Table
 CREATE TABLE IF NOT EXISTS saved_opportunities (
     id SERIAL PRIMARY KEY,
-    vendor_id INTEGER NOT NULL REFERENCES users (id),
+    small_business_id INTEGER NOT NULL REFERENCES users (id),
     opportunity_id TEXT NOT NULL REFERENCES opportunities (id),
     saved_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(vendor_id, opportunity_id)
+    UNIQUE(small_business_id, opportunity_id)
 );
 
 -- Messages Table

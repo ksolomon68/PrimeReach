@@ -299,7 +299,7 @@
         // Initialize Small Business dashboard
         document.addEventListener('DOMContentLoaded', async function () {
             setTimeout(() => {
-                Navigation.init('vendor');
+                Navigation.init('small_business');
                 initDashboardData();
             }, 50);
         });
@@ -312,17 +312,17 @@
                 // Set business name in welcome section - Removed as we standardized title
 
                 // Load real stats
-                const [opps, vendors, saved, apps] = await Promise.all([
+                const [opps, small businesses, saved, apps] = await Promise.all([
                     DataService.fetch('/opportunities'),
-                    DataService.fetch('/vendors'),
+                    DataService.fetch('/small-businesses'),
                     DataService.fetch(`/opportunities/saved/${user.id}`),
-                    DataService.fetch(`/applications/vendor/${user.id}`)
+                    DataService.fetch(`/applications/small-business/${user.id}`)
                 ]);
 
                 const statNumbers = document.querySelectorAll('.stat-number');
                 if (statNumbers.length >= 4) {
                     statNumbers[0].textContent = opps ? (Array.isArray(opps) ? opps.length : 0) : 0;
-                    statNumbers[1].textContent = vendors ? (Array.isArray(vendors) ? vendors.length : 0) : 0;
+                    statNumbers[1].textContent = small businesses ? (Array.isArray(small businesses) ? small businesses.length : 0) : 0;
                     statNumbers[2].textContent = saved ? (Array.isArray(saved) ? saved.length : 0) : 0;
                     statNumbers[3].textContent = apps ? (Array.isArray(apps) ? apps.length : 0) : 0;
 

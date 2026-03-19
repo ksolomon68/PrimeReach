@@ -111,7 +111,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             setTimeout(() => {
-                Navigation.init('vendor');
+                Navigation.init('small_business');
                 loadApplications();
                 checkApplyParam();
             }, 50);
@@ -177,7 +177,7 @@
             const applicationData = {
                 id: 'app-' + Date.now(),
                 opportunity_id: formData.get('opportunityId'),
-                vendor_id: user.id,
+                small_business_id: user.id,
                 cover_letter: formData.get('coverLetter'),
                 status: 'pending',
                 applied_at: new Date().toISOString(),
@@ -196,9 +196,9 @@
                 await new Promise(resolve => setTimeout(resolve, 800));
 
                 // PERSISTENCE: Save to LocalStorage for demo/mock resilience
-                const storedApps = JSON.parse(localStorage.getItem('vendor_applications_' + user.id) || '[]');
+                const storedApps = JSON.parse(localStorage.getItem('small_business_applications_' + user.id) || '[]');
                 storedApps.unshift(applicationData);
-                localStorage.setItem('vendor_applications_' + user.id, JSON.stringify(storedApps));
+                localStorage.setItem('small_business_applications_' + user.id, JSON.stringify(storedApps));
 
                 alert('Application submitted successfully!');
                 closeApplicationModal();
@@ -220,8 +220,8 @@
             try {
                 // Try fetching from "backend" (DataService)
                 // Combine with localStorage items to show the "newly created" ones in this mock env.
-                const backendApps = await DataService.fetch(`/applications/vendor/${user.id}`).catch(() => []);
-                const localApps = JSON.parse(localStorage.getItem('vendor_applications_' + user.id) || '[]');
+                const backendApps = await DataService.fetch(`/applications/small-business/${user.id}`).catch(() => []);
+                const localApps = JSON.parse(localStorage.getItem('small_business_applications_' + user.id) || '[]');
 
                 // Combine (local first as they are newer)
                 // In a real app, backend would return all, but here we merge.

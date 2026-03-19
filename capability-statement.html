@@ -21,15 +21,19 @@
                 <img src="images/caltrans-logo.png" alt="Caltrans">
             </a>
             <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false"><span></span></button>
-            <nav class="main-nav" aria-label="Main navigation" role="navigation">
-                <ul>
-                    <li><a href="dashboard-small-business.html">Dashboard</a></li>
-                    <li><a href="opportunities.html">Search Opportunities</a></li>
-                    <li><a href="small-business-profile.html">My Profile</a></li>
-                    <li><a href="resources.html">Resources</a></li>
-                    <li><a href="#" id="logoutLink">Log Out</a></li>
-                </ul>
-            </nav>
+            <nav class="main-nav" role="navigation" aria-label="Main navigation">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="for-small-businesses.html">Small Businesses</a></li>
+          <li><a href="for-prime-contractors.html">Prime Contractors</a></li>
+          <li><a href="opportunities.html">Opportunities</a></li>
+          <li><a href="how-it-works.html">How It Works</a></li>
+          <li><a href="resources.html">Resources</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="login.html" class="btn btn-secondary btn-small">Log In</a></li>
+        </ul>
+      </nav>
         </div>
     </header>
 
@@ -53,7 +57,7 @@
                     <div class="dashboard-header">
                         <h1 class="dashboard-title">Capability Statement</h1>
                         <p class="dashboard-subtitle">Create and manage your digital capability statement to showcase
-                            your qualifications to agencies.</p>
+                            your qualifications to prime contractors.</p>
                     </div>
 
                     <form id="capabilityForm">
@@ -181,7 +185,7 @@
     <script src="js/main.js"></script>
     <script src="js/auth.js"></script>
     <script>
-        const user = protectPage('vendor');
+        const user = protectPage('small_business');
         let currentFile = null;
 
         // Load existing data

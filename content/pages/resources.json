@@ -4,7 +4,7 @@
   "updatedAt": "2026-03-17T00:00:00.000Z",
   "meta": {
     "title": "Resources - CaltransBizConnect",
-    "description": "Access templates, guides, and resources for Small Business Enterprises and agencies using CaltransBizConnect."
+    "description": "Access templates, guides, and resources for Small Businesses and prime contractors using CaltransBizConnect."
   },
   "header": {
     "backgroundImage": "",
@@ -21,22 +21,22 @@
       }
     },
     {
-      "id": "vendor-resources",
+      "id": "small-business-resources",
       "type": "card-grid",
       "fields": {
-        "heading": "For Vendors & Small Business Enterprises",
+        "heading": "For Small Businesses",
         "cards": [
           {
             "id": "capability-guide",
             "title": "Capability Statement Guide",
-            "body": "Step-by-step guide to building a compelling capability statement that gets noticed by agencies.",
+            "body": "Step-by-step guide to building a compelling capability statement that gets noticed by prime contractors.",
             "buttonLabel": "View Guide",
-            "buttonHref": "for-vendors.html#get-started"
+            "buttonHref": "for-small-businesses.html#get-started"
           },
           {
             "id": "eligibility-checklist",
-            "title": "SBE Eligibility Checklist",
-            "body": "Review all eligibility requirements for Small Business Enterprise certification with Caltrans.",
+            "title": "Small Business Eligibility Checklist",
+            "body": "Review all eligibility requirements for Small Business certification with Caltrans.",
             "buttonLabel": "View Checklist",
             "buttonHref": "eligibility.html"
           },
@@ -51,29 +51,29 @@
       }
     },
     {
-      "id": "agency-resources",
+      "id": "prime-contractor-resources",
       "type": "card-grid",
       "fields": {
-        "heading": "For Agencies & Prime Contractors",
+        "heading": "For Prime Contractors",
         "cards": [
           {
             "id": "posting-guidelines",
             "title": "Opportunity Posting Guidelines",
-            "body": "Best practices for creating clear, complete opportunity postings that attract qualified vendors.",
+            "body": "Best practices for creating clear, complete opportunity postings that attract qualified small businesses.",
             "buttonLabel": "View Guidelines",
-            "buttonHref": "for-agencies.html#posting-requirements"
+            "buttonHref": "for-prime-contractors.html#posting-requirements"
           },
           {
-            "id": "vendor-checklist",
-            "title": "Vendor Evaluation Checklist",
-            "body": "Use this checklist to evaluate vendor qualifications and capability statements.",
+            "id": "small-business-checklist",
+            "title": "Small Business Evaluation Checklist",
+            "body": "Use this checklist to evaluate small business qualifications and capability statements.",
             "buttonLabel": "View Checklist",
-            "buttonHref": "for-vendors.html#get-started"
+            "buttonHref": "for-small-businesses.html#get-started"
           },
           {
-            "id": "sbe-overview",
-            "title": "SBE Program Overview",
-            "body": "Learn about the Small Business Enterprise program goals, requirements, and benefits.",
+            "id": "small business-overview",
+            "title": "Small Business Program Overview",
+            "body": "Learn about the Small Business program goals, requirements, and benefits.",
             "buttonLabel": "View Overview",
             "buttonHref": "index.html#why-choose"
           }

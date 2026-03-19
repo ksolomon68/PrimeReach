@@ -316,7 +316,7 @@ window.saveOpportunity = async function (opportunityId, btnElement) {
         const response = await fetch(`${API_BASE}/opportunities/save`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ vendorId: user.id || user.email, opportunityId: opportunityId })
+            body: JSON.stringify({ smallBusinessId: user.id || user.email, opportunityId: opportunityId })
         });
 
         if (response.ok) {
@@ -369,7 +369,7 @@ async function unsaveOpportunity(opportunityId, btnElement) {
         const response = await fetch(`${API_BASE}/opportunities/unsave`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ vendorId: user.id || user.email, opportunityId: opportunityId })
+            body: JSON.stringify({ smallBusinessId: user.id || user.email, opportunityId: opportunityId })
         });
 
         if (response.ok) {

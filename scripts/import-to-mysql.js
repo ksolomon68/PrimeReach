@@ -76,9 +76,9 @@ async function importData() {
         console.log(`Importing ${data.saved_opportunities.length} saved opportunities...`);
         for (const saved of data.saved_opportunities) {
             await connection.execute(
-                `INSERT INTO saved_opportunities (id, vendor_id, opportunity_id, saved_at) 
+                `INSERT INTO saved_opportunities (id, small_business_id, opportunity_id, saved_at) 
                  VALUES (?, ?, ?, ?)`,
-                [saved.id, saved.vendor_id, saved.opportunity_id, saved.saved_at]
+                [saved.id, saved.small_business_id, saved.opportunity_id, saved.saved_at]
             );
         }
         console.log('✓ Saved opportunities imported\n');

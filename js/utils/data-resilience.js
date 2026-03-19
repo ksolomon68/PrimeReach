@@ -31,16 +31,16 @@ const DataService = {
                 { id: 2, title: 'I-5 Highway Landscaping', category: 'Maintenance', district: '3', status: 'open', postedDate: '2025-01-28' },
                 { id: 3, title: 'Emergency Roadside Assistance', category: 'Safety', district: '7', status: 'open', postedDate: '2025-01-30' }
             ],
-            '/applications/vendor/': [
+            '/applications/small-business/': [
                 { id: 101, opportunity_title: 'Bridge Maintenance', status: 'pending', applied_date: '2025-01-20' },
                 { id: 102, opportunity_title: 'Roadway Striping', status: 'awarded', applied_date: '2024-12-15' }
             ],
             '/admin/users': [
-                { id: 1, name: 'BuildIT SBE', email: 'contact@buildit.com', role: 'vendor', status: 'active' },
-                { id: 2, name: 'Sacramento Paving', email: 'office@sacpaving.com', role: 'vendor', status: 'active' },
-                { id: 3, name: 'District 4 Office', email: 'd4@dot.ca.gov', role: 'agency', status: 'active' }
+                { id: 1, name: 'BuildIT Small Business', email: 'contact@buildit.com', role: 'small_business', status: 'active' },
+                { id: 2, name: 'Sacramento Paving', email: 'office@sacpaving.com', role: 'small_business', status: 'active' },
+                { id: 3, name: 'District 4 Office', email: 'd4@dot.ca.gov', role: 'prime_contractor', status: 'active' }
             ],
-            '/vendors': [
+            '/small-businesses': [
                 { id: 1, business_name: 'Vertex Construction', districts: ['04'], services: ['Highway Construction', 'Bridge Engineering'] },
                 { id: 2, business_name: 'Bay Area Environmental', districts: ['04'], services: ['Environmental Impact Assessment'] }
             ]

@@ -225,7 +225,7 @@
 
                 // Load saved status
                 const user = getCurrentUser();
-                if (user && user.type === 'vendor') {
+                if (user && user.type === 'small_business') {
                     try {
                         const saved = await DataService.fetch(`/opportunities/saved/${user.id}`);
                         if (Array.isArray(saved)) {
@@ -289,7 +289,7 @@
                 const response = await fetch(`${APP_CONFIG.API_URL}${endpoint}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ vendorId: user.id, opportunityId: currentOpportunity.id })
+                    body: JSON.stringify({ smallBusinessId: user.id, opportunityId: currentOpportunity.id })
                 });
 
                 if (response.ok) {
@@ -327,15 +327,15 @@
             if (!currentOpportunity) return;
             const user = Auth.getUser();
             if (!user) {
-                alert('Please log in to contact the agency.');
+                alert('Please log in to contact the primeContractor.');
                 window.location.href = 'login.html';
                 return;
             }
 
-            const agencyId = currentOpportunity.posted_by || currentOpportunity.postedBy;
-            if (agencyId) {
+            const primeContractorId = currentOpportunity.posted_by || currentOpportunity.postedBy;
+            if (primeContractorId) {
                 // Redirect to messages with recipient and context
-                window.location.href = `messages.html?recipient=${agencyId}&ref_type=opportunity&ref_id=${currentOpportunity.id}&ref_title=${encodeURIComponent(currentOpportunity.title)}`;
+                window.location.href = `messages.html?recipient=${primeContractorId}&ref_type=opportunity&ref_id=${currentOpportunity.id}&ref_title=${encodeURIComponent(currentOpportunity.title)}`;
             } else {
                 alert('Prime Contractor contact information is not available for this opportunity.');
             }
@@ -343,9 +343,9 @@
 
         function viewPrime ContractorProfile() {
             if (!currentOpportunity) return;
-            const agencyId = currentOpportunity.posted_by || currentOpportunity.postedBy;
-            if (agencyId) {
-                window.location.href = `prime-contractor-profile.html?id=${agencyId}`;
+            const primeContractorId = currentOpportunity.posted_by || currentOpportunity.postedBy;
+            if (primeContractorId) {
+                window.location.href = `prime-contractor-profile.html?id=${primeContractorId}`;
             } else {
                 alert('Prime Contractor information not available.');
             }
