@@ -18,13 +18,13 @@ const Navigation = {
         prime contractor: {
             title: 'Prime Contractor Portal',
             items: [
-                { label: 'Dashboard', href: 'dashboard-prime-contractor-contractor-contractor.html', icon: '🏠' },
+                { label: 'Dashboard', href: 'dashboard-prime-contractor.html', icon: '🏠' },
                 { label: 'Post Opportunity', href: 'post-opportunity.html', icon: '➕' },
                 { label: 'Manage Postings', href: 'manage-opportunities.html', icon: '📂' },
                 { label: 'Search Small Businesses', href: 'search-small-businesses.html', icon: '🔍' },
                 { label: 'Messages', href: 'messages.html', icon: '📬' },
-                { label: 'Analytics', href: 'prime contractor-contractor-analytics.html', icon: '📈' },
-                { label: 'Settings', href: 'prime contractor-contractor-settings.html', icon: '⚙️' }
+                { label: 'Analytics', href: 'prime-contractor-analytics.html', icon: '📈' },
+                { label: 'Settings', href: 'prime-contractor-settings.html', icon: '⚙️' }
             ]
         },
         admin: {
@@ -34,14 +34,14 @@ const Navigation = {
                 { label: 'User Management', href: 'admin-users.html', icon: '👥' },
                 { label: 'Opportunity Approval', href: 'manage-opportunities.html', icon: '✅' },
                 { label: 'Messages', href: 'messages.html', icon: '📬' },
-                { label: 'System Settings', href: 'prime contractor-contractor-settings.html', icon: '⚙️' }
+                { label: 'System Settings', href: 'prime-contractor-settings.html', icon: '⚙️' }
             ]
         },
         staff: {
             title: 'Staff Dashboard',
             items: [
                 { label: 'Overview', href: 'dashboard-caltrans.html', icon: '🏠' },
-                { label: 'Analytics', href: 'prime contractor-contractor-analytics.html', icon: '📈' },
+                { label: 'Analytics', href: 'prime-contractor-analytics.html', icon: '📈' },
                 { label: 'Support Services', href: 'support-services.html', icon: '🎧' },
                 { label: 'Search Small Businesses', href: 'search-small-businesses.html', icon: '🔍' }
             ]

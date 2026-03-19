@@ -20,7 +20,7 @@
         "subtitle": "Find qualified Small Businesses, post structured opportunities, and streamline your contractor outreach with CaltransBizConnect.",
         "primaryButton": {
           "label": "Create Prime Contractor Account",
-          "href": "register-prime-contractor-contractor.html"
+          "href": "register-prime-contractor.html"
         },
         "secondaryButton": {
           "label": "Search Small Businesses",
@@ -69,7 +69,7 @@
         "columns": [
           {
             "buttonLabel": "Create Prime Contractor Account",
-            "buttonHref": "register-prime-contractor-contractor.html"
+            "buttonHref": "register-prime-contractor.html"
           },
           {
             "buttonLabel": "Search Small Businesses",
