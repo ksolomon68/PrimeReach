@@ -727,20 +727,12 @@
             btn.textContent = 'Sending...';
 
             try {
-                // Send a message to the small business with the opportunity link
-                const message = note
-                    ? `${note}\n\nView the opportunity here: ${window.location.origin}/opportunity-details.html?id=${oppId}`
-                    : `We'd like to invite you to apply for our opportunity: "${oppTitle}". Click here to view and apply: ${window.location.origin}/opportunity-details.html?id=${oppId}`;
-
-                await DataService.fetch('/messages', {
+                await DataService.fetch(`/opportunities/${oppId}/invite`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'x-user-id': user.id },
                     body: JSON.stringify({
-                        senderId: user.id,
-                        receiverId: _inviteTargetId,
-                        opportunityId: oppId,
-                        subject: `Invitation to Apply: ${oppTitle}`,
-                        body: message
+                        smallBusinessId: _inviteTargetId,
+                        note: note
                     })
                 });
 

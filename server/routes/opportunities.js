@@ -248,7 +248,7 @@ router.delete('/unsave/:smallBusinessId/:opportunityId', requireRole('small_busi
 // Invite Small Business to Apply
 router.post('/:id/invite', requireRole('prime_contractor'), async (req, res) => {
     const { id: opportunityId } = req.params;
-    const { smallBusinessId } = req.body;
+    const { smallBusinessId, note } = req.body;
     const senderId = req.user.id;
     const senderBusinessName = req.user.business_name || req.user.organization_name || 'Prime Contractor';
 
@@ -268,7 +268,13 @@ router.post('/:id/invite', requireRole('prime_contractor'), async (req, res) => 
         const oppTitle = oppRows[0].title;
 
         const appUrl = process.env.PUBLIC_URL || 'http://localhost:3001';
-        const body = `You've been invited to apply for this opportunity.\n\nOpportunity: ${oppTitle}\n\nPlease review the details and submit your application if it aligns with your interests, or reply to this message if you'd like to discuss further.\n\nView Opportunity: ${appUrl}/opportunity-details.html?id=${opportunityId}`;
+        let body = `You've been invited to apply for this opportunity.\n\nOpportunity: ${oppTitle}\n\nPlease review the details and submit your application if it aligns with your interests, or reply to this message if you'd like to discuss further.`;
+        
+        if (note) {
+            body = `${note}\n\n---\n${body}`;
+        }
+        
+        body += `\n\nView Opportunity: ${appUrl}/opportunity-details.html?id=${opportunityId}`;
         
         // Insert Message
         const [msgResult] = await db.execute(`
