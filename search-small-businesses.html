@@ -282,12 +282,43 @@
             <section class="hero-section">
                 <div class="hero-content">
                     <div class="hero-welcome">
-                        <h1 class="page-title">Small Business Directory</h1>
-                        <p>Search and discover qualified Small Businesses for your contracting
-                            opportunities.</p>
+                        <h1 class="page-title" id="pageTitle">Small Business Directory</h1>
+                        <p id="pageSubtitle">Search and discover qualified Small Businesses for your contracting opportunities.</p>
                     </div>
                 </div>
             </section>
+
+            <!-- Invite Mode Banner -->
+            <div id="inviteBanner" style="display:none;margin-bottom:var(--space-lg);border-radius:var(--border-radius-lg);padding:var(--space-md) var(--space-lg);background:linear-gradient(135deg,#fff8e1,#fffde7);border-left:4px solid var(--color-secondary);display:flex;align-items:center;gap:var(--space-md);">
+                <span style="font-size:1.5rem;">✉️</span>
+                <div style="flex:1;font-weight:500;color:var(--color-text-primary);">
+                    <strong>Invite Mode</strong> — Browse the directory and click <strong>Invite to Apply</strong> on any small business to send them a direct invitation to one of your open opportunities.
+                </div>
+                <a href="search-small-businesses.html" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:0.85rem;text-decoration:underline;">Exit Invite Mode</a>
+            </div>
+
+            <!-- Invite Modal -->
+            <div id="inviteModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center;">
+                <div style="background:white;border-radius:var(--border-radius-lg);padding:var(--space-xl);max-width:500px;width:90%;max-height:80vh;overflow-y:auto;position:relative;">
+                    <button onclick="closeInviteModal()" style="position:absolute;top:var(--space-md);right:var(--space-md);border:none;background:none;font-size:1.5rem;cursor:pointer;">&times;</button>
+                    <h2 style="color:var(--color-primary);margin-bottom:var(--space-md);">Invite to Apply</h2>
+                    <p style="color:var(--text-muted);margin-bottom:var(--space-lg);">Inviting: <strong id="inviteBusinessName"></strong></p>
+                    <div class="form-group" style="margin-bottom:var(--space-lg);">
+                        <label for="inviteOppSelect" style="display:block;font-weight:600;margin-bottom:var(--space-xs);">Select an Open Opportunity</label>
+                        <select id="inviteOppSelect" style="width:100%;padding:var(--space-sm);border:1px solid var(--color-border-dark);border-radius:var(--border-radius-sm);font-size:1rem;">
+                            <option value="">Loading your opportunities...</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom:var(--space-lg);">
+                        <label for="inviteNote" style="display:block;font-weight:600;margin-bottom:var(--space-xs);">Personal Message (optional)</label>
+                        <textarea id="inviteNote" rows="3" style="width:100%;padding:var(--space-sm);border:1px solid var(--color-border-dark);border-radius:var(--border-radius-sm);" placeholder="Hi! We'd love for you to apply to our opportunity — your qualifications are a great fit."></textarea>
+                    </div>
+                    <div style="display:flex;gap:var(--space-md);justify-content:flex-end;">
+                        <button class="btn btn-outline" onclick="closeInviteModal()">Cancel</button>
+                        <button class="btn btn-primary" onclick="sendInvite()" id="sendInviteBtn">Send Invitation</button>
+                    </div>
+                </div>
+            </div>
 
             <!-- Enhanced Search Bar -->
             <section style="margin-bottom: var(--space-xl);">
@@ -491,10 +522,35 @@
     <script src="js/utils/data-resilience.js"></script>
     <script src="js/components/navigation.js"></script>
     <script>
+        // Invite mode state
+        window._inviteMode = false;
+        let _inviteTargetId = null;
+        let _primeOpps = [];
+
         // Initialize small business search
         document.addEventListener('DOMContentLoaded', async function () {
             const user = JSON.parse(localStorage.getItem('caltrans_user'));
             const userRole = user ? user.type : 'staff';
+
+            // Check for ?invite=true
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('invite') === 'true' && user && user.type === 'prime_contractor') {
+                window._inviteMode = true;
+                document.getElementById('inviteBanner').style.display = 'flex';
+                document.getElementById('pageTitle').textContent = 'Invite a Small Business to Apply';
+                document.getElementById('pageSubtitle').textContent = 'Find a qualified small business and send them a direct invitation to apply to one of your opportunities.';
+
+                // Pre-load this prime's opportunities
+                DataService.fetch('/opportunities').then(opps => {
+                    if (Array.isArray(opps)) {
+                        _primeOpps = opps.filter(o =>
+                            (String(o.posted_by) === String(user.id) || String(o.postedBy) === String(user.id)) &&
+                            (o.status === 'published' || o.status === 'open')
+                        );
+                    }
+                }).catch(() => {});
+            }
+
             setTimeout(() => {
                 Navigation.init(userRole);
                 loadSmallBusinesses();
@@ -595,6 +651,7 @@
                             <button class="profile-btn" onclick="viewSmallBusinessProfile('${sb.id}', event)">
                                 View Full Profile &rarr;
                             </button>
+                            ${window._inviteMode ? `<button class="profile-btn" style="background:var(--color-secondary);color:#000;" onclick="openInviteModal('${sb.id}', '${name.replace(/'/g, "\\'")}', event)">✉️ Invite to Apply</button>` : ''}
                         </div>
                     </div>
                 `;
@@ -628,6 +685,71 @@
             const user = Auth.getUser();
             if (!user) { alert('Please log in to contact a Small Business.'); window.location.href = 'login.html'; return; }
             window.location.href = `messages.html?recipient=${id}`;
+        };
+
+        window.openInviteModal = function (sbId, sbName, event) {
+            if (event) event.stopPropagation();
+            _inviteTargetId = sbId;
+            document.getElementById('inviteBusinessName').textContent = sbName;
+
+            const select = document.getElementById('inviteOppSelect');
+            if (_primeOpps.length === 0) {
+                select.innerHTML = '<option value="">No open opportunities found. Post one first.</option>';
+            } else {
+                select.innerHTML = '<option value="">— Select an opportunity —</option>' +
+                    _primeOpps.map(o => `<option value="${o.id}">${o.title}</option>`).join('');
+            }
+
+            document.getElementById('inviteModal').style.display = 'flex';
+        };
+
+        window.closeInviteModal = function () {
+            document.getElementById('inviteModal').style.display = 'none';
+            _inviteTargetId = null;
+            document.getElementById('inviteNote').value = '';
+        };
+
+        window.sendInvite = async function () {
+            const oppId = document.getElementById('inviteOppSelect').value;
+            if (!oppId) { alert('Please select an opportunity.'); return; }
+
+            const note = document.getElementById('inviteNote').value.trim();
+            const user = Auth.getUser();
+            if (!user) return;
+
+            const opp = _primeOpps.find(o => String(o.id) === String(oppId));
+            const oppTitle = opp ? opp.title : 'an opportunity';
+
+            const btn = document.getElementById('sendInviteBtn');
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+
+            try {
+                // Send a message to the small business with the opportunity link
+                const message = note
+                    ? `${note}\n\nView the opportunity here: ${window.location.origin}/opportunity-details.html?id=${oppId}`
+                    : `We'd like to invite you to apply for our opportunity: "${oppTitle}". Click here to view and apply: ${window.location.origin}/opportunity-details.html?id=${oppId}`;
+
+                await DataService.fetch('/messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        senderId: user.id,
+                        recipientId: _inviteTargetId,
+                        subject: `Invitation to Apply: ${oppTitle}`,
+                        body: message
+                    })
+                });
+
+                alert('Invitation sent successfully!');
+                closeInviteModal();
+            } catch (err) {
+                console.error('Error sending invite:', err);
+                alert('Failed to send invitation. Please try again.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Send Invitation';
+            }
         };
     </script>
 

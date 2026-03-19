@@ -9,6 +9,57 @@
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/dashboard-new.css">
     <link rel="stylesheet" href="css/dashboard-common.css">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, var(--brand-blue) 0%, var(--color-primary-light) 100%);
+            color: white;
+            padding: var(--space-2xl) var(--space-xl);
+            border-radius: var(--border-radius-lg);
+            margin-bottom: var(--space-xl);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="rgba(255,255,255,0.1)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></linearGradient></defs><rect width="100" height="100" fill="url(%23grad)"/></svg>');
+            background-size: cover;
+            opacity: 0.3;
+        }
+        .hero-content { position: relative; z-index: 1; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+        .stat-card {
+            background: var(--card-bg);
+            border: var(--border-width) solid var(--color-border-light);
+            border-radius: var(--border-radius-lg);
+            padding: var(--space-lg);
+            text-align: center;
+            transition: all var(--transition-base);
+        }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--color-primary); }
+        .stat-number { font-size: 2.5rem; font-weight: 800; color: var(--color-primary); margin-bottom: var(--space-xs); }
+        .stat-label { color: var(--text-muted); font-weight: 500; }
+        .action-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-lg); }
+        .action-card {
+            background: white; border: 1px solid var(--color-border-light);
+            border-radius: var(--border-radius-lg); padding: var(--space-xl);
+            text-decoration: none; color: var(--text-primary);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column; align-items: flex-start; position: relative; overflow: hidden;
+        }
+        .action-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light)); opacity: 0; transition: opacity 0.3s ease; }
+        .action-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: transparent; }
+        .action-card:hover::before { opacity: 1; }
+        .action-icon { font-size: 2rem; margin-bottom: var(--space-md); background: var(--color-bg-secondary); width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; border-radius: 16px; }
+        .action-title { font-size: 1.2rem; font-weight: 700; margin-bottom: var(--space-xs); color: var(--color-text-primary); }
+        .action-description { color: var(--text-muted); line-height: 1.5; font-size: 0.95rem; }
+    </style>
   <link rel="stylesheet" href="css/accessibility-widget.css">
 </head>
 
@@ -28,77 +79,82 @@
             <section class="hero-section">
                 <div class="hero-content">
                     <div class="hero-welcome">
-                        <h1>Caltrans Staff Dashboard</h1>
-                        <p>Manage programs, monitor district performance, and oversee small business relationships across all
-                            Caltrans districts.</p>
+                        <h1 class="page-title">Caltrans Staff Dashboard</h1>
+                        <p>Manage programs, monitor district performance, and oversee small business relationships across all Caltrans districts.</p>
                     </div>
                 </div>
             </section>
 
             <!-- Staff Actions -->
-            <section class="content-card">
-                <h3>Staff Operations</h3>
-                <div class="action-grid"
-                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-lg); margin-top: var(--space-lg);">
-                    <a href="prime-contractor-analytics.html" class="enhanced-action-card">
-                        <div class="action-icon">📈</div>
-                        <div class="action-title">Prime Contractor Analytics</div>
-                        <div class="action-description">Monitor prime contractor performance metrics</div>
-                    </a>
+            <section class="action-section">
+                <div class="enhanced-card">
+                    <div class="card-header">
+                        <h3 class="card-title">🚀 Staff Operations</h3>
+                        <div class="card-subtitle">Core management tools and platform oversight</div>
+                    </div>
+                    <div class="action-grid">
+                        <a href="prime-contractor-analytics.html" class="action-card">
+                            <div class="action-icon">📈</div>
+                            <div class="action-title">Analytics</div>
+                            <div class="action-description">Monitor prime contractor performance metrics</div>
+                        </a>
 
-                    <a href="manage-opportunities.html" class="enhanced-action-card">
-                        <div class="action-icon">📋</div>
-                        <div class="action-title">Manage Opportunities</div>
-                        <div class="action-description">Review and manage all opportunities</div>
-                    </a>
+                        <a href="manage-opportunities.html" class="action-card">
+                            <div class="action-icon">📋</div>
+                            <div class="action-title">Manage Opportunities</div>
+                            <div class="action-description">Review and manage all posted opportunities</div>
+                        </a>
 
-                    <a href="search-small-businesses.html" class="enhanced-action-card">
-                        <div class="action-icon">🔍</div>
-                        <div class="action-title">Search Small Businesses</div>
-                        <div class="action-description">Find qualified small businesses for projects</div>
-                    </a>
+                        <a href="search-small-businesses.html" class="action-card">
+                            <div class="action-icon">🔍</div>
+                            <div class="action-title">Search Small Businesses</div>
+                            <div class="action-description">Find qualified small businesses for projects</div>
+                        </a>
 
-                    <a href="dashboard-admin.html" class="enhanced-action-card">
-                        <div class="action-icon">⚙️</div>
-                        <div class="action-title">System Admin</div>
-                        <div class="action-description">Platform administration tools</div>
-                    </a>
+                        <a href="support-services.html" class="action-card">
+                            <div class="action-icon">🎧</div>
+                            <div class="action-title">Support Services</div>
+                            <div class="action-description">Manage support services for program participants</div>
+                        </a>
 
-                    <a href="resources.html" class="enhanced-action-card">
-                        <div class="action-icon">📚</div>
-                        <div class="action-title">Resources</div>
-                        <div class="action-description">Program resources and documentation</div>
-                    </a>
+                        <a href="resources.html" class="action-card">
+                            <div class="action-icon">📚</div>
+                            <div class="action-title">Resources</div>
+                            <div class="action-description">Program resources and documentation</div>
+                        </a>
 
-                    <a href="faq.html" class="enhanced-action-card">
-                        <div class="action-icon">❓</div>
-                        <div class="action-title">Help & FAQ</div>
-                        <div class="action-description">Get answers to common questions</div>
-                    </a>
+                        <a href="faq.html" class="action-card">
+                            <div class="action-icon">❓</div>
+                            <div class="action-title">Help & FAQ</div>
+                            <div class="action-description">Get answers to common questions</div>
+                        </a>
+                    </div>
                 </div>
             </section>
 
-            <!-- District Overview -->
-            <section style="margin-top: var(--space-xl);">
+            <!-- Platform Stats -->
+            <section class="quick-stats">
                 <div class="enhanced-card">
-                    <h3>District Performance Overview</h3>
-                    <div class="stats-grid"
-                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-lg); margin-top: var(--space-lg);">
+                    <div class="card-header">
+                        <h3 class="card-title">📊 Platform Overview</h3>
+                        <div class="card-subtitle">Live platform metrics</div>
+                    </div>
+                    <div class="stats-grid">
                         <div class="stat-card">
-                            <div class="stat-number">12</div>
+                            <div class="stat-number" id="statDistricts">12</div>
                             <div class="stat-label">Active Districts</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-number">856</div>
+                            <div class="stat-number" id="statOpps">--</div>
                             <div class="stat-label">Total Opportunities</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-number">3,421</div>
-                            <div class="stat-label">Small Business Applications</div>
+                            <div class="stat-number" id="statSB">--</div>
+                            <div class="stat-label">Registered Small Businesses</div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-number">142</div>
-                            <div class="stat-label">This Month's Awards</div>
+                            <div class="stat-number" id="statApps">--</div>
+                            <div class="stat-label">Total Applications</div>
                         </div>
                     </div>
                 </div>
@@ -114,10 +170,22 @@
     <script src="js/utils/data-resilience.js"></script>
     <script src="js/components/navigation.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            setTimeout(() => {
-                Navigation.init('staff');
-            }, 50);
+        document.addEventListener('DOMContentLoaded', async function () {
+            setTimeout(() => Navigation.init('staff'), 50);
+
+            try {
+                const [opps, sbs, apps] = await Promise.all([
+                    DataService.fetch('/opportunities').catch(() => []),
+                    DataService.fetch('/small-businesses').catch(() => []),
+                    DataService.fetch('/applications').catch(() => [])
+                ]);
+                const oppEl = document.getElementById('statOpps');
+                const sbEl  = document.getElementById('statSB');
+                const appEl = document.getElementById('statApps');
+                if (oppEl) oppEl.textContent = Array.isArray(opps) ? opps.length : '--';
+                if (sbEl)  sbEl.textContent  = Array.isArray(sbs)  ? sbs.length  : '--';
+                if (appEl) appEl.textContent = Array.isArray(apps) ? apps.length : '--';
+            } catch(e) { console.error('Staff dashboard stats error:', e); }
         });
     </script>
 

@@ -159,6 +159,7 @@
 
                     <div class="action-bar" style="flex-wrap: wrap;">
                         <button id="saveBtn" class="btn btn-outline" onclick="toggleSave()">Save Opportunity</button>
+                        <button id="applyBtn" class="btn btn-primary" onclick="applyForOpportunity()" style="display:none;">Apply for This Opportunity</button>
                         <button id="viewPrimeContractorBtn" class="btn btn-outline" onclick="viewPrimeContractorProfile()">View Prime Contractor Profile</button>
                         <button id="contactPrimeContractorBtn" class="btn btn-secondary" onclick="contactPrimeContractor()">Contact Prime Contractor</button>
                     </div>
@@ -265,6 +266,16 @@
 
             // Save Toggle State
             updateSaveButton();
+
+            // Show Apply button for small businesses only, hide for prime/admin
+            const user = Auth.getUser();
+            const applyBtn = document.getElementById('applyBtn');
+            if (applyBtn && user && user.type === 'small_business') {
+                const status = (opp.status || 'published').toLowerCase();
+                if (status === 'published' || status === 'open') {
+                    applyBtn.style.display = 'inline-flex';
+                }
+            }
         }
 
         function showError() {
@@ -337,6 +348,11 @@
             } else {
                 alert('Prime Contractor contact information is not available for this opportunity.');
             }
+        }
+
+        function applyForOpportunity() {
+            if (!currentOpportunity) return;
+            window.location.href = `small-business-applications.html?apply=${currentOpportunity.id}`;
         }
 
         function viewPrimeContractorProfile() {

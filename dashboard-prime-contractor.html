@@ -239,6 +239,13 @@
                 </div>
             </section>
 
+            <!-- Welcome Banner -->
+            <div id="welcomeBanner" style="display:none;margin-bottom:var(--space-lg);border-radius:var(--border-radius-lg);padding:var(--space-md) var(--space-lg);background:linear-gradient(135deg,#e8f4fd,#f0f9ff);border-left:4px solid var(--color-primary);align-items:center;gap:var(--space-md);">
+                <span style="font-size:1.5rem;">👋</span>
+                <div id="welcomeText" style="flex:1;font-weight:500;color:var(--color-text-primary);"></div>
+                <button onclick="this.parentElement.style.display='none'" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1.2rem;padding:0 0.25rem;" aria-label="Dismiss">&times;</button>
+            </div>
+
             <!-- Quick Stats -->
             <section class="quick-stats">
                 <div class="enhanced-card">
@@ -379,6 +386,23 @@
                         labels[2].textContent = 'Pending Applications';
                         labels[3].textContent = 'Awarded Contracts';
                     }
+                }
+
+                // Welcome banner
+                const pendingCount = Array.isArray(apps) ? apps.filter(a => a.status === 'pending').length : 0;
+                const banner = document.getElementById('welcomeBanner');
+                const welcomeTextEl = document.getElementById('welcomeText');
+                if (banner && welcomeTextEl) {
+                    let msg = '';
+                    if (pendingCount > 0) {
+                        msg = `Welcome back, ${orgName}! You have <strong>${pendingCount} pending application${pendingCount > 1 ? 's' : ''}</strong> waiting for your review.`;
+                    } else if (myOpps.length > 0) {
+                        msg = `Welcome back, ${orgName}! You have <strong>${myOpps.length} active posting${myOpps.length > 1 ? 's' : ''}</strong> live on the platform.`;
+                    } else {
+                        msg = `Welcome, ${orgName}! Get started by <a href="post-opportunity.html" style="color:var(--color-primary);font-weight:600;">posting your first opportunity</a>.`;
+                    }
+                    welcomeTextEl.innerHTML = msg;
+                    banner.style.display = 'flex';
                 }
 
                 // Animate stats after loading
