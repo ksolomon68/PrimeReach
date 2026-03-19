@@ -10,6 +10,7 @@ function requireRole(allowedRole) {
         const userId = req.headers['x-user-id'] || 
                        req.body.userId || 
                        req.body.senderId || 
+                       req.body.smallBusinessId ||
                        req.query.userId || 
                        req.params.userId;
 

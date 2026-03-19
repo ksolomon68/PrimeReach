@@ -268,7 +268,7 @@ router.post('/:id/invite', requireRole('prime_contractor'), async (req, res) => 
         const oppTitle = oppRows[0].title;
 
         const appUrl = process.env.PUBLIC_URL || 'http://localhost:3001';
-        const body = `You have been invited to apply to the opportunity: ${oppTitle} (ID: ${opportunityId}).\n\nCTA Link to Apply: ${appUrl}/opportunity-details.html?id=${opportunityId}\n\nPlease review the details and submit your application if interested.`;
+        const body = `You've been invited to apply for this opportunity.\n\nOpportunity: ${oppTitle}\n\nPlease review the details and submit your application if it aligns with your interests, or reply to this message if you'd like to discuss further.\n\nView Opportunity: ${appUrl}/opportunity-details.html?id=${opportunityId}`;
         
         // Insert Message
         const [msgResult] = await db.execute(`

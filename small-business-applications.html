@@ -194,7 +194,10 @@
                 const oppId = formData.get('opportunityId');
                 await DataService.fetch('/applications', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-user-id': user.id
+                    },
                     body: JSON.stringify({
                         opportunityId: oppId,
                         smallBusinessId: user.id,
@@ -202,33 +205,18 @@
                     })
                 });
 
-                // Notify the prime contractor via message (non-blocking)
-                DataService.fetch(`/opportunities/${oppId}`).then(opp => {
-                    if (!opp || !opp.posted_by) return;
-                    const sbName = user.business_name || user.contact_name || 'A small business';
-                    const oppTitle = opp.title || 'your opportunity';
-                    DataService.fetch('/messages', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            senderId: user.id,
-                            receiverId: opp.posted_by,
-                            opportunityId: oppId,
-                            subject: `New Application: ${oppTitle}`,
-                            body: `${sbName} has submitted an application for "${oppTitle}". Log in to review it in Manage Opportunities.`
-                        })
-                    }).catch(() => {});
-                }).catch(() => {});
-
                 alert('Application submitted successfully!');
                 closeApplicationModal();
                 loadApplications();
             } catch (err) {
-                const msg = err.message || '';
-                if (msg.toLowerCase().includes('already')) {
+                const msg = (err.message || '').toLowerCase();
+                if (msg.includes('already') || msg.includes('dup')) {
                     alert('You have already applied to this opportunity.');
+                } else if (msg.includes('401') || msg.includes('unauthorized')) {
+                    alert('Your session has expired. Please log in again.');
+                    window.location.href = 'login.html';
                 } else {
-                    alert('Failed to submit application. Please try again.');
+                    alert('Unable to submit your application right now. Please try again in a moment.');
                 }
                 console.error('Application submit error:', err);
             } finally {
