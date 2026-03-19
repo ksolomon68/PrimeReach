@@ -137,4 +137,22 @@ router.get('/small-business/:smallBusinessId', async (req, res) => {
     }
 });
 
+// Withdraw (delete) an application — only allowed while status is 'pending'
+router.delete('/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const [result] = await db.execute(
+            "DELETE FROM applications WHERE id = ? AND status = 'pending'",
+            [id]
+        );
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Application not found or cannot be withdrawn (only pending applications can be withdrawn)' });
+        }
+        res.json({ success: true, message: 'Application withdrawn successfully' });
+    } catch (error) {
+        console.error('Error withdrawing application:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 module.exports = router;

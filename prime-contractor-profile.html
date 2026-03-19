@@ -134,12 +134,12 @@
                 return;
             }
 
-            await loadPrime ContractorProfile(primeContractorId);
+            await loadPrimeContractorProfile(primeContractorId);
         });
 
-        async function loadPrime ContractorProfile(id) {
+        async function loadPrimeContractorProfile(id) {
             try {
-                const prime contractor = await DataService.fetch(`/users/${id}`);
+                const primeContractor = await DataService.fetch(`/users/${id}`);
                 const allOpps = await DataService.fetch('/opportunities');
 
                 // Filter opportunities posted by this prime contractor

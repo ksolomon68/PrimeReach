@@ -207,6 +207,13 @@
                 </div>
             </section>
 
+            <!-- Warm Notifications -->
+            <div id="notificationBanner" style="display:none;margin-bottom:var(--space-lg);border-radius:var(--border-radius-lg);padding:var(--space-md) var(--space-lg);background:linear-gradient(135deg,#e8f4fd,#f0f9ff);border-left:4px solid var(--color-primary);display:flex;align-items:center;gap:var(--space-md);">
+                <span style="font-size:1.5rem;">👋</span>
+                <div id="notificationText" style="flex:1;font-weight:500;color:var(--color-text-primary);"></div>
+                <button onclick="this.parentElement.style.display='none'" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1.2rem;padding:0 0.25rem;" aria-label="Dismiss">&times;</button>
+            </div>
+
             <!-- Quick Stats -->
             <section class="quick-stats">
                 <div class="enhanced-card">
@@ -308,34 +315,50 @@
             const user = Auth.getUser();
             if (!user) return;
 
-            try {
-                // Set business name in welcome section - Removed as we standardized title
+            const name = user.business_name || user.contact_name || 'there';
 
-                // Load real stats
+            try {
                 const [opps, saved, apps] = await Promise.all([
-                    DataService.fetch('/opportunities'),
+                    DataService.fetch('/opportunities').catch(() => []),
                     DataService.fetch(`/opportunities/saved/${user.id}`).catch(() => []),
                     DataService.fetch(`/applications/small-business/${user.id}`).catch(() => [])
                 ]);
 
+                const oppCount   = Array.isArray(opps)  ? opps.length  : 0;
+                const savedCount = Array.isArray(saved)  ? saved.length  : 0;
+                const pendingApps = Array.isArray(apps)  ? apps.filter(a => a.status === 'pending').length  : 0;
+                const awardedApps = Array.isArray(apps)  ? apps.filter(a => a.status === 'awarded' || a.status === 'approved').length : 0;
+                const underReview = Array.isArray(apps)  ? apps.filter(a => a.status === 'under_review').length : 0;
+
+                // Populate stats
                 const statNumbers = document.querySelectorAll('.stat-number');
                 if (statNumbers.length >= 4) {
-                    statNumbers[0].textContent = Array.isArray(opps) ? opps.length : 0;
-                    statNumbers[1].textContent = Array.isArray(saved) ? saved.length : 0;
-                    statNumbers[2].textContent = Array.isArray(apps) ? apps.filter(a => a.status === 'pending').length : 0;
-                    statNumbers[3].textContent = Array.isArray(apps) ? apps.filter(a => a.status === 'awarded').length : 0;
-
-                    // Update labels to match real data
-                    const labels = document.querySelectorAll('.stat-label');
-                    if (labels.length >= 4) {
-                        labels[0].textContent = 'Open Opportunities';
-                        labels[1].textContent = 'Saved Opportunities';
-                        labels[2].textContent = 'Pending Applications';
-                        labels[3].textContent = 'Awarded Contracts';
-                    }
+                    statNumbers[0].textContent = oppCount;
+                    statNumbers[1].textContent = savedCount;
+                    statNumbers[2].textContent = pendingApps;
+                    statNumbers[3].textContent = awardedApps;
                 }
 
-                // Animate stats after loading
+                // Warm notification
+                const banner = document.getElementById('notificationBanner');
+                const notifText = document.getElementById('notificationText');
+                let message = '';
+                if (underReview > 0) {
+                    message = `Welcome back, ${name}! You have <strong>${underReview} application${underReview > 1 ? 's' : ''} under review</strong> — a Prime Contractor is evaluating your submission.`;
+                } else if (awardedApps > 0) {
+                    message = `Congratulations, ${name}! 🎉 You've been <strong>awarded ${awardedApps} contract${awardedApps > 1 ? 's' : ''}</strong>. Check your applications for details.`;
+                } else if (pendingApps > 0) {
+                    message = `Welcome back, ${name}! You have <strong>${pendingApps} pending application${pendingApps > 1 ? 's' : ''}</strong> — we'll notify you when there's an update.`;
+                } else if (savedCount > 0) {
+                    message = `Welcome back, ${name}! You have <strong>${savedCount} saved opportunit${savedCount > 1 ? 'ies' : 'y'}</strong> waiting — don't miss the deadlines.`;
+                } else if (oppCount > 0) {
+                    message = `Welcome back, ${name}! There are <strong>${oppCount} open opportunit${oppCount > 1 ? 'ies' : 'y'}</strong> available — browse and find your next contract.`;
+                }
+                if (message) {
+                    notifText.innerHTML = message;
+                    banner.style.display = 'flex';
+                }
+
                 animateStats();
 
             } catch (error) {

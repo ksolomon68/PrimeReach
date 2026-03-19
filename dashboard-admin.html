@@ -422,26 +422,69 @@
             if (el) el.textContent = value;
         }
 
-        function renderActivity() {
+        async function renderActivity() {
             const container = document.getElementById('activityList');
-            // Mock Activity Data
-            const activities = [
-                { user: 'Acme Construction', type: 'Registration', time: '2 hours ago', details: 'New Small Business Registration' },
-                { user: 'City of Sacramento', type: 'Opportunity', time: '4 hours ago', details: 'Posted "Road Repair 2026"' },
-                { user: 'Globex Corp', type: 'Application', time: '5 hours ago', details: 'Applied for "Bridge Maintenance"' }
-            ];
+            container.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-muted);">Loading…</div>';
 
-            container.innerHTML = activities.map((act, index) => `
-                <div class="activity-item" style="animation: slideIn 0.3s ease forwards ${index * 0.1}s">
-                    <div class="user-info">
-                        <div class="user-avatar">${act.user.substring(0, 2).toUpperCase()}</div>
-                        <div class="activity-details">
-                            <div class="activity-description">${act.details}</div>
-                            <div class="activity-time">${act.time}</div>
+            try {
+                const [users, opps, apps] = await Promise.all([
+                    DataService.fetch('/admin/users').catch(() => []),
+                    DataService.fetch('/opportunities').catch(() => []),
+                    DataService.fetch('/applications').catch(() => [])
+                ]);
+
+                const events = [];
+
+                // Recent registrations (last 5 users)
+                if (Array.isArray(users)) {
+                    users.slice(0, 5).forEach(u => {
+                        const label = u.type === 'small_business' ? 'Small Business' : 'Prime Contractor';
+                        const name = u.business_name || u.organization_name || u.contact_name || u.email || 'User';
+                        events.push({ icon: '👤', name, detail: `New ${label} registered`, date: u.created_at });
+                    });
+                }
+
+                // Recent opportunities (last 3)
+                if (Array.isArray(opps)) {
+                    opps.slice(0, 3).forEach(o => {
+                        events.push({ icon: '💼', name: o.title || 'Opportunity', detail: `Opportunity posted`, date: o.posted_date });
+                    });
+                }
+
+                // Recent applications (last 3)
+                if (Array.isArray(apps)) {
+                    apps.slice(0, 3).forEach(a => {
+                        const biz = a.business_name || 'Small Business';
+                        const opp = a.project_title || a.opportunity_title || 'an opportunity';
+                        events.push({ icon: '📋', name: biz, detail: `Applied for "${opp}"`, date: a.applied_date });
+                    });
+                }
+
+                // Sort newest first
+                events.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+                const recent = events.slice(0, 8);
+
+                if (!recent.length) {
+                    container.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-muted);">No recent activity found.</div>';
+                    return;
+                }
+
+                container.innerHTML = recent.map((act, i) => `
+                    <div class="activity-item" style="opacity:1;transform:none;">
+                        <div class="user-info">
+                            <div class="user-avatar" style="font-size:1.1rem;">${act.icon}</div>
+                            <div class="activity-details">
+                                <div class="activity-description"><strong>${act.name}</strong> — ${act.detail}</div>
+                                <div class="activity-time">${act.date ? new Date(act.date).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : 'Recently'}</div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `).join('');
+
+            } catch (err) {
+                container.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-muted);">Could not load recent activity.</div>';
+                console.error('Activity load error:', err);
+            }
         }
     </script>
   <script src="js/accessibility-widget.js"></script>

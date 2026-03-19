@@ -109,6 +109,16 @@
     <script src="js/utils/data-resilience.js"></script>
     <script src="js/components/navigation.js"></script>
     <script>
+        // Status display mapping
+        const STATUS_LABELS = {
+            pending:      { label: 'Pending',       cls: 'badge-warning' },
+            under_review: { label: 'Under Review',  cls: 'badge-info' },
+            awarded:      { label: 'Awarded',        cls: 'badge-success' },
+            declined:     { label: 'Declined',       cls: 'badge-error' },
+            rejected:     { label: 'Declined',       cls: 'badge-error' },
+            approved:     { label: 'Awarded',        cls: 'badge-success' }
+        };
+
         document.addEventListener('DOMContentLoaded', function () {
             setTimeout(() => {
                 Navigation.init('small_business');
@@ -118,16 +128,14 @@
         });
 
         async function checkApplyParam() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const applyId = urlParams.get('apply');
-            if (applyId) {
-                openApplicationModal(applyId);
-            }
+            const params = new URLSearchParams(window.location.search);
+            const applyId = params.get('apply');
+            if (applyId) openApplicationModal(applyId);
         }
 
         async function openApplicationModal(id) {
             const modal = document.getElementById('applicationModal');
-            const form = document.getElementById('applicationForm');
+            const form  = document.getElementById('applicationForm');
             const loading = document.getElementById('modalLoading');
             const oppTitleEl = document.getElementById('opportunityTitle');
             const oppIdInput = document.getElementById('opportunityId');
@@ -137,10 +145,8 @@
             loading.style.display = 'block';
 
             try {
-                // Fetch opportunity details to confirm existence and get title
                 const opp = await DataService.fetch(`/opportunities/${id}`);
-
-                if (opp) {
+                if (opp && opp.id) {
                     oppTitleEl.textContent = opp.title;
                     oppIdInput.value = opp.id;
                     form.style.display = 'block';
@@ -149,8 +155,8 @@
                     alert('Opportunity not found.');
                     closeApplicationModal();
                 }
-            } catch (error) {
-                console.error('Error fetching opportunity for application:', error);
+            } catch (err) {
+                console.error('Error loading opportunity for application:', err);
                 alert('Failed to load opportunity details.');
                 closeApplicationModal();
             }
@@ -158,7 +164,6 @@
 
         function closeApplicationModal() {
             document.getElementById('applicationModal').style.display = 'none';
-            // Clear URL param without refreshing
             const url = new URL(window.location);
             url.searchParams.delete('apply');
             window.history.pushState({}, '', url);
@@ -167,48 +172,36 @@
         async function handleApplicationSubmit(e) {
             e.preventDefault();
             const user = Auth.getUser();
-            if (!user) {
-                alert('You must be logged in to apply.');
-                window.location.href = 'login.html';
-                return;
-            }
+            if (!user) { window.location.href = 'login.html'; return; }
 
             const formData = new FormData(e.target);
-            const applicationData = {
-                id: 'app-' + Date.now(),
-                opportunity_id: formData.get('opportunityId'),
-                small_business_id: user.id,
-                cover_letter: formData.get('coverLetter'),
-                status: 'pending',
-                applied_at: new Date().toISOString(),
-                opportunity_title: document.getElementById('opportunityTitle').textContent,
-                district: '4', // Default/Mock
-                category: 'Construction' // Default/Mock
-            };
-
             const submitBtn = e.target.querySelector('button[type="submit"]');
-            const originalText = submitBtn.textContent;
-            submitBtn.textContent = 'Submitting...';
+            submitBtn.textContent = 'Submitting…';
             submitBtn.disabled = true;
 
             try {
-                // Simulate network delay
-                await new Promise(resolve => setTimeout(resolve, 800));
-
-                // PERSISTENCE: Save to LocalStorage for demo/mock resilience
-                const storedApps = JSON.parse(localStorage.getItem('small_business_applications_' + user.id) || '[]');
-                storedApps.unshift(applicationData);
-                localStorage.setItem('small_business_applications_' + user.id, JSON.stringify(storedApps));
-
+                await DataService.fetch('/applications', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        opportunityId: formData.get('opportunityId'),
+                        smallBusinessId: user.id,
+                        notes: formData.get('coverLetter')
+                    })
+                });
                 alert('Application submitted successfully!');
                 closeApplicationModal();
                 loadApplications();
-
-            } catch (error) {
-                console.error('Application submission error:', error);
-                alert('Failed to submit application. Please try again.');
+            } catch (err) {
+                const msg = err.message || '';
+                if (msg.toLowerCase().includes('already')) {
+                    alert('You have already applied to this opportunity.');
+                } else {
+                    alert('Failed to submit application. Please try again.');
+                }
+                console.error('Application submit error:', err);
             } finally {
-                submitBtn.textContent = originalText;
+                submitBtn.textContent = 'Submit Application';
                 submitBtn.disabled = false;
             }
         }
@@ -216,24 +209,11 @@
         async function loadApplications() {
             const user = Auth.getUser();
             if (!user) return;
-
             try {
-                // Try fetching from "backend" (DataService)
-                // Combine with localStorage items to show the "newly created" ones in this mock env.
-                const backendApps = await DataService.fetch(`/applications/small-business/${user.id}`).catch(() => []);
-                const localApps = JSON.parse(localStorage.getItem('small_business_applications_' + user.id) || '[]');
-
-                // Combine (local first as they are newer)
-                // In a real app, backend would return all, but here we merge.
-                // Filter duplicates if any (simple check by ID)
-                const backendIds = new Set((Array.isArray(backendApps) ? backendApps : []).map(a => a.id));
-                const uniqueLocal = localApps.filter(a => !backendIds.has(a.id));
-
-                const allApps = [...uniqueLocal, ...(Array.isArray(backendApps) ? backendApps : [])];
-
-                renderApplications(allApps);
-            } catch (error) {
-                console.error('Final failure to load applications:', error);
+                const apps = await DataService.fetch(`/applications/small-business/${user.id}`).catch(() => []);
+                renderApplications(Array.isArray(apps) ? apps : []);
+            } catch (err) {
+                console.error('Failed to load applications:', err);
                 renderApplications([]);
             }
         }
@@ -241,59 +221,64 @@
         function renderApplications(applications) {
             const listEl = document.getElementById('applicationsList');
 
-            if (!applications || applications.length === 0) {
+            if (!applications.length) {
                 listEl.innerHTML = `
-                    <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                    <div style="text-align:center;padding:2rem;color:var(--text-muted);">
                         <p>You haven't submitted any applications yet.</p>
-                        <a href="search-opportunities.html" class="btn btn-primary">Browse Opportunities</a>
-                    </div>
-                `;
+                        <a href="search-opportunities.html" class="btn btn-primary" style="margin-top:1rem;">Browse Opportunities</a>
+                    </div>`;
                 return;
             }
 
-            let html = '';
-            applications.forEach(app => {
-                const statusClass = app.status === 'approved' ? 'badge-success' :
-                    app.status === 'pending' ? 'badge-warning' :
-                        app.status === 'rejected' ? 'badge-error' : 'badge-secondary';
+            listEl.innerHTML = applications.map(app => {
+                const st = STATUS_LABELS[app.status] || { label: app.status || 'Pending', cls: 'badge-secondary' };
+                const title = app.project_title || app.opportunity_title || 'Untitled Opportunity';
+                const district = app.district_name || (app.district_id ? `District ${app.district_id}` : '');
+                const prime = app.prime_contractor_name || '';
+                const date = app.applied_date || app.applied_at;
+                const isPending = (app.status || 'pending') === 'pending';
 
-                html += `
-                    <div class="enhanced-card" style="margin-bottom: var(--space-lg); border-left: 4px solid var(--color-primary);">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-md);">
-                            <div style="flex: 1;">
-                                <h3 style="margin: 0 0 var(--space-xs) 0; color: var(--color-primary); font-size: var(--font-size-xl); font-weight: 600;">
-                                    ${app.opportunity_title}
-                                </h3>
-                                <div style="display: flex; flex-wrap: wrap; gap: var(--space-sm); margin-top: var(--space-sm);">
-                                    <span class="badge badge-secondary">${app.category || 'General'}</span>
-                                    <span class="badge ${statusClass}">${app.status || 'Pending'}</span>
-                                    <span class="badge badge-info">District ${app.district || app.district_id || '4'}</span>
-                                </div>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="margin-bottom: var(--space-xs);">
-                                    <span style="font-size: 0.8rem; color: var(--text-muted);">Applied:</span>
-                                    <div style="font-weight: 600;">${new Date(app.applied_at || Date.now()).toLocaleDateString()}</div>
-                                </div>
+                return `
+                <div class="enhanced-card" style="margin-bottom:var(--space-lg);border-left:4px solid var(--color-primary);">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:var(--space-md);">
+                        <div style="flex:1;">
+                            <h3 style="margin:0 0 var(--space-xs) 0;color:var(--color-primary);font-size:var(--font-size-xl);font-weight:600;">
+                                ${title}
+                            </h3>
+                            ${prime ? `<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:var(--space-xs);">Prime: ${prime}</div>` : ''}
+                            <div style="display:flex;flex-wrap:wrap;gap:var(--space-sm);margin-top:var(--space-sm);">
+                                <span class="badge ${st.cls}">${st.label}</span>
+                                ${district ? `<span class="badge badge-info">${district}</span>` : ''}
                             </div>
                         </div>
-                        <div style="display: flex; gap: var(--space-sm); justify-content: flex-end;">
-                            <button class="btn btn-small btn-primary" onclick="viewApplication('${app.id}')">View Details</button>
-                            <button class="btn btn-small btn-outline" onclick="viewOpportunity('${app.opportunity_id}')">View Opportunity</button>
+                        <div style="text-align:right;flex-shrink:0;margin-left:1rem;">
+                            <div style="font-size:0.8rem;color:var(--text-muted);">Applied</div>
+                            <div style="font-weight:600;">${date ? new Date(date).toLocaleDateString() : '—'}</div>
                         </div>
                     </div>
-                `;
-            });
-
-            listEl.innerHTML = html;
+                    <div style="display:flex;gap:var(--space-sm);justify-content:flex-end;flex-wrap:wrap;">
+                        <button class="btn btn-small btn-outline" onclick="viewOpportunity('${app.opportunity_id}')">View Opportunity</button>
+                        ${isPending ? `<button class="btn btn-small btn-outline" style="color:var(--color-error);border-color:var(--color-error);" onclick="withdrawApplication('${app.id}', this)">Withdraw</button>` : ''}
+                    </div>
+                </div>`;
+            }).join('');
         }
 
-
-        window.viewApplication = function (applicationId) {
-            window.location.href = `application-details.html?id=${applicationId}`;
+        window.withdrawApplication = async function(appId, btn) {
+            if (!confirm('Withdraw this application? This cannot be undone.')) return;
+            btn.disabled = true;
+            btn.textContent = 'Withdrawing…';
+            try {
+                await DataService.fetch(`/applications/${appId}`, { method: 'DELETE' });
+                loadApplications();
+            } catch (err) {
+                alert('Could not withdraw application. ' + (err.message || ''));
+                btn.disabled = false;
+                btn.textContent = 'Withdraw';
+            }
         };
 
-        window.viewOpportunity = function (opportunityId) {
+        window.viewOpportunity = function(opportunityId) {
             window.location.href = `opportunity-details.html?id=${opportunityId}`;
         };
     </script>

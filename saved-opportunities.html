@@ -119,15 +119,12 @@
             }
 
             try {
-                // Call API to unsave opportunity using DataService
                 await DataService.fetch(`/opportunities/unsave`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        user_id: user.id,
-                        opportunity_id: opportunityId
+                        smallBusinessId: user.id,
+                        opportunityId: opportunityId
                     })
                 });
 
