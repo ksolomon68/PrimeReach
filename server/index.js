@@ -1,7 +1,13 @@
-// Load .env.production first (live credentials), then .env for any local overrides
-require('dotenv').config({ path: require('path').join(__dirname, '../.env.production') });
-require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
+const path = require('path');
+const dotenv = require('dotenv');
 
+// Conditionally load the correct environment file based on where we are running
+const isLive = !!(process.env.PHUSION_PASSENGER || process.env.PASSENGER_NODE_CONTROL_REPO || process.env.NODE_ENV === 'production');
+if (isLive) {
+    dotenv.config({ path: path.join(__dirname, '../.env.production'), override: true });
+} else {
+    dotenv.config({ path: path.join(__dirname, '../.env'), override: true });
+}
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
