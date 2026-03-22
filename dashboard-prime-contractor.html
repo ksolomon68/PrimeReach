@@ -233,10 +233,8 @@
             <!-- Hero Section -->
             <section class="hero-section">
                 <div class="hero-content">
-                    <div class="hero-welcome">
-                        <h1 class="page-title">Prime Contractor Dashboard</h1>
-                        <p>Manage opportunities, track small business engagement, and monitor performance.</p>
-                    </div>
+                    <h1 class="page-title">🏢 Prime Contractor Dashboard</h1>
+                    <p>Manage opportunities, track small business engagement, and monitor performance.</p>
                 </div>
             </section>
 
@@ -356,7 +354,7 @@
             try {
                 // Set organization name in welcome section
                 const orgName = user.organization_name || user.business_name || user.contact_name || 'Prime Contractor Partner';
-                const welcomeEl = document.querySelector('.hero-welcome h1');
+                const welcomeEl = document.querySelector('.page-title');
                 if (welcomeEl) {
                     welcomeEl.textContent = `Welcome, ${orgName}`;
                 }

@@ -52,16 +52,10 @@
         <!-- Main Content -->
         <main id="main-content" class="main-content">
             <!-- Hero Section -->
-            <section class="hero-section"
-                style="background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%); color: white; padding: var(--space-xl); border-radius: var(--border-radius-lg); margin-bottom: var(--space-xl); position: relative; overflow: hidden;">
-                <div class="hero-content" style="position: relative; z-index: 1;">
-                    <div class="hero-welcome">
-                        <h1 style="color: white; margin-bottom: var(--space-sm); font-size: var(--font-size-2xl);">
-                            Prime Contractor
-                            Settings</h1>
-                        <p style="color: rgba(255,255,255,0.9); font-size: var(--font-size-md);">Manage your
-                            organization's profile, preferences, and account settings.</p>
-                    </div>
+            <section class="hero-section">
+                <div class="hero-content">
+                    <h1 class="page-title">⚙️ Prime Contractor Settings</h1>
+                    <p>Manage your organization's profile, preferences, and account settings.</p>
                 </div>
             </section>
 
@@ -280,7 +274,7 @@
             if (user.type === 'admin') {
                 document.querySelector('h1').textContent = 'System / Account Settings';
                 document.title = 'System Settings - CaltransBizConnect';
-                document.querySelector('.hero-welcome p').textContent = 'Manage platform configurations and your admin account preferences.';
+                document.querySelector('.hero-content p').textContent = 'Manage platform configurations and your admin account preferences.';
             }
 
             // Populate form

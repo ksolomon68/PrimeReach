@@ -434,11 +434,12 @@ body {
 }
 
 .hero-subtitle {
-    font-size: clamp(1rem, 1.8vw, 1.25rem);
+    font-size: clamp(1rem, 1.8vw, 1.15rem);
     margin-bottom: var(--space-xl);
     color: var(--color-text-inverse);
-    line-height: 1.5;
+    line-height: 1.6;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    max-width: 680px;
 }
 
 .hero-inner .hero-title {

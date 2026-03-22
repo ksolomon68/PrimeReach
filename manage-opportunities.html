@@ -31,11 +31,8 @@
             <!-- Hero Section -->
             <section class="hero-section">
                 <div class="hero-content">
-                    <div class="hero-welcome">
-                        <h1 class="page-title">Manage Opportunities</h1>
-                        <p style="color: rgba(255,255,255,0.9); font-size: var(--font-size-md);">Update opportunity
-                            status and manage your active contracting opportunities.</p>
-                    </div>
+                    <h1 class="page-title">📋 Manage Opportunities</h1>
+                    <p>Update opportunity status and manage your active contracting opportunities.</p>
                 </div>
             </section>
 
@@ -80,7 +77,7 @@
             // Update page title based on role
             if (user.type === 'admin') {
                 document.querySelector('.page-title').textContent = 'Opportunity Administration';
-                document.querySelector('.hero-welcome p').textContent = 'Review, approve, and manage all platform opportunities.';
+                document.querySelector('.hero-content p').textContent = 'Review, approve, and manage all platform opportunities.';
             }
 
             try {

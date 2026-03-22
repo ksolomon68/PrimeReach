@@ -115,10 +115,8 @@
             <!-- Hero Section -->
             <section class="hero-section">
                 <div class="hero-content">
-                    <div class="hero-welcome">
-                        <h1 class="page-title">Post New Opportunity</h1>
-                        <p>Create and publish new contracting opportunities for qualified small businesses.</p>
-                    </div>
+                    <h1 class="page-title">📝 Post New Opportunity</h1>
+                    <p>Create and publish new contracting opportunities for qualified small businesses.</p>
                 </div>
             </section>
 
@@ -447,7 +445,7 @@
 
                 // Update page title
                 document.querySelector('h1').textContent = 'Edit Opportunity';
-                document.querySelector('.hero-welcome p').textContent = 'Update details for ' + opp.title;
+                document.querySelector('.hero-content p').textContent = 'Update details for ' + opp.title;
                 document.querySelector('button[type="submit"]').textContent = 'Update Opportunity';
 
             } catch (error) {
