@@ -232,17 +232,17 @@
     return '' +
       '<div class="a11y-panel-header">' +
       '<div>' +
-      '<div class="a11y-panel-title">Accessibility Settings</div>' +
-      '<div class="a11y-panel-shortcut">Alt + A to open / close</div>' +
+      '<div class="a11y-panel-title">Accessibility</div>' +
+      '<div class="a11y-panel-shortcut">Alt + A</div>' +
       '</div>' +
       '<button class="a11y-close-btn" id="a11y-close-btn" aria-label="Close Accessibility Settings">' +
       '&times;' +
       '</button>' +
       '</div>' +
 
-      /* -- VISUAL ADJUSTMENTS -- */
+      /* -- VISUAL -- */
       '<div class="a11y-section">' +
-      '<div class="a11y-section-title">Visual Adjustments</div>' +
+      '<div class="a11y-section-title">Visual</div>' +
 
       /* Text Size */
       '<div class="a11y-control-row">' +
@@ -258,17 +258,17 @@
       '<div class="a11y-control-row">' +
       '<span class="a11y-control-label" id="a11y-lh-label">Line Height</span>' +
       '<div class="a11y-btn-group" role="group" aria-labelledby="a11y-lh-label">' +
-      '<button class="a11y-btn" id="a11y-lh-normal" data-pref="lineHeight" data-val="normal" aria-pressed="true">Normal</button>' +
-      '<button class="a11y-btn" id="a11y-lh-relaxed" data-pref="lineHeight" data-val="relaxed" aria-pressed="false">Relaxed</button>' +
-      '<button class="a11y-btn" id="a11y-lh-loose" data-pref="lineHeight" data-val="loose" aria-pressed="false">Loose</button>' +
+      '<button class="a11y-btn" id="a11y-lh-normal" data-pref="lineHeight" data-val="normal" aria-pressed="true">Std</button>' +
+      '<button class="a11y-btn" id="a11y-lh-relaxed" data-pref="lineHeight" data-val="relaxed" aria-pressed="false">1.5×</button>' +
+      '<button class="a11y-btn" id="a11y-lh-loose" data-pref="lineHeight" data-val="loose" aria-pressed="false">2×</button>' +
       '</div>' +
       '</div>' +
 
       /* Letter Spacing */
       '<div class="a11y-control-row">' +
-      '<span class="a11y-control-label" id="a11y-ls-label">Letter Spacing</span>' +
+      '<span class="a11y-control-label" id="a11y-ls-label">Spacing</span>' +
       '<div class="a11y-btn-group" role="group" aria-labelledby="a11y-ls-label">' +
-      '<button class="a11y-btn" id="a11y-ls-normal" data-pref="letterSpacing" data-val="normal" aria-pressed="true">Normal</button>' +
+      '<button class="a11y-btn" id="a11y-ls-normal" data-pref="letterSpacing" data-val="normal" aria-pressed="true">Std</button>' +
       '<button class="a11y-btn" id="a11y-ls-wide" data-pref="letterSpacing" data-val="wide" aria-pressed="false">Wide</button>' +
       '<button class="a11y-btn" id="a11y-ls-wider" data-pref="letterSpacing" data-val="wider" aria-pressed="false">Wider</button>' +
       '</div>' +
@@ -284,13 +284,13 @@
       '</div>' +
       '</div>' +
 
-      /* -- CONTRAST & COLORS -- */
+      /* -- CONTRAST -- */
       '<div class="a11y-section">' +
-      '<div class="a11y-section-title">Contrast &amp; Colors</div>' +
+      '<div class="a11y-section-title">Contrast</div>' +
 
       /* Contrast Mode */
       '<div class="a11y-control-row">' +
-      '<span class="a11y-control-label" id="a11y-ct-label">Contrast</span>' +
+      '<span class="a11y-control-label" id="a11y-ct-label">Mode</span>' +
       '<div class="a11y-btn-group" role="group" aria-labelledby="a11y-ct-label">' +
       '<button class="a11y-btn" id="a11y-ct-default" data-pref="contrast" data-val="default" aria-pressed="true">Default</button>' +
       '<button class="a11y-btn" id="a11y-ct-high" data-pref="contrast" data-val="high" aria-pressed="false">High</button>' +
@@ -309,7 +309,7 @@
 
       /* Highlight Links */
       '<div class="a11y-control-row">' +
-      '<label class="a11y-control-label" for="a11y-links-toggle">Highlight Links</label>' +
+      '<label class="a11y-control-label" for="a11y-links-toggle">Links</label>' +
       '<label class="a11y-toggle">' +
       '<input type="checkbox" id="a11y-links-toggle" data-pref="highlightLinks">' +
       '<span class="a11y-toggle-track" aria-hidden="true"></span>' +
@@ -318,7 +318,7 @@
 
       /* Highlight Headings */
       '<div class="a11y-control-row">' +
-      '<label class="a11y-control-label" for="a11y-headings-toggle">Highlight Headings</label>' +
+      '<label class="a11y-control-label" for="a11y-headings-toggle">Headings</label>' +
       '<label class="a11y-toggle">' +
       '<input type="checkbox" id="a11y-headings-toggle" data-pref="highlightHeadings">' +
       '<span class="a11y-toggle-track" aria-hidden="true"></span>' +
@@ -326,13 +326,13 @@
       '</div>' +
       '</div>' +
 
-      /* -- CONTENT & MOTION -- */
+      /* -- MOTION -- */
       '<div class="a11y-section">' +
-      '<div class="a11y-section-title">Content &amp; Motion</div>' +
+      '<div class="a11y-section-title">Motion &amp; Content</div>' +
 
       /* Stop Animations */
       '<div class="a11y-control-row">' +
-      '<label class="a11y-control-label" for="a11y-anim-toggle">Stop Animations</label>' +
+      '<label class="a11y-control-label" for="a11y-anim-toggle">Animations</label>' +
       '<label class="a11y-toggle">' +
       '<input type="checkbox" id="a11y-anim-toggle" data-pref="stopAnimations">' +
       '<span class="a11y-toggle-track" aria-hidden="true"></span>' +
@@ -341,7 +341,7 @@
 
       /* Keyboard Mode */
       '<div class="a11y-control-row">' +
-      '<label class="a11y-control-label" for="a11y-kbd-toggle">Enhanced Focus</label>' +
+      '<label class="a11y-control-label" for="a11y-kbd-toggle">Focus Ring</label>' +
       '<label class="a11y-toggle">' +
       '<input type="checkbox" id="a11y-kbd-toggle" data-pref="keyboardMode">' +
       '<span class="a11y-toggle-track" aria-hidden="true"></span>' +
@@ -359,7 +359,7 @@
 
       /* Reading Guide */
       '<div class="a11y-control-row">' +
-      '<label class="a11y-control-label" for="a11y-guide-toggle">Reading Guide</label>' +
+      '<label class="a11y-control-label" for="a11y-guide-toggle">Read Guide</label>' +
       '<label class="a11y-toggle">' +
       '<input type="checkbox" id="a11y-guide-toggle" data-pref="readingGuide">' +
       '<span class="a11y-toggle-track" aria-hidden="true"></span>' +
@@ -368,7 +368,7 @@
       '</div>' +
 
       /* -- RESET -- */
-      '<button class="a11y-reset-btn" id="a11y-reset-btn">Reset All Settings</button>';
+      '<button class="a11y-reset-btn" id="a11y-reset-btn">Reset</button>';
   }
 
   /* -------------------------------------------------------
