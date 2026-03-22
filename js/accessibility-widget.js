@@ -1,26 +1,23 @@
 /**
  * CaltransBizConnect Accessibility Widget
- * Version: 1.0.0
+ * Version: 2.0.0
  *
  * WCAG 2.1 Level AA & Section 508 Compliant
  *
  * Features:
- *  - Text size adjustment (100% – 200%)
- *  - Line height adjustment
- *  - Letter spacing adjustment
- *  - Dyslexia-friendly font toggle
- *  - Contrast modes (default, high contrast, dark)
- *  - Grayscale mode
+ *  - 5 quick-access accessibility profiles
+ *  - Active-feature badge counter
+ *  - Text size (100%–200%)
+ *  - Line height, letter spacing, word spacing
+ *  - Dyslexia-friendly font
+ *  - Contrast modes (default, high, dark)
+ *  - Grayscale, invert colors, saturation, brightness
  *  - Highlight links / headings
- *  - Stop animations
- *  - Keyboard navigation mode (enhanced focus rings)
+ *  - Stop animations, large cursor
+ *  - Reading guide + reading mask
  *  - Hide images
- *  - Reading guide / ruler
+ *  - Keyboard shortcut: Alt+A (open), Alt+C (contrast), Alt+Z/X (text size), Alt+R (reset)
  *  - Persistent preferences via localStorage
- *  - Keyboard shortcut: Alt + A
- *
- * Usage: Include this script at the bottom of every page.
- * The widget renders itself automatically on DOMContentLoaded.
  */
 
 (function () {
@@ -34,40 +31,85 @@
   var TEXT_SIZE_MIN = 100;
   var TEXT_SIZE_MAX = 200;
   var TEXT_SIZE_STEP = 10;
+  var BRIGHTNESS_MIN = 70;
+  var BRIGHTNESS_MAX = 130;
+  var BRIGHTNESS_STEP = 10;
 
   var DEFAULT_PREFS = {
     textSize: 100,
-    lineHeight: 'normal',    // normal | relaxed | loose
-    letterSpacing: 'normal', // normal | wide | wider
-    fontFamily: 'default',   // default | dyslexic
-    contrast: 'default',     // default | high | dark
+    lineHeight: 'normal',
+    letterSpacing: 'normal',
+    wordSpacing: 'normal',
+    fontFamily: 'default',
+    contrast: 'default',
     grayscale: false,
+    invertColors: false,
+    saturation: 'normal',
+    brightness: 100,
     highlightLinks: false,
     highlightHeadings: false,
     stopAnimations: false,
     keyboardMode: false,
+    largeCursor: false,
     hideImages: false,
-    readingGuide: false
+    readingGuide: false,
+    readingMask: false,
+    activeProfile: null
   };
 
   /* Map prefs to CSS classes applied on <html> */
   var CLASS_MAP = {
-    stopAnimations: 'a11y-no-animations',
-    keyboardMode: 'a11y-keyboard-mode',
-    highlightLinks: 'a11y-highlight-links',
-    highlightHeadings: 'a11y-highlight-headings',
-    hideImages: 'a11y-hide-images',
-    grayscale: 'a11y-grayscale',
-    'contrast-high': 'a11y-contrast-high',
-    'contrast-dark': 'a11y-contrast-dark',
-    'lineHeight-relaxed': 'a11y-line-height-relaxed',
-    'lineHeight-loose': 'a11y-line-height-loose',
-    'letterSpacing-wide': 'a11y-letter-spacing-wide',
-    'letterSpacing-wider': 'a11y-letter-spacing-wider',
-    'fontFamily-dyslexic': 'a11y-dyslexic-font'
+    stopAnimations:   'a11y-no-animations',
+    keyboardMode:     'a11y-keyboard-mode',
+    highlightLinks:   'a11y-highlight-links',
+    highlightHeadings:'a11y-highlight-headings',
+    hideImages:       'a11y-hide-images',
+    grayscale:        'a11y-grayscale',
+    invertColors:     'a11y-invert',
+    largeCursor:      'a11y-large-cursor',
+    'contrast-high':         'a11y-contrast-high',
+    'contrast-dark':         'a11y-contrast-dark',
+    'lineHeight-relaxed':    'a11y-line-height-relaxed',
+    'lineHeight-loose':      'a11y-line-height-loose',
+    'letterSpacing-wide':    'a11y-letter-spacing-wide',
+    'letterSpacing-wider':   'a11y-letter-spacing-wider',
+    'wordSpacing-wide':      'a11y-word-spacing-wide',
+    'wordSpacing-wider':     'a11y-word-spacing-wider',
+    'fontFamily-dyslexic':   'a11y-dyslexic-font',
+    'saturation-low':        'a11y-saturation-low',
+    'saturation-high':       'a11y-saturation-high'
   };
 
   var ALL_CLASSES = Object.values(CLASS_MAP);
+
+  /* Quick-access profiles */
+  var PROFILES = {
+    motor: {
+      name: 'Motor',
+      icon: '♿',
+      prefs: { keyboardMode: true, stopAnimations: true, highlightLinks: true, letterSpacing: 'wide', wordSpacing: 'wide' }
+    },
+    visual: {
+      name: 'Low Vision',
+      icon: '👁️',
+      prefs: { textSize: 150, contrast: 'high', highlightLinks: true, highlightHeadings: true }
+    },
+    cognitive: {
+      name: 'Cognitive',
+      icon: '🧠',
+      prefs: { stopAnimations: true, highlightLinks: true, highlightHeadings: true, readingGuide: true, wordSpacing: 'wide', lineHeight: 'relaxed' }
+    },
+    dyslexia: {
+      name: 'Dyslexia',
+      icon: '📖',
+      prefs: { fontFamily: 'dyslexic', letterSpacing: 'wide', lineHeight: 'relaxed', wordSpacing: 'wide', highlightHeadings: true }
+    },
+    seizure: {
+      name: 'Seizure Safe',
+      icon: '🛡️',
+      prefs: { stopAnimations: true, saturation: 'low', brightness: 90 }
+    }
+  };
 
   /* -------------------------------------------------------
      STATE
@@ -76,8 +118,10 @@
   var prefs = {};
   var panelOpen = false;
   var readingGuideEl = null;
+  var readingMaskEl = null;
   var announcerEl = null;
   var triggerBtn = null;
+  var badgeEl = null;
   var panel = null;
 
   /* -------------------------------------------------------
@@ -88,8 +132,7 @@
     try {
       var stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        var parsed = JSON.parse(stored);
-        prefs = Object.assign({}, DEFAULT_PREFS, parsed);
+        prefs = Object.assign({}, DEFAULT_PREFS, JSON.parse(stored));
         return;
       }
     } catch (e) { /* ignore */ }
@@ -108,8 +151,10 @@
 
   function applyAllPrefs() {
     applyTextSize();
+    applyBrightness();
     applyClasses();
     applyReadingGuide();
+    applyReadingMask();
   }
 
   function applyTextSize() {
@@ -120,24 +165,26 @@
     }
   }
 
+  function applyBrightness() {
+    if (prefs.brightness === 100) {
+      document.body.style.filter = '';
+    } else {
+      document.body.style.filter = 'brightness(' + (prefs.brightness / 100) + ')';
+    }
+  }
+
   function applyClasses() {
     var html = document.documentElement;
 
-    /* Remove all managed classes first */
-    ALL_CLASSES.forEach(function (cls) {
-      html.classList.remove(cls);
-    });
+    ALL_CLASSES.forEach(function (cls) { html.classList.remove(cls); });
 
     /* Boolean toggles */
-    var booleans = ['stopAnimations', 'keyboardMode', 'highlightLinks',
-      'highlightHeadings', 'hideImages', 'grayscale'];
-    booleans.forEach(function (key) {
-      if (prefs[key] && CLASS_MAP[key]) {
-        html.classList.add(CLASS_MAP[key]);
-      }
+    ['stopAnimations', 'keyboardMode', 'highlightLinks', 'highlightHeadings',
+      'hideImages', 'grayscale', 'invertColors', 'largeCursor'].forEach(function (key) {
+      if (prefs[key] && CLASS_MAP[key]) html.classList.add(CLASS_MAP[key]);
     });
 
-    /* Contrast mode */
+    /* Contrast */
     if (prefs.contrast !== 'default') {
       var cls = CLASS_MAP['contrast-' + prefs.contrast];
       if (cls) html.classList.add(cls);
@@ -155,9 +202,21 @@
       if (cls) html.classList.add(cls);
     }
 
+    /* Word spacing */
+    if (prefs.wordSpacing !== 'normal') {
+      var cls = CLASS_MAP['wordSpacing-' + prefs.wordSpacing];
+      if (cls) html.classList.add(cls);
+    }
+
     /* Font family */
     if (prefs.fontFamily !== 'default') {
       var cls = CLASS_MAP['fontFamily-' + prefs.fontFamily];
+      if (cls) html.classList.add(cls);
+    }
+
+    /* Saturation */
+    if (prefs.saturation !== 'normal') {
+      var cls = CLASS_MAP['saturation-' + prefs.saturation];
       if (cls) html.classList.add(cls);
     }
   }
@@ -171,6 +230,40 @@
     }
   }
 
+  function applyReadingMask() {
+    if (!readingMaskEl) return;
+    if (prefs.readingMask) {
+      readingMaskEl.classList.add('a11y-reading-mask-active');
+    } else {
+      readingMaskEl.classList.remove('a11y-reading-mask-active');
+    }
+  }
+
+  /* -------------------------------------------------------
+     BADGE COUNTER
+  ------------------------------------------------------- */
+
+  function countActivePrefs() {
+    var count = 0;
+    Object.keys(DEFAULT_PREFS).forEach(function (key) {
+      if (key === 'activeProfile') return;
+      if (prefs[key] !== DEFAULT_PREFS[key]) count++;
+    });
+    return count;
+  }
+
+  function updateBadge() {
+    if (!badgeEl) return;
+    var count = countActivePrefs();
+    if (count > 0) {
+      badgeEl.textContent = count;
+      badgeEl.style.display = 'flex';
+      badgeEl.setAttribute('aria-label', count + ' accessibility settings active');
+    } else {
+      badgeEl.style.display = 'none';
+    }
+  }
+
   /* -------------------------------------------------------
      ANNOUNCE TO SCREEN READERS
   ------------------------------------------------------- */
@@ -178,10 +271,40 @@
   function announce(msg) {
     if (!announcerEl) return;
     announcerEl.textContent = '';
-    /* Force re-announcement with slight delay */
-    setTimeout(function () {
-      announcerEl.textContent = msg;
-    }, 50);
+    setTimeout(function () { announcerEl.textContent = msg; }, 50);
+  }
+
+  /* -------------------------------------------------------
+     PROFILES
+  ------------------------------------------------------- */
+
+  function applyProfile(profileKey) {
+    if (!PROFILES[profileKey]) return;
+
+    /* Reset to defaults first */
+    prefs = Object.assign({}, DEFAULT_PREFS);
+
+    /* Apply profile prefs */
+    var profilePrefs = PROFILES[profileKey].prefs;
+    Object.keys(profilePrefs).forEach(function (k) {
+      prefs[k] = profilePrefs[k];
+    });
+
+    prefs.activeProfile = profileKey;
+    savePrefs();
+    applyAllPrefs();
+    syncUI();
+    updateBadge();
+    announce(PROFILES[profileKey].name + ' profile applied.');
+  }
+
+  function clearProfile() {
+    prefs = Object.assign({}, DEFAULT_PREFS);
+    savePrefs();
+    applyAllPrefs();
+    syncUI();
+    updateBadge();
+    announce('Profile cleared. All settings reset.');
   }
 
   /* -------------------------------------------------------
@@ -202,19 +325,35 @@
     readingGuideEl.setAttribute('aria-hidden', 'true');
     document.body.appendChild(readingGuideEl);
 
+    /* Reading mask */
+    readingMaskEl = document.createElement('div');
+    readingMaskEl.className = 'a11y-reading-mask';
+    readingMaskEl.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(readingMaskEl);
+
     /* Trigger button */
     triggerBtn = document.createElement('button');
     triggerBtn.className = 'a11y-trigger';
     triggerBtn.setAttribute('aria-label', 'Open Accessibility Settings (Alt+A)');
     triggerBtn.setAttribute('aria-expanded', 'false');
     triggerBtn.setAttribute('aria-controls', 'a11y-panel');
-    triggerBtn.innerHTML = '<span class="sr-only">Accessibility Options</span><span class="a11y-trigger-icon" aria-hidden="true">' +
+    triggerBtn.innerHTML =
+      '<span class="sr-only">Accessibility Options</span>' +
+      '<span class="a11y-trigger-icon" aria-hidden="true">' +
       '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
       'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' +
       '<circle cx="12" cy="5" r="2"></circle>' +
       '<path d="M10 9h4l2 6h-2l-1 4h-2l-1-4H8z"></path>' +
       '<path d="M7 14c0 0 1 2 5 2s5-2 5-2"></path>' +
       '</svg></span>';
+
+    /* Badge */
+    badgeEl = document.createElement('span');
+    badgeEl.className = 'a11y-badge';
+    badgeEl.setAttribute('aria-hidden', 'true');
+    badgeEl.style.display = 'none';
+    triggerBtn.appendChild(badgeEl);
+
     document.body.appendChild(triggerBtn);
 
     /* Panel */
@@ -230,14 +369,26 @@
 
   function buildPanelHTML() {
     return '' +
+      /* Header */
       '<div class="a11y-panel-header">' +
       '<div>' +
       '<div class="a11y-panel-title">Accessibility</div>' +
       '<div class="a11y-panel-shortcut">Alt + A</div>' +
       '</div>' +
-      '<button class="a11y-close-btn" id="a11y-close-btn" aria-label="Close Accessibility Settings">' +
-      '&times;' +
-      '</button>' +
+      '<button class="a11y-close-btn" id="a11y-close-btn" aria-label="Close Accessibility Settings">&times;</button>' +
+      '</div>' +
+
+      /* -- PROFILES -- */
+      '<div class="a11y-section">' +
+      '<div class="a11y-section-title">Profiles</div>' +
+      '<div class="a11y-profiles">' +
+      Object.keys(PROFILES).map(function (key) {
+        return '<button class="a11y-profile-btn" data-profile="' + key + '" aria-pressed="false">' +
+          '<span class="a11y-profile-icon" aria-hidden="true">' + PROFILES[key].icon + '</span>' +
+          '<span class="a11y-profile-name">' + PROFILES[key].name + '</span>' +
+          '</button>';
+      }).join('') +
+      '</div>' +
       '</div>' +
 
       /* -- VISUAL -- */
@@ -254,6 +405,16 @@
       '</div>' +
       '</div>' +
 
+      /* Brightness */
+      '<div class="a11y-control-row">' +
+      '<span class="a11y-control-label" id="a11y-brightness-label">Brightness</span>' +
+      '<div class="a11y-stepper" role="group" aria-labelledby="a11y-brightness-label">' +
+      '<button class="a11y-stepper-btn" id="a11y-brightness-decrease" aria-label="Decrease brightness">&minus;</button>' +
+      '<span class="a11y-stepper-value" id="a11y-brightness-val" aria-live="polite" aria-atomic="true">100%</span>' +
+      '<button class="a11y-stepper-btn" id="a11y-brightness-increase" aria-label="Increase brightness">+</button>' +
+      '</div>' +
+      '</div>' +
+
       /* Line Height */
       '<div class="a11y-control-row">' +
       '<span class="a11y-control-label" id="a11y-lh-label">Line Height</span>' +
@@ -266,11 +427,21 @@
 
       /* Letter Spacing */
       '<div class="a11y-control-row">' +
-      '<span class="a11y-control-label" id="a11y-ls-label">Spacing</span>' +
+      '<span class="a11y-control-label" id="a11y-ls-label">Letter Spc</span>' +
       '<div class="a11y-btn-group" role="group" aria-labelledby="a11y-ls-label">' +
       '<button class="a11y-btn" id="a11y-ls-normal" data-pref="letterSpacing" data-val="normal" aria-pressed="true">Std</button>' +
       '<button class="a11y-btn" id="a11y-ls-wide" data-pref="letterSpacing" data-val="wide" aria-pressed="false">Wide</button>' +
       '<button class="a11y-btn" id="a11y-ls-wider" data-pref="letterSpacing" data-val="wider" aria-pressed="false">Wider</button>' +
+      '</div>' +
+      '</div>' +
+
+      /* Word Spacing */
+      '<div class="a11y-control-row">' +
+      '<span class="a11y-control-label" id="a11y-ws-label">Word Spc</span>' +
+      '<div class="a11y-btn-group" role="group" aria-labelledby="a11y-ws-label">' +
+      '<button class="a11y-btn" id="a11y-ws-normal" data-pref="wordSpacing" data-val="normal" aria-pressed="true">Std</button>' +
+      '<button class="a11y-btn" id="a11y-ws-wide" data-pref="wordSpacing" data-val="wide" aria-pressed="false">Wide</button>' +
+      '<button class="a11y-btn" id="a11y-ws-wider" data-pref="wordSpacing" data-val="wider" aria-pressed="false">Wider</button>' +
       '</div>' +
       '</div>' +
 
@@ -298,72 +469,79 @@
       '</div>' +
       '</div>' +
 
+      /* Saturation */
+      '<div class="a11y-control-row">' +
+      '<span class="a11y-control-label" id="a11y-sat-label">Saturation</span>' +
+      '<div class="a11y-btn-group" role="group" aria-labelledby="a11y-sat-label">' +
+      '<button class="a11y-btn" id="a11y-sat-normal" data-pref="saturation" data-val="normal" aria-pressed="true">Std</button>' +
+      '<button class="a11y-btn" id="a11y-sat-low" data-pref="saturation" data-val="low" aria-pressed="false">Low</button>' +
+      '<button class="a11y-btn" id="a11y-sat-high" data-pref="saturation" data-val="high" aria-pressed="false">High</button>' +
+      '</div>' +
+      '</div>' +
+
       /* Grayscale */
       '<div class="a11y-control-row">' +
       '<label class="a11y-control-label" for="a11y-grayscale-toggle">Grayscale</label>' +
-      '<label class="a11y-toggle">' +
-      '<input type="checkbox" id="a11y-grayscale-toggle" data-pref="grayscale">' +
-      '<span class="a11y-toggle-track" aria-hidden="true"></span>' +
-      '</label>' +
+      '<label class="a11y-toggle"><input type="checkbox" id="a11y-grayscale-toggle" data-pref="grayscale"><span class="a11y-toggle-track" aria-hidden="true"></span></label>' +
+      '</div>' +
+
+      /* Invert Colors */
+      '<div class="a11y-control-row">' +
+      '<label class="a11y-control-label" for="a11y-invert-toggle">Invert Colors</label>' +
+      '<label class="a11y-toggle"><input type="checkbox" id="a11y-invert-toggle" data-pref="invertColors"><span class="a11y-toggle-track" aria-hidden="true"></span></label>' +
       '</div>' +
 
       /* Highlight Links */
       '<div class="a11y-control-row">' +
       '<label class="a11y-control-label" for="a11y-links-toggle">Links</label>' +
-      '<label class="a11y-toggle">' +
-      '<input type="checkbox" id="a11y-links-toggle" data-pref="highlightLinks">' +
-      '<span class="a11y-toggle-track" aria-hidden="true"></span>' +
-      '</label>' +
+      '<label class="a11y-toggle"><input type="checkbox" id="a11y-links-toggle" data-pref="highlightLinks"><span class="a11y-toggle-track" aria-hidden="true"></span></label>' +
       '</div>' +
 
       /* Highlight Headings */
       '<div class="a11y-control-row">' +
       '<label class="a11y-control-label" for="a11y-headings-toggle">Headings</label>' +
-      '<label class="a11y-toggle">' +
-      '<input type="checkbox" id="a11y-headings-toggle" data-pref="highlightHeadings">' +
-      '<span class="a11y-toggle-track" aria-hidden="true"></span>' +
-      '</label>' +
+      '<label class="a11y-toggle"><input type="checkbox" id="a11y-headings-toggle" data-pref="highlightHeadings"><span class="a11y-toggle-track" aria-hidden="true"></span></label>' +
       '</div>' +
       '</div>' +
 
-      /* -- MOTION -- */
+      /* -- MOTION & CONTENT -- */
       '<div class="a11y-section">' +
       '<div class="a11y-section-title">Motion &amp; Content</div>' +
 
       /* Stop Animations */
       '<div class="a11y-control-row">' +
       '<label class="a11y-control-label" for="a11y-anim-toggle">Animations</label>' +
-      '<label class="a11y-toggle">' +
-      '<input type="checkbox" id="a11y-anim-toggle" data-pref="stopAnimations">' +
-      '<span class="a11y-toggle-track" aria-hidden="true"></span>' +
-      '</label>' +
+      '<label class="a11y-toggle"><input type="checkbox" id="a11y-anim-toggle" data-pref="stopAnimations"><span class="a11y-toggle-track" aria-hidden="true"></span></label>' +
       '</div>' +
 
       /* Keyboard Mode */
       '<div class="a11y-control-row">' +
       '<label class="a11y-control-label" for="a11y-kbd-toggle">Focus Ring</label>' +
-      '<label class="a11y-toggle">' +
-      '<input type="checkbox" id="a11y-kbd-toggle" data-pref="keyboardMode">' +
-      '<span class="a11y-toggle-track" aria-hidden="true"></span>' +
-      '</label>' +
+      '<label class="a11y-toggle"><input type="checkbox" id="a11y-kbd-toggle" data-pref="keyboardMode"><span class="a11y-toggle-track" aria-hidden="true"></span></label>' +
+      '</div>' +
+
+      /* Large Cursor */
+      '<div class="a11y-control-row">' +
+      '<label class="a11y-control-label" for="a11y-cursor-toggle">Large Cursor</label>' +
+      '<label class="a11y-toggle"><input type="checkbox" id="a11y-cursor-toggle" data-pref="largeCursor"><span class="a11y-toggle-track" aria-hidden="true"></span></label>' +
       '</div>' +
 
       /* Hide Images */
       '<div class="a11y-control-row">' +
       '<label class="a11y-control-label" for="a11y-img-toggle">Hide Images</label>' +
-      '<label class="a11y-toggle">' +
-      '<input type="checkbox" id="a11y-img-toggle" data-pref="hideImages">' +
-      '<span class="a11y-toggle-track" aria-hidden="true"></span>' +
-      '</label>' +
+      '<label class="a11y-toggle"><input type="checkbox" id="a11y-img-toggle" data-pref="hideImages"><span class="a11y-toggle-track" aria-hidden="true"></span></label>' +
       '</div>' +
 
       /* Reading Guide */
       '<div class="a11y-control-row">' +
       '<label class="a11y-control-label" for="a11y-guide-toggle">Read Guide</label>' +
-      '<label class="a11y-toggle">' +
-      '<input type="checkbox" id="a11y-guide-toggle" data-pref="readingGuide">' +
-      '<span class="a11y-toggle-track" aria-hidden="true"></span>' +
-      '</label>' +
+      '<label class="a11y-toggle"><input type="checkbox" id="a11y-guide-toggle" data-pref="readingGuide"><span class="a11y-toggle-track" aria-hidden="true"></span></label>' +
+      '</div>' +
+
+      /* Reading Mask */
+      '<div class="a11y-control-row">' +
+      '<label class="a11y-control-label" for="a11y-mask-toggle">Read Mask</label>' +
+      '<label class="a11y-toggle"><input type="checkbox" id="a11y-mask-toggle" data-pref="readingMask"><span class="a11y-toggle-track" aria-hidden="true"></span></label>' +
       '</div>' +
       '</div>' +
 
@@ -379,18 +557,27 @@
     /* Text size */
     var sizeVal = panel.querySelector('#a11y-text-size-val');
     if (sizeVal) sizeVal.textContent = prefs.textSize + '%';
-
     var decBtn = panel.querySelector('#a11y-text-decrease');
     var incBtn = panel.querySelector('#a11y-text-increase');
     if (decBtn) decBtn.disabled = prefs.textSize <= TEXT_SIZE_MIN;
     if (incBtn) incBtn.disabled = prefs.textSize >= TEXT_SIZE_MAX;
 
+    /* Brightness */
+    var brightVal = panel.querySelector('#a11y-brightness-val');
+    if (brightVal) brightVal.textContent = prefs.brightness + '%';
+    var brightDec = panel.querySelector('#a11y-brightness-decrease');
+    var brightInc = panel.querySelector('#a11y-brightness-increase');
+    if (brightDec) brightDec.disabled = prefs.brightness <= BRIGHTNESS_MIN;
+    if (brightInc) brightInc.disabled = prefs.brightness >= BRIGHTNESS_MAX;
+
     /* Segmented button groups */
     var groups = {
-      lineHeight: ['normal', 'relaxed', 'loose'],
+      lineHeight:    ['normal', 'relaxed', 'loose'],
       letterSpacing: ['normal', 'wide', 'wider'],
-      fontFamily: ['default', 'dyslexic'],
-      contrast: ['default', 'high', 'dark']
+      wordSpacing:   ['normal', 'wide', 'wider'],
+      fontFamily:    ['default', 'dyslexic'],
+      contrast:      ['default', 'high', 'dark'],
+      saturation:    ['normal', 'low', 'high']
     };
 
     Object.keys(groups).forEach(function (pref) {
@@ -399,30 +586,40 @@
         if (btn) {
           var active = prefs[pref] === val;
           btn.setAttribute('aria-pressed', active ? 'true' : 'false');
-          if (active) {
-            btn.classList.add('a11y-active');
-          } else {
-            btn.classList.remove('a11y-active');
-          }
+          if (active) btn.classList.add('a11y-active');
+          else btn.classList.remove('a11y-active');
         }
       });
     });
 
     /* Checkbox toggles */
     var checkboxMap = {
-      grayscale: '#a11y-grayscale-toggle',
-      highlightLinks: '#a11y-links-toggle',
-      highlightHeadings: '#a11y-headings-toggle',
-      stopAnimations: '#a11y-anim-toggle',
-      keyboardMode: '#a11y-kbd-toggle',
-      hideImages: '#a11y-img-toggle',
-      readingGuide: '#a11y-guide-toggle'
+      grayscale:        '#a11y-grayscale-toggle',
+      invertColors:     '#a11y-invert-toggle',
+      highlightLinks:   '#a11y-links-toggle',
+      highlightHeadings:'#a11y-headings-toggle',
+      stopAnimations:   '#a11y-anim-toggle',
+      keyboardMode:     '#a11y-kbd-toggle',
+      largeCursor:      '#a11y-cursor-toggle',
+      hideImages:       '#a11y-img-toggle',
+      readingGuide:     '#a11y-guide-toggle',
+      readingMask:      '#a11y-mask-toggle'
     };
 
     Object.keys(checkboxMap).forEach(function (pref) {
       var el = panel.querySelector(checkboxMap[pref]);
       if (el) el.checked = !!prefs[pref];
     });
+
+    /* Profile buttons */
+    panel.querySelectorAll('.a11y-profile-btn').forEach(function (btn) {
+      var active = prefs.activeProfile === btn.getAttribute('data-profile');
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      if (active) btn.classList.add('a11y-profile-active');
+      else btn.classList.remove('a11y-profile-active');
+    });
+
+    updateBadge();
   }
 
   /* -------------------------------------------------------
@@ -433,11 +630,8 @@
     panelOpen = true;
     panel.classList.add('a11y-panel-open');
     triggerBtn.setAttribute('aria-expanded', 'true');
-    /* Focus close button */
     var closeBtn = panel.querySelector('#a11y-close-btn');
-    if (closeBtn) {
-      setTimeout(function () { closeBtn.focus(); }, 50);
-    }
+    if (closeBtn) setTimeout(function () { closeBtn.focus(); }, 50);
     announce('Accessibility settings panel opened.');
   }
 
@@ -456,131 +650,162 @@
   function bindEvents() {
     /* Trigger button */
     triggerBtn.addEventListener('click', function () {
-      if (panelOpen) {
-        closePanel();
-      } else {
-        openPanel();
-      }
+      if (panelOpen) closePanel(); else openPanel();
     });
 
     /* Close button */
     panel.addEventListener('click', function (e) {
-      if (e.target.id === 'a11y-close-btn' ||
-        e.target.closest('#a11y-close-btn')) {
-        closePanel();
-      }
+      if (e.target.id === 'a11y-close-btn' || e.target.closest('#a11y-close-btn')) closePanel();
     });
 
-    /* Keyboard: Escape closes, Tab traps within panel */
+    /* Keyboard shortcuts */
     document.addEventListener('keydown', function (e) {
-      /* Alt + A global shortcut */
       if (e.altKey && e.key === 'a') {
         e.preventDefault();
-        if (panelOpen) {
-          closePanel();
-        } else {
-          openPanel();
+        if (panelOpen) closePanel(); else openPanel();
+        return;
+      }
+      if (e.altKey && e.key === 'c') {
+        e.preventDefault();
+        var next = prefs.contrast === 'default' ? 'high' : prefs.contrast === 'high' ? 'dark' : 'default';
+        prefs.contrast = next;
+        savePrefs(); applyClasses(); syncUI();
+        announce('Contrast set to ' + next + '.');
+        return;
+      }
+      if (e.altKey && e.key === 'z') {
+        e.preventDefault();
+        if (prefs.textSize < TEXT_SIZE_MAX) {
+          prefs.textSize += TEXT_SIZE_STEP;
+          savePrefs(); applyTextSize(); syncUI();
+          announce('Text size increased to ' + prefs.textSize + ' percent.');
         }
+        return;
+      }
+      if (e.altKey && e.key === 'x') {
+        e.preventDefault();
+        if (prefs.textSize > TEXT_SIZE_MIN) {
+          prefs.textSize -= TEXT_SIZE_STEP;
+          savePrefs(); applyTextSize(); syncUI();
+          announce('Text size decreased to ' + prefs.textSize + ' percent.');
+        }
+        return;
+      }
+      if (e.altKey && e.key === 'r') {
+        e.preventDefault();
+        prefs = Object.assign({}, DEFAULT_PREFS);
+        savePrefs(); applyAllPrefs(); syncUI();
+        announce('All accessibility settings reset.');
         return;
       }
 
       if (!panelOpen) return;
-
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        closePanel();
-      }
+      if (e.key === 'Escape') { e.preventDefault(); closePanel(); }
     });
 
     /* Click outside to close */
     document.addEventListener('click', function (e) {
       if (!panelOpen) return;
-      if (!panel.contains(e.target) && e.target !== triggerBtn) {
-        closePanel();
-      }
+      if (!panel.contains(e.target) && e.target !== triggerBtn) closePanel();
     });
 
-    /* --- Segmented button groups --- */
+    /* Segmented button groups */
     panel.addEventListener('click', function (e) {
       var btn = e.target.closest('[data-pref][data-val]');
       if (!btn) return;
       var pref = btn.getAttribute('data-pref');
       var val = btn.getAttribute('data-val');
       prefs[pref] = val;
-      savePrefs();
-      applyClasses();
-      syncUI();
+      prefs.activeProfile = null; /* manual change clears profile */
+      savePrefs(); applyClasses(); syncUI();
       announce(labelFor(pref) + ' set to ' + val + '.');
     });
 
-    /* --- Checkbox toggles --- */
+    /* Profile buttons */
+    panel.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-profile]');
+      if (!btn) return;
+      var profileKey = btn.getAttribute('data-profile');
+      if (prefs.activeProfile === profileKey) {
+        clearProfile();
+      } else {
+        applyProfile(profileKey);
+      }
+    });
+
+    /* Checkbox toggles */
     panel.addEventListener('change', function (e) {
       var el = e.target;
       if (!el.dataset.pref) return;
       var pref = el.dataset.pref;
       prefs[pref] = el.checked;
-      savePrefs();
-      applyClasses();
-      applyReadingGuide();
-      syncUI();
+      prefs.activeProfile = null;
+      savePrefs(); applyClasses(); applyReadingGuide(); applyReadingMask(); syncUI();
       announce(labelFor(pref) + (el.checked ? ' enabled.' : ' disabled.'));
     });
 
-    /* --- Text size stepper --- */
+    /* Text size stepper */
     panel.addEventListener('click', function (e) {
-      if (e.target.id === 'a11y-text-decrease') {
-        if (prefs.textSize > TEXT_SIZE_MIN) {
-          prefs.textSize -= TEXT_SIZE_STEP;
-          savePrefs();
-          applyTextSize();
-          syncUI();
-          announce('Text size decreased to ' + prefs.textSize + ' percent.');
-        }
+      if (e.target.id === 'a11y-text-decrease' && prefs.textSize > TEXT_SIZE_MIN) {
+        prefs.textSize -= TEXT_SIZE_STEP;
+        prefs.activeProfile = null;
+        savePrefs(); applyTextSize(); syncUI();
+        announce('Text size decreased to ' + prefs.textSize + ' percent.');
       }
-      if (e.target.id === 'a11y-text-increase') {
-        if (prefs.textSize < TEXT_SIZE_MAX) {
-          prefs.textSize += TEXT_SIZE_STEP;
-          savePrefs();
-          applyTextSize();
-          syncUI();
-          announce('Text size increased to ' + prefs.textSize + ' percent.');
-        }
+      if (e.target.id === 'a11y-text-increase' && prefs.textSize < TEXT_SIZE_MAX) {
+        prefs.textSize += TEXT_SIZE_STEP;
+        prefs.activeProfile = null;
+        savePrefs(); applyTextSize(); syncUI();
+        announce('Text size increased to ' + prefs.textSize + ' percent.');
       }
     });
 
-    /* --- Reset --- */
+    /* Brightness stepper */
+    panel.addEventListener('click', function (e) {
+      if (e.target.id === 'a11y-brightness-decrease' && prefs.brightness > BRIGHTNESS_MIN) {
+        prefs.brightness -= BRIGHTNESS_STEP;
+        prefs.activeProfile = null;
+        savePrefs(); applyBrightness(); syncUI();
+        announce('Brightness decreased to ' + prefs.brightness + ' percent.');
+      }
+      if (e.target.id === 'a11y-brightness-increase' && prefs.brightness < BRIGHTNESS_MAX) {
+        prefs.brightness += BRIGHTNESS_STEP;
+        prefs.activeProfile = null;
+        savePrefs(); applyBrightness(); syncUI();
+        announce('Brightness increased to ' + prefs.brightness + ' percent.');
+      }
+    });
+
+    /* Reset */
     panel.addEventListener('click', function (e) {
       if (e.target.id === 'a11y-reset-btn') {
         prefs = Object.assign({}, DEFAULT_PREFS);
-        savePrefs();
-        applyAllPrefs();
-        syncUI();
+        savePrefs(); applyAllPrefs(); syncUI();
         announce('All accessibility settings have been reset to defaults.');
       }
     });
 
-    /* --- Reading guide follows mouse --- */
+    /* Reading guide follows mouse */
     document.addEventListener('mousemove', function (e) {
       if (prefs.readingGuide && readingGuideEl) {
         readingGuideEl.style.top = (e.clientY - 30) + 'px';
+      }
+      if (prefs.readingMask && readingMaskEl) {
+        var y = e.clientY;
+        readingMaskEl.style.setProperty('--mask-y', y + 'px');
       }
     });
   }
 
   function labelFor(pref) {
     var labels = {
-      textSize: 'Text size',
-      lineHeight: 'Line height',
-      letterSpacing: 'Letter spacing',
-      fontFamily: 'Font',
-      contrast: 'Contrast',
-      grayscale: 'Grayscale',
-      highlightLinks: 'Highlight links',
-      highlightHeadings: 'Highlight headings',
-      stopAnimations: 'Stop animations',
-      keyboardMode: 'Enhanced focus',
-      hideImages: 'Hide images',
-      readingGuide: 'Reading guide'
+      textSize: 'Text size', lineHeight: 'Line height', letterSpacing: 'Letter spacing',
+      wordSpacing: 'Word spacing', fontFamily: 'Font', contrast: 'Contrast',
+      saturation: 'Saturation', brightness: 'Brightness', grayscale: 'Grayscale',
+      invertColors: 'Invert colors', highlightLinks: 'Highlight links',
+      highlightHeadings: 'Highlight headings', stopAnimations: 'Stop animations',
+      keyboardMode: 'Focus ring', largeCursor: 'Large cursor', hideImages: 'Hide images',
+      readingGuide: 'Reading guide', readingMask: 'Reading mask'
     };
     return labels[pref] || pref;
   }
@@ -591,10 +816,8 @@
 
   function applyGlobalFixes() {
     /* Mark external links for screen readers */
-    var extLinks = document.querySelectorAll('a[target="_blank"]');
-    extLinks.forEach(function (link) {
-      if (!link.getAttribute('aria-label') &&
-        !link.querySelector('.sr-only')) {
+    document.querySelectorAll('a[target="_blank"]').forEach(function (link) {
+      if (!link.getAttribute('aria-label') && !link.querySelector('.sr-only')) {
         var sr = document.createElement('span');
         sr.className = 'sr-only';
         sr.textContent = ' (opens in new window)';
@@ -603,42 +826,33 @@
     });
 
     /* Add aria-current="page" to active nav links */
-    var activeLinks = document.querySelectorAll('.main-nav a.active, .main-nav a[aria-current="page"]');
-    activeLinks.forEach(function (link) {
+    document.querySelectorAll('.main-nav a.active').forEach(function (link) {
       link.setAttribute('aria-current', 'page');
     });
 
     /* Add aria-label to nav if missing */
-    var navEls = document.querySelectorAll('nav:not([aria-label])');
-    navEls.forEach(function (nav) {
-      if (nav.classList.contains('main-nav')) {
-        nav.setAttribute('aria-label', 'Main navigation');
-      } else if (nav.classList.contains('dashboard-nav')) {
-        nav.setAttribute('aria-label', 'Dashboard navigation');
-      } else {
-        nav.setAttribute('aria-label', 'Navigation');
-      }
+    document.querySelectorAll('nav:not([aria-label])').forEach(function (nav) {
+      if (nav.classList.contains('main-nav')) nav.setAttribute('aria-label', 'Main navigation');
+      else if (nav.classList.contains('dashboard-nav')) nav.setAttribute('aria-label', 'Dashboard navigation');
+      else nav.setAttribute('aria-label', 'Navigation');
     });
 
-    /* Add missing lang attribute to html if absent */
-    if (!document.documentElement.getAttribute('lang')) {
-      document.documentElement.setAttribute('lang', 'en');
-    }
-
     /* Ensure all images have alt attributes */
-    var imgs = document.querySelectorAll('img:not([alt])');
-    imgs.forEach(function (img) {
+    document.querySelectorAll('img:not([alt])').forEach(function (img) {
       img.setAttribute('alt', '');
     });
 
-    /* Mark all decorative SVGs as aria-hidden if not already */
-    var svgs = document.querySelectorAll('svg:not([aria-label]):not([role="img"])');
-    svgs.forEach(function (svg) {
+    /* Mark decorative SVGs as aria-hidden */
+    document.querySelectorAll('svg:not([aria-label]):not([role="img"])').forEach(function (svg) {
       if (!svg.querySelector('title')) {
         svg.setAttribute('aria-hidden', 'true');
         svg.setAttribute('focusable', 'false');
       }
     });
+
+    if (!document.documentElement.getAttribute('lang')) {
+      document.documentElement.setAttribute('lang', 'en');
+    }
   }
 
   /* -------------------------------------------------------
@@ -653,9 +867,8 @@
     syncUI();
     applyGlobalFixes();
 
-    /* Announce widget availability to screen readers on page load */
     setTimeout(function () {
-      announce('Accessibility settings are available. Press Alt + A to open.');
+      announce('Accessibility settings available. Press Alt + A to open.');
     }, 1500);
   }
 
