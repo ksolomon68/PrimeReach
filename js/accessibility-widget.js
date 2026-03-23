@@ -1,881 +1,353 @@
 /**
- * CaltransBizConnect Accessibility Widget
- * Version: 2.0.0
- *
- * WCAG 2.1 Level AA & Section 508 Compliant
- *
- * Features:
- *  - 5 quick-access accessibility profiles
- *  - Active-feature badge counter
- *  - Text size (100%–200%)
- *  - Line height, letter spacing, word spacing
- *  - Dyslexia-friendly font
- *  - Contrast modes (default, high, dark)
- *  - Grayscale, invert colors, saturation, brightness
- *  - Highlight links / headings
- *  - Stop animations, large cursor
- *  - Reading guide + reading mask
- *  - Hide images
- *  - Keyboard shortcut: Alt+A (open), Alt+C (contrast), Alt+Z/X (text size), Alt+R (reset)
- *  - Persistent preferences via localStorage
+ * CaltransBizConnect Accessibility Widget v3.0
+ * Design: EVOBRAND Concepts | evobrand.net
+ * WCAG 2.1 AA/AAA | Keyboard: Alt+A (open/close), Escape (close)
  */
-
 (function () {
   'use strict';
 
-  /* -------------------------------------------------------
-     CONFIGURATION
-  ------------------------------------------------------- */
+  const PREFS_KEY = 'cbc-a11y-v3';
 
-  var STORAGE_KEY = 'caltrans-a11y-prefs';
-  var TEXT_SIZE_MIN = 100;
-  var TEXT_SIZE_MAX = 200;
-  var TEXT_SIZE_STEP = 10;
-  var BRIGHTNESS_MIN = 70;
-  var BRIGHTNESS_MAX = 130;
-  var BRIGHTNESS_STEP = 10;
+  /* ── Icons (inline SVG strings) ─────────────────────────── */
+  const IC = {
+    a11y:       `<svg viewBox="0 0 24 24" fill="white"><circle cx="12" cy="4" r="2"/><path d="M19 9H5a1 1 0 000 2h4.5l-1.6 7.4a1 1 0 001.96.4L11 13h2l1.14 5.84a1 1 0 001.96-.4L14.5 11H19a1 1 0 000-2z"/></svg>`,
+    wheelchair: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M8 9h3l1 5h4"/><path d="M10 14l-1 5"/><path d="M8 18a5 5 0 1 0 8 0"/></svg>`,
+    eye:        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+    droplet:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>`,
+    df:         `<svg viewBox="0 0 24 24"><text x="3" y="17" font-size="14" font-weight="700" fill="currentColor" font-family="Georgia,serif">Df</text></svg>`,
+    headphones: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>`,
+    contrast:   `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2a10 10 0 0 1 0 20V2z" fill="currentColor"/></svg>`,
+    moon:       `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
+    palette:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/><circle cx="7.5" cy="12.5" r="1.5" fill="currentColor"/><circle cx="10.5" cy="7.5" r="1.5" fill="currentColor"/><circle cx="16.5" cy="10.5" r="1.5" fill="currentColor"/></svg>`,
+    textA:      `<svg viewBox="0 0 24 24"><text x="2" y="18" font-size="18" font-weight="700" fill="currentColor" font-family="Arial,sans-serif">A</text><text x="14" y="16" font-size="11" font-weight="700" fill="currentColor" font-family="Arial,sans-serif">A</text></svg>`,
+    link:       `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>`,
+    cursor:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l7.07 17 2.51-7.39L21 11.07z"/></svg>`,
+    guide:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="12" x2="22" y2="12"/><polyline points="5 8 2 12 5 16"/><polyline points="19 8 22 12 19 16"/></svg>`,
+    mask:       `<svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="2" width="20" height="7" rx="1" opacity="0.35"/><rect x="2" y="15" width="20" height="7" rx="1" opacity="0.35"/><rect x="2" y="9" width="20" height="6" rx="1" opacity="0.08"/></svg>`,
+    pause:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>`,
+    keyboard:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="10" x2="6.01" y2="10" stroke-width="3" stroke-linecap="round"/><line x1="10" y1="10" x2="10.01" y2="10" stroke-width="3" stroke-linecap="round"/><line x1="14" y1="10" x2="14.01" y2="10" stroke-width="3" stroke-linecap="round"/><line x1="18" y1="10" x2="18.01" y2="10" stroke-width="3" stroke-linecap="round"/><line x1="8" y1="14" x2="16" y2="14" stroke-linecap="round"/></svg>`,
+    underline:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v7a6 6 0 0 0 12 0V3"/><line x1="4" y1="21" x2="20" y2="21"/></svg>`,
+    headphone2: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>`,
+    reset:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>`,
+  };
 
-  var DEFAULT_PREFS = {
+  /* ── Feature definitions ─────────────────────────────────── */
+  const FEATURES = [
+    { id: 'screenReader',   label: 'Screen Reader',   ico: 'headphones', cls: 'aw-sr'       },
+    { id: 'highContrast',   label: 'Contrast +',      ico: 'contrast',   cls: 'aw-contrast'  },
+    { id: 'darkMode',       label: 'Dark Mode',       ico: 'moon',       cls: 'aw-dark'      },
+    { id: 'desaturate',     label: 'Desaturate',      ico: 'palette',    cls: 'aw-desat'     },
+    { id: 'highlightLinks', label: 'Highlight Links', ico: 'link',       cls: 'aw-hilite'    },
+    { id: 'dyslexiaFont',   label: 'Dyslexia Font',   ico: 'df',         cls: 'aw-dyslexia'  },
+    { id: 'bigCursor',      label: 'Big Cursor',      ico: 'cursor',     cls: 'aw-cursor'    },
+    { id: 'readingGuide',   label: 'Reading Guide',   ico: 'guide',      cls: 'aw-guide-on'  },
+    { id: 'readingMask',    label: 'Reading Mask',    ico: 'mask',       cls: 'aw-mask-on'   },
+    { id: 'stopAnimations', label: 'Stop Animations', ico: 'pause',      cls: 'aw-freeze'    },
+    { id: 'keyboardNav',    label: 'Keyboard Nav',    ico: 'keyboard',   cls: 'aw-keynav'    },
+    { id: 'linkUnderline',  label: 'Link Underline',  ico: 'underline',  cls: 'aw-underline' },
+  ];
+
+  /* ── Profile presets ─────────────────────────────────────── */
+  const PROFILES = [
+    {
+      id: 'motor', label: 'Motor\nImpaired', ico: 'wheelchair',
+      set: { keyboardNav: true, bigCursor: true, stopAnimations: true }
+    },
+    {
+      id: 'visual', label: 'Visually\nImpaired', ico: 'eye',
+      set: { highContrast: true, textSize: 130, screenReader: true }
+    },
+    {
+      id: 'colorblind', label: 'Color\nBlind', ico: 'droplet',
+      set: { desaturate: true, linkUnderline: true, highlightLinks: true }
+    },
+    {
+      id: 'dyslexia', label: 'Dyslexia', ico: 'df',
+      set: { dyslexiaFont: true, linkUnderline: true, readingGuide: true }
+    },
+  ];
+
+  /* ── Defaults ────────────────────────────────────────────── */
+  const DEFAULTS = {
+    activeProfile: null,
     textSize: 100,
-    lineHeight: 'normal',
-    letterSpacing: 'normal',
-    wordSpacing: 'normal',
-    fontFamily: 'default',
-    contrast: 'default',
-    grayscale: false,
-    invertColors: false,
-    saturation: 'normal',
-    brightness: 100,
+    screenReader: false,
+    highContrast: false,
+    darkMode: false,
+    desaturate: false,
     highlightLinks: false,
-    highlightHeadings: false,
-    stopAnimations: false,
-    keyboardMode: false,
-    largeCursor: false,
-    hideImages: false,
+    dyslexiaFont: false,
+    bigCursor: false,
     readingGuide: false,
     readingMask: false,
-    activeProfile: null
+    stopAnimations: false,
+    keyboardNav: false,
+    linkUnderline: false,
   };
 
-  /* Map prefs to CSS classes applied on <html> */
-  var CLASS_MAP = {
-    stopAnimations:   'a11y-no-animations',
-    keyboardMode:     'a11y-keyboard-mode',
-    highlightLinks:   'a11y-highlight-links',
-    highlightHeadings:'a11y-highlight-headings',
-    hideImages:       'a11y-hide-images',
-    grayscale:        'a11y-grayscale',
-    invertColors:     'a11y-invert',
-    largeCursor:      'a11y-large-cursor',
-    'contrast-high':         'a11y-contrast-high',
-    'contrast-dark':         'a11y-contrast-dark',
-    'lineHeight-relaxed':    'a11y-line-height-relaxed',
-    'lineHeight-loose':      'a11y-line-height-loose',
-    'letterSpacing-wide':    'a11y-letter-spacing-wide',
-    'letterSpacing-wider':   'a11y-letter-spacing-wider',
-    'wordSpacing-wide':      'a11y-word-spacing-wide',
-    'wordSpacing-wider':     'a11y-word-spacing-wider',
-    'fontFamily-dyslexic':   'a11y-dyslexic-font',
-    'saturation-low':        'a11y-saturation-low',
-    'saturation-high':       'a11y-saturation-high'
-  };
+  /* ── State ───────────────────────────────────────────────── */
+  let P = load();     // prefs
+  let open = false;
 
-  var ALL_CLASSES = Object.values(CLASS_MAP);
-
-  /* Quick-access profiles */
-  var PROFILES = {
-    motor: {
-      name: 'Motor',
-      icon: '♿',
-      prefs: { keyboardMode: true, stopAnimations: true, highlightLinks: true, letterSpacing: 'wide', wordSpacing: 'wide' }
-    },
-    visual: {
-      name: 'Low Vision',
-      icon: '👁️',
-      prefs: { textSize: 150, contrast: 'high', highlightLinks: true, highlightHeadings: true }
-    },
-    cognitive: {
-      name: 'Cognitive',
-      icon: '🧠',
-      prefs: { stopAnimations: true, highlightLinks: true, highlightHeadings: true, readingGuide: true, wordSpacing: 'wide', lineHeight: 'relaxed' }
-    },
-    dyslexia: {
-      name: 'Dyslexia',
-      icon: '📖',
-      prefs: { fontFamily: 'dyslexic', letterSpacing: 'wide', lineHeight: 'relaxed', wordSpacing: 'wide', highlightHeadings: true }
-    },
-    seizure: {
-      name: 'Seizure Safe',
-      icon: '🛡️',
-      prefs: { stopAnimations: true, saturation: 'low', brightness: 90 }
-    }
-  };
-
-  /* -------------------------------------------------------
-     STATE
-  ------------------------------------------------------- */
-
-  var prefs = {};
-  var panelOpen = false;
-  var readingGuideEl = null;
-  var readingMaskEl = null;
-  var announcerEl = null;
-  var triggerBtn = null;
-  var badgeEl = null;
-  var panel = null;
-
-  /* -------------------------------------------------------
-     STORAGE
-  ------------------------------------------------------- */
-
-  function loadPrefs() {
-    try {
-      var stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        prefs = Object.assign({}, DEFAULT_PREFS, JSON.parse(stored));
-        return;
-      }
-    } catch (e) { /* ignore */ }
-    prefs = Object.assign({}, DEFAULT_PREFS);
+  /* ── Persistence ─────────────────────────────────────────── */
+  function load() {
+    try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(PREFS_KEY)) }; }
+    catch { return { ...DEFAULTS }; }
+  }
+  function save() {
+    try { localStorage.setItem(PREFS_KEY, JSON.stringify(P)); } catch {}
   }
 
-  function savePrefs() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
-    } catch (e) { /* ignore */ }
+  /* ── Apply preferences ───────────────────────────────────── */
+  function applyAll() {
+    // Text size classes
+    for (let s = 110; s <= 150; s += 10) document.documentElement.classList.remove(`aw-t${s}`);
+    if (P.textSize > 100) document.documentElement.classList.add(`aw-t${Math.min(P.textSize, 150)}`);
+
+    // Feature classes
+    FEATURES.forEach(f => document.documentElement.classList.toggle(f.cls, !!P[f.id]));
+
+    updateBadge();
+    syncUI();
   }
 
-  /* -------------------------------------------------------
-     APPLY PREFERENCES
-  ------------------------------------------------------- */
-
-  function applyAllPrefs() {
-    applyTextSize();
-    applyBrightness();
-    applyClasses();
-    applyReadingGuide();
-    applyReadingMask();
+  /* ── Toggle a feature ────────────────────────────────────── */
+  function toggle(id) {
+    P[id] = !P[id];
+    P.activeProfile = null;
+    save();
+    applyAll();
+    announce((P[id] ? 'Enabled' : 'Disabled') + ': ' + (FEATURES.find(f => f.id === id)?.label || id));
   }
 
-  function applyTextSize() {
-    if (prefs.textSize === TEXT_SIZE_MIN) {
-      document.documentElement.style.fontSize = '';
+  /* ── Apply / clear a profile ─────────────────────────────── */
+  function applyProfile(id) {
+    if (P.activeProfile === id) {
+      P = { ...DEFAULTS };
     } else {
-      document.documentElement.style.fontSize = (prefs.textSize / 100 * 16) + 'px';
+      const prof = PROFILES.find(p => p.id === id);
+      if (!prof) return;
+      P = { ...DEFAULTS, activeProfile: id, ...prof.set };
     }
+    save();
+    applyAll();
+    announce(P.activeProfile ? PROFILES.find(p => p.id === id)?.label.replace('\n', ' ') + ' profile applied.' : 'Profile cleared.');
   }
 
-  function applyBrightness() {
-    if (prefs.brightness === 100) {
-      document.body.style.filter = '';
-    } else {
-      document.body.style.filter = 'brightness(' + (prefs.brightness / 100) + ')';
-    }
+  /* ── Reset ───────────────────────────────────────────────── */
+  function resetAll() {
+    P = { ...DEFAULTS };
+    save();
+    applyAll();
+    announce('All accessibility settings reset.');
   }
 
-  function applyClasses() {
-    var html = document.documentElement;
-
-    ALL_CLASSES.forEach(function (cls) { html.classList.remove(cls); });
-
-    /* Boolean toggles */
-    ['stopAnimations', 'keyboardMode', 'highlightLinks', 'highlightHeadings',
-      'hideImages', 'grayscale', 'invertColors', 'largeCursor'].forEach(function (key) {
-      if (prefs[key] && CLASS_MAP[key]) html.classList.add(CLASS_MAP[key]);
-    });
-
-    /* Contrast */
-    if (prefs.contrast !== 'default') {
-      var cls = CLASS_MAP['contrast-' + prefs.contrast];
-      if (cls) html.classList.add(cls);
-    }
-
-    /* Line height */
-    if (prefs.lineHeight !== 'normal') {
-      var cls = CLASS_MAP['lineHeight-' + prefs.lineHeight];
-      if (cls) html.classList.add(cls);
-    }
-
-    /* Letter spacing */
-    if (prefs.letterSpacing !== 'normal') {
-      var cls = CLASS_MAP['letterSpacing-' + prefs.letterSpacing];
-      if (cls) html.classList.add(cls);
-    }
-
-    /* Word spacing */
-    if (prefs.wordSpacing !== 'normal') {
-      var cls = CLASS_MAP['wordSpacing-' + prefs.wordSpacing];
-      if (cls) html.classList.add(cls);
-    }
-
-    /* Font family */
-    if (prefs.fontFamily !== 'default') {
-      var cls = CLASS_MAP['fontFamily-' + prefs.fontFamily];
-      if (cls) html.classList.add(cls);
-    }
-
-    /* Saturation */
-    if (prefs.saturation !== 'normal') {
-      var cls = CLASS_MAP['saturation-' + prefs.saturation];
-      if (cls) html.classList.add(cls);
-    }
-  }
-
-  function applyReadingGuide() {
-    if (!readingGuideEl) return;
-    if (prefs.readingGuide) {
-      readingGuideEl.classList.add('a11y-reading-guide-active');
-    } else {
-      readingGuideEl.classList.remove('a11y-reading-guide-active');
-    }
-  }
-
-  function applyReadingMask() {
-    if (!readingMaskEl) return;
-    if (prefs.readingMask) {
-      readingMaskEl.classList.add('a11y-reading-mask-active');
-    } else {
-      readingMaskEl.classList.remove('a11y-reading-mask-active');
-    }
-  }
-
-  /* -------------------------------------------------------
-     BADGE COUNTER
-  ------------------------------------------------------- */
-
-  function countActivePrefs() {
-    var count = 0;
-    Object.keys(DEFAULT_PREFS).forEach(function (key) {
-      if (key === 'activeProfile') return;
-      if (prefs[key] !== DEFAULT_PREFS[key]) count++;
-    });
-    return count;
-  }
-
+  /* ── Badge ───────────────────────────────────────────────── */
   function updateBadge() {
-    if (!badgeEl) return;
-    var count = countActivePrefs();
-    if (count > 0) {
-      badgeEl.textContent = count;
-      badgeEl.style.display = 'flex';
-      badgeEl.setAttribute('aria-label', count + ' accessibility settings active');
-    } else {
-      badgeEl.style.display = 'none';
-    }
+    const el = document.getElementById('a11y-badge');
+    if (!el) return;
+    const n = FEATURES.filter(f => P[f.id]).length + (P.textSize !== 100 ? 1 : 0);
+    el.textContent = n;
+    el.classList.toggle('show', n > 0);
   }
 
-  /* -------------------------------------------------------
-     ANNOUNCE TO SCREEN READERS
-  ------------------------------------------------------- */
-
-  function announce(msg) {
-    if (!announcerEl) return;
-    announcerEl.textContent = '';
-    setTimeout(function () { announcerEl.textContent = msg; }, 50);
-  }
-
-  /* -------------------------------------------------------
-     PROFILES
-  ------------------------------------------------------- */
-
-  function applyProfile(profileKey) {
-    if (!PROFILES[profileKey]) return;
-
-    /* Reset to defaults first */
-    prefs = Object.assign({}, DEFAULT_PREFS);
-
-    /* Apply profile prefs */
-    var profilePrefs = PROFILES[profileKey].prefs;
-    Object.keys(profilePrefs).forEach(function (k) {
-      prefs[k] = profilePrefs[k];
-    });
-
-    prefs.activeProfile = profileKey;
-    savePrefs();
-    applyAllPrefs();
-    syncUI();
-    updateBadge();
-    announce(PROFILES[profileKey].name + ' profile applied.');
-  }
-
-  function clearProfile() {
-    prefs = Object.assign({}, DEFAULT_PREFS);
-    savePrefs();
-    applyAllPrefs();
-    syncUI();
-    updateBadge();
-    announce('Profile cleared. All settings reset.');
-  }
-
-  /* -------------------------------------------------------
-     WIDGET HTML BUILDER
-  ------------------------------------------------------- */
-
-  function buildWidget() {
-    /* Screen reader live region */
-    announcerEl = document.createElement('div');
-    announcerEl.className = 'a11y-announcer';
-    announcerEl.setAttribute('aria-live', 'polite');
-    announcerEl.setAttribute('aria-atomic', 'true');
-    document.body.appendChild(announcerEl);
-
-    /* Reading guide */
-    readingGuideEl = document.createElement('div');
-    readingGuideEl.className = 'a11y-reading-guide';
-    readingGuideEl.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(readingGuideEl);
-
-    /* Reading mask */
-    readingMaskEl = document.createElement('div');
-    readingMaskEl.className = 'a11y-reading-mask';
-    readingMaskEl.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(readingMaskEl);
-
-    /* Trigger button */
-    triggerBtn = document.createElement('button');
-    triggerBtn.className = 'a11y-trigger';
-    triggerBtn.setAttribute('aria-label', 'Open Accessibility Settings (Alt+A)');
-    triggerBtn.setAttribute('aria-expanded', 'false');
-    triggerBtn.setAttribute('aria-controls', 'a11y-panel');
-    triggerBtn.innerHTML =
-      '<span class="sr-only">Accessibility Options</span>' +
-      '<span class="a11y-trigger-icon" aria-hidden="true">' +
-      '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
-      'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' +
-      '<circle cx="12" cy="5" r="2"></circle>' +
-      '<path d="M10 9h4l2 6h-2l-1 4h-2l-1-4H8z"></path>' +
-      '<path d="M7 14c0 0 1 2 5 2s5-2 5-2"></path>' +
-      '</svg></span>';
-
-    /* Badge */
-    badgeEl = document.createElement('span');
-    badgeEl.className = 'a11y-badge';
-    badgeEl.setAttribute('aria-hidden', 'true');
-    badgeEl.style.display = 'none';
-    triggerBtn.appendChild(badgeEl);
-
-    document.body.appendChild(triggerBtn);
-
-    /* Panel */
-    panel = document.createElement('div');
-    panel.id = 'a11y-panel';
-    panel.className = 'a11y-panel';
-    panel.setAttribute('role', 'dialog');
-    panel.setAttribute('aria-label', 'Accessibility Settings');
-    panel.setAttribute('aria-modal', 'false');
-    panel.innerHTML = buildPanelHTML();
-    document.body.appendChild(panel);
-  }
-
-  function buildPanelHTML() {
-    return '' +
-      /* Header */
-      '<div class="a11y-panel-header">' +
-      '<div>' +
-      '<div class="a11y-panel-title">Accessibility</div>' +
-      '<div class="a11y-panel-shortcut">Alt + A</div>' +
-      '</div>' +
-      '<button class="a11y-close-btn" id="a11y-close-btn" aria-label="Close Accessibility Settings">&times;</button>' +
-      '</div>' +
-
-      /* -- PROFILES -- */
-      '<div class="a11y-section">' +
-      '<div class="a11y-section-title">Profiles</div>' +
-      '<div class="a11y-profiles">' +
-      Object.keys(PROFILES).map(function (key) {
-        return '<button class="a11y-profile-btn" data-profile="' + key + '" aria-pressed="false">' +
-          '<span class="a11y-profile-icon" aria-hidden="true">' + PROFILES[key].icon + '</span>' +
-          '<span class="a11y-profile-name">' + PROFILES[key].name + '</span>' +
-          '</button>';
-      }).join('') +
-      '</div>' +
-      '</div>' +
-
-      /* -- VISUAL -- */
-      '<div class="a11y-section">' +
-      '<div class="a11y-section-title">Visual</div>' +
-
-      /* Text Size */
-      '<div class="a11y-control-row">' +
-      '<span class="a11y-control-label" id="a11y-text-size-label">Text Size</span>' +
-      '<div class="a11y-stepper" role="group" aria-labelledby="a11y-text-size-label">' +
-      '<button class="a11y-stepper-btn" id="a11y-text-decrease" aria-label="Decrease text size">&minus;</button>' +
-      '<span class="a11y-stepper-value" id="a11y-text-size-val" aria-live="polite" aria-atomic="true">100%</span>' +
-      '<button class="a11y-stepper-btn" id="a11y-text-increase" aria-label="Increase text size">+</button>' +
-      '</div>' +
-      '</div>' +
-
-      /* Brightness */
-      '<div class="a11y-control-row">' +
-      '<span class="a11y-control-label" id="a11y-brightness-label">Brightness</span>' +
-      '<div class="a11y-stepper" role="group" aria-labelledby="a11y-brightness-label">' +
-      '<button class="a11y-stepper-btn" id="a11y-brightness-decrease" aria-label="Decrease brightness">&minus;</button>' +
-      '<span class="a11y-stepper-value" id="a11y-brightness-val" aria-live="polite" aria-atomic="true">100%</span>' +
-      '<button class="a11y-stepper-btn" id="a11y-brightness-increase" aria-label="Increase brightness">+</button>' +
-      '</div>' +
-      '</div>' +
-
-      /* Line Height */
-      '<div class="a11y-control-row">' +
-      '<span class="a11y-control-label" id="a11y-lh-label">Line Height</span>' +
-      '<div class="a11y-btn-group" role="group" aria-labelledby="a11y-lh-label">' +
-      '<button class="a11y-btn" id="a11y-lh-normal" data-pref="lineHeight" data-val="normal" aria-pressed="true">Std</button>' +
-      '<button class="a11y-btn" id="a11y-lh-relaxed" data-pref="lineHeight" data-val="relaxed" aria-pressed="false">1.5×</button>' +
-      '<button class="a11y-btn" id="a11y-lh-loose" data-pref="lineHeight" data-val="loose" aria-pressed="false">2×</button>' +
-      '</div>' +
-      '</div>' +
-
-      /* Letter Spacing */
-      '<div class="a11y-control-row">' +
-      '<span class="a11y-control-label" id="a11y-ls-label">Letter Spc</span>' +
-      '<div class="a11y-btn-group" role="group" aria-labelledby="a11y-ls-label">' +
-      '<button class="a11y-btn" id="a11y-ls-normal" data-pref="letterSpacing" data-val="normal" aria-pressed="true">Std</button>' +
-      '<button class="a11y-btn" id="a11y-ls-wide" data-pref="letterSpacing" data-val="wide" aria-pressed="false">Wide</button>' +
-      '<button class="a11y-btn" id="a11y-ls-wider" data-pref="letterSpacing" data-val="wider" aria-pressed="false">Wider</button>' +
-      '</div>' +
-      '</div>' +
-
-      /* Word Spacing */
-      '<div class="a11y-control-row">' +
-      '<span class="a11y-control-label" id="a11y-ws-label">Word Spc</span>' +
-      '<div class="a11y-btn-group" role="group" aria-labelledby="a11y-ws-label">' +
-      '<button class="a11y-btn" id="a11y-ws-normal" data-pref="wordSpacing" data-val="normal" aria-pressed="true">Std</button>' +
-      '<button class="a11y-btn" id="a11y-ws-wide" data-pref="wordSpacing" data-val="wide" aria-pressed="false">Wide</button>' +
-      '<button class="a11y-btn" id="a11y-ws-wider" data-pref="wordSpacing" data-val="wider" aria-pressed="false">Wider</button>' +
-      '</div>' +
-      '</div>' +
-
-      /* Font Family */
-      '<div class="a11y-control-row">' +
-      '<span class="a11y-control-label" id="a11y-ff-label">Font</span>' +
-      '<div class="a11y-btn-group" role="group" aria-labelledby="a11y-ff-label">' +
-      '<button class="a11y-btn" id="a11y-ff-default" data-pref="fontFamily" data-val="default" aria-pressed="true">Default</button>' +
-      '<button class="a11y-btn" id="a11y-ff-dyslexic" data-pref="fontFamily" data-val="dyslexic" aria-pressed="false">Dyslexic</button>' +
-      '</div>' +
-      '</div>' +
-      '</div>' +
-
-      /* -- CONTRAST -- */
-      '<div class="a11y-section">' +
-      '<div class="a11y-section-title">Contrast</div>' +
-
-      /* Contrast Mode */
-      '<div class="a11y-control-row">' +
-      '<span class="a11y-control-label" id="a11y-ct-label">Mode</span>' +
-      '<div class="a11y-btn-group" role="group" aria-labelledby="a11y-ct-label">' +
-      '<button class="a11y-btn" id="a11y-ct-default" data-pref="contrast" data-val="default" aria-pressed="true">Default</button>' +
-      '<button class="a11y-btn" id="a11y-ct-high" data-pref="contrast" data-val="high" aria-pressed="false">High</button>' +
-      '<button class="a11y-btn" id="a11y-ct-dark" data-pref="contrast" data-val="dark" aria-pressed="false">Dark</button>' +
-      '</div>' +
-      '</div>' +
-
-      /* Saturation */
-      '<div class="a11y-control-row">' +
-      '<span class="a11y-control-label" id="a11y-sat-label">Saturation</span>' +
-      '<div class="a11y-btn-group" role="group" aria-labelledby="a11y-sat-label">' +
-      '<button class="a11y-btn" id="a11y-sat-normal" data-pref="saturation" data-val="normal" aria-pressed="true">Std</button>' +
-      '<button class="a11y-btn" id="a11y-sat-low" data-pref="saturation" data-val="low" aria-pressed="false">Low</button>' +
-      '<button class="a11y-btn" id="a11y-sat-high" data-pref="saturation" data-val="high" aria-pressed="false">High</button>' +
-      '</div>' +
-      '</div>' +
-
-      /* Grayscale */
-      '<div class="a11y-control-row">' +
-      '<label class="a11y-control-label" for="a11y-grayscale-toggle">Grayscale</label>' +
-      '<label class="a11y-toggle"><input type="checkbox" id="a11y-grayscale-toggle" data-pref="grayscale"><span class="a11y-toggle-track" aria-hidden="true"></span></label>' +
-      '</div>' +
-
-      /* Invert Colors */
-      '<div class="a11y-control-row">' +
-      '<label class="a11y-control-label" for="a11y-invert-toggle">Invert Colors</label>' +
-      '<label class="a11y-toggle"><input type="checkbox" id="a11y-invert-toggle" data-pref="invertColors"><span class="a11y-toggle-track" aria-hidden="true"></span></label>' +
-      '</div>' +
-
-      /* Highlight Links */
-      '<div class="a11y-control-row">' +
-      '<label class="a11y-control-label" for="a11y-links-toggle">Links</label>' +
-      '<label class="a11y-toggle"><input type="checkbox" id="a11y-links-toggle" data-pref="highlightLinks"><span class="a11y-toggle-track" aria-hidden="true"></span></label>' +
-      '</div>' +
-
-      /* Highlight Headings */
-      '<div class="a11y-control-row">' +
-      '<label class="a11y-control-label" for="a11y-headings-toggle">Headings</label>' +
-      '<label class="a11y-toggle"><input type="checkbox" id="a11y-headings-toggle" data-pref="highlightHeadings"><span class="a11y-toggle-track" aria-hidden="true"></span></label>' +
-      '</div>' +
-      '</div>' +
-
-      /* -- MOTION & CONTENT -- */
-      '<div class="a11y-section">' +
-      '<div class="a11y-section-title">Motion &amp; Content</div>' +
-
-      /* Stop Animations */
-      '<div class="a11y-control-row">' +
-      '<label class="a11y-control-label" for="a11y-anim-toggle">Animations</label>' +
-      '<label class="a11y-toggle"><input type="checkbox" id="a11y-anim-toggle" data-pref="stopAnimations"><span class="a11y-toggle-track" aria-hidden="true"></span></label>' +
-      '</div>' +
-
-      /* Keyboard Mode */
-      '<div class="a11y-control-row">' +
-      '<label class="a11y-control-label" for="a11y-kbd-toggle">Focus Ring</label>' +
-      '<label class="a11y-toggle"><input type="checkbox" id="a11y-kbd-toggle" data-pref="keyboardMode"><span class="a11y-toggle-track" aria-hidden="true"></span></label>' +
-      '</div>' +
-
-      /* Large Cursor */
-      '<div class="a11y-control-row">' +
-      '<label class="a11y-control-label" for="a11y-cursor-toggle">Large Cursor</label>' +
-      '<label class="a11y-toggle"><input type="checkbox" id="a11y-cursor-toggle" data-pref="largeCursor"><span class="a11y-toggle-track" aria-hidden="true"></span></label>' +
-      '</div>' +
-
-      /* Hide Images */
-      '<div class="a11y-control-row">' +
-      '<label class="a11y-control-label" for="a11y-img-toggle">Hide Images</label>' +
-      '<label class="a11y-toggle"><input type="checkbox" id="a11y-img-toggle" data-pref="hideImages"><span class="a11y-toggle-track" aria-hidden="true"></span></label>' +
-      '</div>' +
-
-      /* Reading Guide */
-      '<div class="a11y-control-row">' +
-      '<label class="a11y-control-label" for="a11y-guide-toggle">Read Guide</label>' +
-      '<label class="a11y-toggle"><input type="checkbox" id="a11y-guide-toggle" data-pref="readingGuide"><span class="a11y-toggle-track" aria-hidden="true"></span></label>' +
-      '</div>' +
-
-      /* Reading Mask */
-      '<div class="a11y-control-row">' +
-      '<label class="a11y-control-label" for="a11y-mask-toggle">Read Mask</label>' +
-      '<label class="a11y-toggle"><input type="checkbox" id="a11y-mask-toggle" data-pref="readingMask"><span class="a11y-toggle-track" aria-hidden="true"></span></label>' +
-      '</div>' +
-      '</div>' +
-
-      /* -- RESET -- */
-      '<button class="a11y-reset-btn" id="a11y-reset-btn">Reset</button>';
-  }
-
-  /* -------------------------------------------------------
-     SYNC UI TO CURRENT PREFS
-  ------------------------------------------------------- */
-
+  /* ── Sync panel UI to state ──────────────────────────────── */
   function syncUI() {
-    /* Text size */
-    var sizeVal = panel.querySelector('#a11y-text-size-val');
-    if (sizeVal) sizeVal.textContent = prefs.textSize + '%';
-    var decBtn = panel.querySelector('#a11y-text-decrease');
-    var incBtn = panel.querySelector('#a11y-text-increase');
-    if (decBtn) decBtn.disabled = prefs.textSize <= TEXT_SIZE_MIN;
-    if (incBtn) incBtn.disabled = prefs.textSize >= TEXT_SIZE_MAX;
-
-    /* Brightness */
-    var brightVal = panel.querySelector('#a11y-brightness-val');
-    if (brightVal) brightVal.textContent = prefs.brightness + '%';
-    var brightDec = panel.querySelector('#a11y-brightness-decrease');
-    var brightInc = panel.querySelector('#a11y-brightness-increase');
-    if (brightDec) brightDec.disabled = prefs.brightness <= BRIGHTNESS_MIN;
-    if (brightInc) brightInc.disabled = prefs.brightness >= BRIGHTNESS_MAX;
-
-    /* Segmented button groups */
-    var groups = {
-      lineHeight:    ['normal', 'relaxed', 'loose'],
-      letterSpacing: ['normal', 'wide', 'wider'],
-      wordSpacing:   ['normal', 'wide', 'wider'],
-      fontFamily:    ['default', 'dyslexic'],
-      contrast:      ['default', 'high', 'dark'],
-      saturation:    ['normal', 'low', 'high']
-    };
-
-    Object.keys(groups).forEach(function (pref) {
-      groups[pref].forEach(function (val) {
-        var btn = panel.querySelector('[data-pref="' + pref + '"][data-val="' + val + '"]');
-        if (btn) {
-          var active = prefs[pref] === val;
-          btn.setAttribute('aria-pressed', active ? 'true' : 'false');
-          if (active) btn.classList.add('a11y-active');
-          else btn.classList.remove('a11y-active');
-        }
-      });
+    FEATURES.forEach(f => {
+      const c = document.getElementById(`aw-card-${f.id}`);
+      if (c) { c.classList.toggle('on', !!P[f.id]); c.setAttribute('aria-pressed', String(!!P[f.id])); }
     });
-
-    /* Checkbox toggles */
-    var checkboxMap = {
-      grayscale:        '#a11y-grayscale-toggle',
-      invertColors:     '#a11y-invert-toggle',
-      highlightLinks:   '#a11y-links-toggle',
-      highlightHeadings:'#a11y-headings-toggle',
-      stopAnimations:   '#a11y-anim-toggle',
-      keyboardMode:     '#a11y-kbd-toggle',
-      largeCursor:      '#a11y-cursor-toggle',
-      hideImages:       '#a11y-img-toggle',
-      readingGuide:     '#a11y-guide-toggle',
-      readingMask:      '#a11y-mask-toggle'
-    };
-
-    Object.keys(checkboxMap).forEach(function (pref) {
-      var el = panel.querySelector(checkboxMap[pref]);
-      if (el) el.checked = !!prefs[pref];
+    PROFILES.forEach(p => {
+      const b = document.getElementById(`aw-prof-${p.id}`);
+      if (b) { b.classList.toggle('on', P.activeProfile === p.id); b.setAttribute('aria-pressed', String(P.activeProfile === p.id)); }
     });
-
-    /* Profile buttons */
-    panel.querySelectorAll('.a11y-profile-btn').forEach(function (btn) {
-      var active = prefs.activeProfile === btn.getAttribute('data-profile');
-      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
-      if (active) btn.classList.add('a11y-profile-active');
-      else btn.classList.remove('a11y-profile-active');
-    });
-
-    updateBadge();
+    const val = document.getElementById('aw-ts-val');
+    const dec = document.getElementById('aw-ts-dec');
+    const inc = document.getElementById('aw-ts-inc');
+    if (val) val.textContent = P.textSize + '%';
+    if (dec) dec.disabled = P.textSize <= 100;
+    if (inc) inc.disabled = P.textSize >= 150;
   }
 
-  /* -------------------------------------------------------
-     PANEL OPEN / CLOSE
-  ------------------------------------------------------- */
+  /* ── Announce to screen readers ──────────────────────────── */
+  function announce(msg) {
+    const el = document.getElementById('a11y-live');
+    if (!el) return;
+    el.textContent = '';
+    setTimeout(() => { el.textContent = msg; }, 50);
+  }
 
+  /* ── Build HTML ──────────────────────────────────────────── */
+  function buildHTML() {
+    const profiles = PROFILES.map(p => `
+      <button class="aw-profile" id="aw-prof-${p.id}" data-prof="${p.id}"
+              aria-pressed="false" title="${p.label.replace('\n',' ')}">
+        <span class="aw-profile-ico">${IC[p.ico]}</span>
+        <span class="aw-profile-name">${p.label.replace('\n','<br>')}</span>
+      </button>`).join('');
+
+    const cards = FEATURES.map(f => `
+      <button class="aw-card" id="aw-card-${f.id}" data-feat="${f.id}"
+              role="switch" aria-checked="false" title="${f.label}">
+        <span class="aw-card-ico">${IC[f.ico]}</span>
+        <span class="aw-card-lbl">${f.label}</span>
+      </button>`).join('');
+
+    return `
+      <div id="a11y-panel" role="dialog" aria-modal="true" aria-label="Accessibility Menu">
+        <div class="aw-header">
+          <div class="aw-header-icon">${IC.a11y}</div>
+          <div class="aw-header-copy">
+            <h2>Accessibility Menu</h2>
+            <p>Customize your experience · Alt+A</p>
+          </div>
+          <button class="aw-close" id="aw-close" aria-label="Close accessibility menu">&#x2715;</button>
+        </div>
+
+        <div class="aw-body">
+          <div class="aw-section">
+            <div class="aw-section-title">Accessibility Profiles</div>
+            <div class="aw-profiles">${profiles}</div>
+          </div>
+
+          <div class="aw-section">
+            <div class="aw-section-title">Text Size</div>
+            <div class="aw-stepper">
+              <div class="aw-stepper-lbl">${IC.textA} Font Size</div>
+              <div class="aw-stepper-ctrl">
+                <button class="aw-step-btn" id="aw-ts-dec" aria-label="Decrease text size" disabled>&#8722;</button>
+                <span class="aw-step-val" id="aw-ts-val">100%</span>
+                <button class="aw-step-btn" id="aw-ts-inc" aria-label="Increase text size">&#43;</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="aw-section">
+            <div class="aw-section-title">Adjustments</div>
+            <div class="aw-grid">${cards}</div>
+          </div>
+
+          <button class="aw-reset" id="aw-reset">${IC.reset}&nbsp; Reset All Settings</button>
+        </div>
+
+        <div class="aw-footer">
+          <a class="stmt" href="accessibility-statement.html" target="_blank" rel="noopener">Accessibility Statement</a>
+          <div class="aw-branding">Accessibility by <a href="https://evobrand.net" target="_blank" rel="noopener noreferrer">EVOBRAND Concepts</a></div>
+        </div>
+      </div>
+
+      <button id="a11y-trigger" aria-label="Open Accessibility Menu"
+              aria-expanded="false" aria-controls="a11y-panel">
+        ${IC.a11y}
+        <span id="a11y-badge" aria-hidden="true"></span>
+      </button>
+
+      <div id="a11y-overlay" aria-hidden="true"></div>
+      <div id="a11y-guide"  aria-hidden="true"></div>
+      <div id="a11y-mask"   aria-hidden="true"></div>
+      <div id="a11y-live" role="status" aria-live="polite" aria-atomic="true"></div>
+    `;
+  }
+
+  /* ── Open / Close ────────────────────────────────────────── */
   function openPanel() {
-    panelOpen = true;
-    panel.classList.add('a11y-panel-open');
-    triggerBtn.setAttribute('aria-expanded', 'true');
-    var closeBtn = panel.querySelector('#a11y-close-btn');
-    if (closeBtn) setTimeout(function () { closeBtn.focus(); }, 50);
-    announce('Accessibility settings panel opened.');
+    open = true;
+    document.getElementById('a11y-panel').classList.add('open');
+    document.getElementById('a11y-overlay').classList.add('show');
+    document.getElementById('a11y-trigger').setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('aw-close')?.focus(), 50);
+    announce('Accessibility menu opened.');
   }
 
   function closePanel() {
-    panelOpen = false;
-    panel.classList.remove('a11y-panel-open');
-    triggerBtn.setAttribute('aria-expanded', 'false');
-    triggerBtn.focus();
-    announce('Accessibility settings panel closed.');
+    open = false;
+    document.getElementById('a11y-panel').classList.remove('open');
+    document.getElementById('a11y-overlay').classList.remove('show');
+    document.getElementById('a11y-trigger').setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+    document.getElementById('a11y-trigger').focus();
+    announce('Accessibility menu closed.');
   }
 
-  /* -------------------------------------------------------
-     EVENT HANDLERS
-  ------------------------------------------------------- */
+  /* ── Mouse tracking (guide & mask) ──────────────────────── */
+  function setupMouse() {
+    document.addEventListener('mousemove', e => {
+      if (P.readingGuide) document.documentElement.style.setProperty('--aw-guide', e.clientY + 'px');
+      if (P.readingMask)  document.documentElement.style.setProperty('--aw-mask', ((e.clientY / innerHeight) * 100).toFixed(1) + '%');
+    });
+  }
 
+  /* ── Focus trap ──────────────────────────────────────────── */
+  function trapFocus(panel) {
+    panel.addEventListener('keydown', e => {
+      if (e.key !== 'Tab') return;
+      const els = [...panel.querySelectorAll('button:not(:disabled), a[href], [tabindex]:not([tabindex="-1"])')];
+      if (!els.length) return;
+      const first = els[0], last = els[els.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    });
+  }
+
+  /* ── Wire up events ──────────────────────────────────────── */
   function bindEvents() {
-    /* Trigger button */
-    triggerBtn.addEventListener('click', function () {
-      if (panelOpen) closePanel(); else openPanel();
+    const panel   = document.getElementById('a11y-panel');
+    const trigger = document.getElementById('a11y-trigger');
+    const overlay = document.getElementById('a11y-overlay');
+
+    trigger.addEventListener('click', () => open ? closePanel() : openPanel());
+    overlay.addEventListener('click', closePanel);
+    document.getElementById('aw-close').addEventListener('click', closePanel);
+
+    PROFILES.forEach(p => {
+      document.getElementById(`aw-prof-${p.id}`)?.addEventListener('click', () => applyProfile(p.id));
     });
 
-    /* Close button */
-    panel.addEventListener('click', function (e) {
-      if (e.target.id === 'a11y-close-btn' || e.target.closest('#a11y-close-btn')) closePanel();
+    FEATURES.forEach(f => {
+      document.getElementById(`aw-card-${f.id}`)?.addEventListener('click', () => toggle(f.id));
     });
 
-    /* Keyboard shortcuts */
-    document.addEventListener('keydown', function (e) {
-      if (e.altKey && e.key === 'a') {
-        e.preventDefault();
-        if (panelOpen) closePanel(); else openPanel();
-        return;
-      }
-      if (e.altKey && e.key === 'c') {
-        e.preventDefault();
-        var next = prefs.contrast === 'default' ? 'high' : prefs.contrast === 'high' ? 'dark' : 'default';
-        prefs.contrast = next;
-        savePrefs(); applyClasses(); syncUI();
-        announce('Contrast set to ' + next + '.');
-        return;
-      }
-      if (e.altKey && e.key === 'z') {
-        e.preventDefault();
-        if (prefs.textSize < TEXT_SIZE_MAX) {
-          prefs.textSize += TEXT_SIZE_STEP;
-          savePrefs(); applyTextSize(); syncUI();
-          announce('Text size increased to ' + prefs.textSize + ' percent.');
-        }
-        return;
-      }
-      if (e.altKey && e.key === 'x') {
-        e.preventDefault();
-        if (prefs.textSize > TEXT_SIZE_MIN) {
-          prefs.textSize -= TEXT_SIZE_STEP;
-          savePrefs(); applyTextSize(); syncUI();
-          announce('Text size decreased to ' + prefs.textSize + ' percent.');
-        }
-        return;
-      }
-      if (e.altKey && e.key === 'r') {
-        e.preventDefault();
-        prefs = Object.assign({}, DEFAULT_PREFS);
-        savePrefs(); applyAllPrefs(); syncUI();
-        announce('All accessibility settings reset.');
-        return;
-      }
-
-      if (!panelOpen) return;
-      if (e.key === 'Escape') { e.preventDefault(); closePanel(); }
+    document.getElementById('aw-ts-inc')?.addEventListener('click', () => {
+      if (P.textSize >= 150) return;
+      P.textSize = Math.min(P.textSize + 10, 150);
+      P.activeProfile = null; save(); applyAll();
+      announce('Text size: ' + P.textSize + '%');
     });
 
-    /* Click outside to close */
-    document.addEventListener('click', function (e) {
-      if (!panelOpen) return;
-      if (!panel.contains(e.target) && e.target !== triggerBtn) closePanel();
+    document.getElementById('aw-ts-dec')?.addEventListener('click', () => {
+      if (P.textSize <= 100) return;
+      P.textSize = Math.max(P.textSize - 10, 100);
+      P.activeProfile = null; save(); applyAll();
+      announce('Text size: ' + P.textSize + '%');
     });
 
-    /* Segmented button groups */
-    panel.addEventListener('click', function (e) {
-      var btn = e.target.closest('[data-pref][data-val]');
-      if (!btn) return;
-      var pref = btn.getAttribute('data-pref');
-      var val = btn.getAttribute('data-val');
-      prefs[pref] = val;
-      prefs.activeProfile = null; /* manual change clears profile */
-      savePrefs(); applyClasses(); syncUI();
-      announce(labelFor(pref) + ' set to ' + val + '.');
+    document.getElementById('aw-reset')?.addEventListener('click', resetAll);
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && open) { closePanel(); return; }
+      if (e.altKey && e.key.toLowerCase() === 'a') { e.preventDefault(); open ? closePanel() : openPanel(); }
     });
 
-    /* Profile buttons */
-    panel.addEventListener('click', function (e) {
-      var btn = e.target.closest('[data-profile]');
-      if (!btn) return;
-      var profileKey = btn.getAttribute('data-profile');
-      if (prefs.activeProfile === profileKey) {
-        clearProfile();
-      } else {
-        applyProfile(profileKey);
-      }
-    });
-
-    /* Checkbox toggles */
-    panel.addEventListener('change', function (e) {
-      var el = e.target;
-      if (!el.dataset.pref) return;
-      var pref = el.dataset.pref;
-      prefs[pref] = el.checked;
-      prefs.activeProfile = null;
-      savePrefs(); applyClasses(); applyReadingGuide(); applyReadingMask(); syncUI();
-      announce(labelFor(pref) + (el.checked ? ' enabled.' : ' disabled.'));
-    });
-
-    /* Text size stepper */
-    panel.addEventListener('click', function (e) {
-      if (e.target.id === 'a11y-text-decrease' && prefs.textSize > TEXT_SIZE_MIN) {
-        prefs.textSize -= TEXT_SIZE_STEP;
-        prefs.activeProfile = null;
-        savePrefs(); applyTextSize(); syncUI();
-        announce('Text size decreased to ' + prefs.textSize + ' percent.');
-      }
-      if (e.target.id === 'a11y-text-increase' && prefs.textSize < TEXT_SIZE_MAX) {
-        prefs.textSize += TEXT_SIZE_STEP;
-        prefs.activeProfile = null;
-        savePrefs(); applyTextSize(); syncUI();
-        announce('Text size increased to ' + prefs.textSize + ' percent.');
-      }
-    });
-
-    /* Brightness stepper */
-    panel.addEventListener('click', function (e) {
-      if (e.target.id === 'a11y-brightness-decrease' && prefs.brightness > BRIGHTNESS_MIN) {
-        prefs.brightness -= BRIGHTNESS_STEP;
-        prefs.activeProfile = null;
-        savePrefs(); applyBrightness(); syncUI();
-        announce('Brightness decreased to ' + prefs.brightness + ' percent.');
-      }
-      if (e.target.id === 'a11y-brightness-increase' && prefs.brightness < BRIGHTNESS_MAX) {
-        prefs.brightness += BRIGHTNESS_STEP;
-        prefs.activeProfile = null;
-        savePrefs(); applyBrightness(); syncUI();
-        announce('Brightness increased to ' + prefs.brightness + ' percent.');
-      }
-    });
-
-    /* Reset */
-    panel.addEventListener('click', function (e) {
-      if (e.target.id === 'a11y-reset-btn') {
-        prefs = Object.assign({}, DEFAULT_PREFS);
-        savePrefs(); applyAllPrefs(); syncUI();
-        announce('All accessibility settings have been reset to defaults.');
-      }
-    });
-
-    /* Reading guide follows mouse */
-    document.addEventListener('mousemove', function (e) {
-      if (prefs.readingGuide && readingGuideEl) {
-        readingGuideEl.style.top = (e.clientY - 30) + 'px';
-      }
-      if (prefs.readingMask && readingMaskEl) {
-        var y = e.clientY;
-        readingMaskEl.style.setProperty('--mask-y', y + 'px');
-      }
-    });
+    trapFocus(panel);
   }
 
-  function labelFor(pref) {
-    var labels = {
-      textSize: 'Text size', lineHeight: 'Line height', letterSpacing: 'Letter spacing',
-      wordSpacing: 'Word spacing', fontFamily: 'Font', contrast: 'Contrast',
-      saturation: 'Saturation', brightness: 'Brightness', grayscale: 'Grayscale',
-      invertColors: 'Invert colors', highlightLinks: 'Highlight links',
-      highlightHeadings: 'Highlight headings', stopAnimations: 'Stop animations',
-      keyboardMode: 'Focus ring', largeCursor: 'Large cursor', hideImages: 'Hide images',
-      readingGuide: 'Reading guide', readingMask: 'Reading mask'
-    };
-    return labels[pref] || pref;
-  }
-
-  /* -------------------------------------------------------
-     ADDITIONAL SITEWIDE FIXES
-  ------------------------------------------------------- */
-
-  function applyGlobalFixes() {
-    /* Mark external links for screen readers */
-    document.querySelectorAll('a[target="_blank"]').forEach(function (link) {
-      if (!link.getAttribute('aria-label') && !link.querySelector('.sr-only')) {
-        var sr = document.createElement('span');
-        sr.className = 'sr-only';
-        sr.textContent = ' (opens in new window)';
-        link.appendChild(sr);
-      }
-    });
-
-    /* Add aria-current="page" to active nav links */
-    document.querySelectorAll('.main-nav a.active').forEach(function (link) {
-      link.setAttribute('aria-current', 'page');
-    });
-
-    /* Add aria-label to nav if missing */
-    document.querySelectorAll('nav:not([aria-label])').forEach(function (nav) {
-      if (nav.classList.contains('main-nav')) nav.setAttribute('aria-label', 'Main navigation');
-      else if (nav.classList.contains('dashboard-nav')) nav.setAttribute('aria-label', 'Dashboard navigation');
-      else nav.setAttribute('aria-label', 'Navigation');
-    });
-
-    /* Ensure all images have alt attributes */
-    document.querySelectorAll('img:not([alt])').forEach(function (img) {
-      img.setAttribute('alt', '');
-    });
-
-    /* Mark decorative SVGs as aria-hidden */
-    document.querySelectorAll('svg:not([aria-label]):not([role="img"])').forEach(function (svg) {
-      if (!svg.querySelector('title')) {
-        svg.setAttribute('aria-hidden', 'true');
-        svg.setAttribute('focusable', 'false');
-      }
-    });
-
-    if (!document.documentElement.getAttribute('lang')) {
-      document.documentElement.setAttribute('lang', 'en');
-    }
-  }
-
-  /* -------------------------------------------------------
-     INIT
-  ------------------------------------------------------- */
-
+  /* ── Init ────────────────────────────────────────────────── */
   function init() {
-    loadPrefs();
-    buildWidget();
+    // Remove old instances
+    ['a11y-panel','a11y-trigger','a11y-overlay','a11y-guide','a11y-mask','a11y-live']
+      .forEach(id => document.getElementById(id)?.remove());
+
+    const wrap = document.createElement('div');
+    wrap.innerHTML = buildHTML();
+    document.body.appendChild(wrap);
+
+    applyAll();
     bindEvents();
-    applyAllPrefs();
-    syncUI();
-    applyGlobalFixes();
-
-    setTimeout(function () {
-      announce('Accessibility settings available. Press Alt + A to open.');
-    }, 1500);
+    setupMouse();
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-
+  document.readyState === 'loading'
+    ? document.addEventListener('DOMContentLoaded', init)
+    : init();
 })();

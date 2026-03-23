@@ -1,892 +1,434 @@
-/**
- * CaltransBizConnect Accessibility Widget Styles
- * WCAG 2.1 AA Compliant - Section 508 Compliant
- *
- * Contains:
- *  1. Widget UI (button + panel)
- *  2. CSS modifier classes applied to <html> by the widget
- *  3. Sitewide accessibility overrides
- */
+/* ================================================================
+   CaltransBizConnect Accessibility Widget v3.0
+   Design: EVOBRAND Concepts | evobrand.net
+   WCAG 2.1 AA/AAA Compliant
+   ================================================================ */
 
-/* ============================================
-   1. WIDGET TRIGGER BUTTON
-   ============================================ */
+:root {
+  --a11y-primary:      #0057B8;
+  --a11y-primary-dk:   #00449A;
+  --a11y-primary-lt:   #EBF1FF;
+  --a11y-bg:           #FFFFFF;
+  --a11y-surface:      #F5F7FA;
+  --a11y-border:       #E2E8F0;
+  --a11y-text:         #1A202C;
+  --a11y-muted:        #64748B;
+  --a11y-shadow-lg:    -8px 0 40px rgba(0,0,0,0.16);
+  --a11y-radius:       12px;
+  --a11y-radius-sm:    8px;
+  --a11y-panel-w:      400px;
+  --a11y-ease:         cubic-bezier(0.4,0,0.2,1);
+}
 
-.a11y-trigger {
+/* ── Trigger ─────────────────────────────────────────────────── */
+#a11y-trigger {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  z-index: 99999;
   width: 56px;
   height: 56px;
+  background: var(--a11y-primary);
+  border: none;
   border-radius: 50%;
-  background: #005A8C;
-  color: #ffffff;
-  border: 3px solid #ffffff;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  z-index: 99996;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
-  transition: background 0.2s, transform 0.2s;
-  font-family: Arial, sans-serif;
-  line-height: 1;
-}
-
-.a11y-trigger:hover {
-  background: #003D5C;
-  transform: scale(1.08);
-}
-
-.a11y-trigger:focus {
-  outline: 3px solid #FFCC00;
-  outline-offset: 3px;
-}
-
-.a11y-trigger[aria-expanded="true"] {
-  background: #003D5C;
-}
-
-.a11y-trigger-icon {
-  pointer-events: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* ============================================
-   2. WIDGET PANEL
-   ============================================ */
-
-.a11y-panel {
-  position: fixed;
-  bottom: 92px;
-  right: 24px;
-  z-index: 99998;
-  width: 320px;
-  max-height: calc(100vh - 120px);
-  background: #ffffff;
-  border: 2px solid #005A8C;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
-  overflow-y: auto;
-  font-family: Arial, Calibri, sans-serif;
-  font-size: 18px;
-  color: #000000;
-  display: none;
-}
-
-.a11y-panel.a11y-panel-open {
-  display: block;
-  animation: a11ySlideIn 0.2s ease-out;
-}
-
-@keyframes a11ySlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.a11y-panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px 12px;
-  background: #005A8C;
-  color: #ffffff;
-  border-radius: 10px 10px 0 0;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-}
-
-.a11y-panel-title {
-  font-size: 19px;
-  font-weight: 700;
-  margin: 0;
-  color: #ffffff;
-}
-
-.a11y-panel-shortcut {
-  font-size: 13px;
-  opacity: 0.85;
-  margin-top: 2px;
-  color: #ffffff;
-}
-
-.a11y-close-btn {
-  background: transparent;
-  border: 2px solid rgba(255, 255, 255, 0.6);
-  color: #ffffff;
-  border-radius: 6px;
-  width: 32px;
-  height: 32px;
-  cursor: pointer;
-  font-size: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: background 0.15s;
-  font-family: Arial, sans-serif;
-  line-height: 1;
-}
-
-.a11y-close-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.a11y-close-btn:focus {
-  outline: 2px solid #FFCC00;
-  outline-offset: 2px;
-}
-
-/* ============================================
-   3. WIDGET SECTIONS
-   ============================================ */
-
-.a11y-section {
-  padding: 14px 16px;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.a11y-section:last-of-type {
-  border-bottom: none;
-}
-
-.a11y-section-title {
-  font-size: 15px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #005A8C;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.a11y-section-title::before {
-  content: '';
-  display: inline-block;
-  width: 3px;
-  height: 14px;
-  background: #FFCC00;
-  border-radius: 2px;
-}
-
-/* ============================================
-   4. CONTROL ROWS (label + controls)
-   ============================================ */
-
-.a11y-control-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.a11y-control-row:last-child {
-  margin-bottom: 0;
-}
-
-.a11y-control-label {
-  font-size: 17px;
-  font-weight: 500;
-  color: #000000;
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-/* ============================================
-   5. BUTTON GROUPS (segmented controls)
-   ============================================ */
-
-.a11y-btn-group {
-  display: flex;
-  gap: 3px;
-  flex-shrink: 0;
-}
-
-.a11y-btn {
-  background: #f5f5f5;
-  border: 1.5px solid #cccccc;
-  color: #000000;
-  border-radius: 5px;
-  padding: 4px 9px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: Arial, sans-serif;
-  transition: background 0.15s, border-color 0.15s;
-  white-space: nowrap;
-  min-height: 30px;
-}
-
-.a11y-btn:hover {
-  background: #e0e0e0;
-  border-color: #999999;
-}
-
-.a11y-btn:focus {
-  outline: 2px solid #005A8C;
-  outline-offset: 2px;
-}
-
-.a11y-btn[aria-pressed="true"],
-.a11y-btn.a11y-active {
-  background: #005A8C;
-  border-color: #005A8C;
-  color: #ffffff;
-}
-
-.a11y-btn[aria-pressed="true"]:hover,
-.a11y-btn.a11y-active:hover {
-  background: #003D5C;
-  border-color: #003D5C;
-}
-
-/* ============================================
-   6. TOGGLE SWITCHES
-   ============================================ */
-
-.a11y-toggle {
-  position: relative;
-  width: 44px;
-  height: 24px;
-  flex-shrink: 0;
-}
-
-.a11y-toggle input[type="checkbox"] {
-  opacity: 0;
-  width: 0;
-  height: 0;
-  position: absolute;
-}
-
-.a11y-toggle-track {
-  position: absolute;
-  inset: 0;
-  background: #cccccc;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background 0.2s;
-  border: 2px solid transparent;
-}
-
-.a11y-toggle-track::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #ffffff;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-  transition: transform 0.2s;
-}
-
-.a11y-toggle input:checked + .a11y-toggle-track {
-  background: #005A8C;
-}
-
-.a11y-toggle input:checked + .a11y-toggle-track::after {
-  transform: translateX(20px);
-}
-
-.a11y-toggle input:focus + .a11y-toggle-track {
-  outline: 2px solid #005A8C;
-  outline-offset: 2px;
-  border-color: #005A8C;
-}
-
-/* ============================================
-   7. TEXT SIZE STEPPER
-   ============================================ */
-
-.a11y-stepper {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-.a11y-stepper-btn {
-  background: #f5f5f5;
-  border: 1.5px solid #cccccc;
-  color: #000000;
-  border-radius: 5px;
-  width: 30px;
-  height: 30px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: Arial, sans-serif;
-  transition: background 0.15s;
-  line-height: 1;
-}
-
-.a11y-stepper-btn:hover {
-  background: #e0e0e0;
-  border-color: #999999;
-}
-
-.a11y-stepper-btn:focus {
-  outline: 2px solid #005A8C;
-  outline-offset: 2px;
-}
-
-.a11y-stepper-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.a11y-stepper-value {
-  font-size: 13px;
-  font-weight: 600;
-  color: #000000;
-  min-width: 42px;
-  text-align: center;
-}
-
-/* ============================================
-   8. RESET BUTTON
-   ============================================ */
-
-.a11y-reset-btn {
-  display: block;
-  width: calc(100% - 32px);
-  margin: 12px 16px;
-  padding: 10px;
-  background: transparent;
-  border: 2px solid #C62828;
-  color: #C62828;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: Arial, sans-serif;
-  transition: background 0.15s, color 0.15s;
-  text-align: center;
-}
-
-.a11y-reset-btn:hover {
-  background: #C62828;
-  color: #ffffff;
-}
-
-.a11y-reset-btn:focus {
-  outline: 2px solid #C62828;
-  outline-offset: 2px;
-}
-
-/* ============================================
-   9. READING GUIDE
-   ============================================ */
-
-.a11y-reading-guide {
-  position: fixed;
-  left: 0;
-  right: 0;
-  height: 60px;
-  background: rgba(255, 255, 170, 0.5);
-  border-top: 2px solid rgba(0, 0, 0, 0.3);
-  border-bottom: 2px solid rgba(0, 0, 0, 0.3);
-  pointer-events: none;
-  z-index: 99990;
-  display: none;
-}
-
-.a11y-reading-guide.a11y-reading-guide-active {
-  display: block;
-}
-
-/* ============================================
-   10. LIVE ANNOUNCER (screen reader only)
-   ============================================ */
-
-.a11y-announcer {
-  position: absolute;
-  width: 1px;
-  height: 1px;
+  box-shadow: 0 4px 20px rgba(0,87,184,0.45);
+  transition: transform 0.2s var(--a11y-ease), background 0.2s;
   padding: 0;
-  margin: -1px;
+}
+#a11y-trigger:hover   { transform: scale(1.1); background: var(--a11y-primary-dk); }
+#a11y-trigger:focus-visible { outline: 3px solid #FFCC00; outline-offset: 3px; }
+#a11y-trigger svg     { width: 28px; height: 28px; pointer-events: none; }
+
+#a11y-badge {
+  position: absolute;
+  top: -3px; right: -3px;
+  width: 20px; height: 20px;
+  background: #E53E3E;
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  font-size: 10px; font-weight: 800;
+  display: none;
+  align-items: center; justify-content: center;
+  pointer-events: none;
+  font-family: -apple-system, sans-serif;
+}
+#a11y-badge.show { display: flex; }
+
+/* ── Overlay ─────────────────────────────────────────────────── */
+#a11y-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 99997;
+  animation: a11yFade 0.2s ease;
+}
+#a11y-overlay.show { display: block; }
+@keyframes a11yFade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ── Panel ───────────────────────────────────────────────────── */
+#a11y-panel {
+  position: fixed;
+  top: 0; right: -100%;
+  width: var(--a11y-panel-w);
+  max-width: 100vw;
+  height: 100dvh;
+  background: var(--a11y-bg);
+  z-index: 99998;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--a11y-shadow-lg);
+  transition: right 0.35s var(--a11y-ease);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-size: 14px;
+  color: var(--a11y-text);
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
+}
+#a11y-panel.open { right: 0; }
+
+/* ── Header ──────────────────────────────────────────────────── */
+.aw-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px;
+  background: var(--a11y-primary);
+  flex-shrink: 0;
+}
+.aw-header-icon {
+  width: 40px; height: 40px;
+  background: rgba(255,255,255,0.18);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.aw-header-icon svg { width: 22px; height: 22px; }
+.aw-header-copy { flex: 1; min-width: 0; }
+.aw-header-copy h2 {
+  font-size: 1rem; font-weight: 700;
+  color: #fff; margin: 0; line-height: 1.2;
+}
+.aw-header-copy p {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.7);
+  margin: 3px 0 0; line-height: 1;
+}
+.aw-close {
+  width: 34px; height: 34px;
+  background: rgba(255,255,255,0.18);
+  border: none; border-radius: 50%;
+  color: #fff; font-size: 1rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s;
+  font-family: inherit;
+}
+.aw-close:hover { background: rgba(255,255,255,0.32); }
+.aw-close:focus-visible { outline: 2px solid #FFCC00; outline-offset: 2px; }
+
+/* ── Body ────────────────────────────────────────────────────── */
+.aw-body {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 20px;
+}
+.aw-body::-webkit-scrollbar { width: 4px; }
+.aw-body::-webkit-scrollbar-thumb { background: #CBD5E0; border-radius: 4px; }
+
+/* ── Section ─────────────────────────────────────────────────── */
+.aw-section { margin-bottom: 22px; }
+.aw-section-title {
+  font-size: 0.66rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--a11y-muted);
+  margin-bottom: 10px; padding-left: 2px;
+}
+
+/* ── Profiles ────────────────────────────────────────────────── */
+.aw-profiles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.aw-profile {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 6px;
+  padding: 11px 5px 10px;
+  background: var(--a11y-surface);
+  border: 1.5px solid transparent;
+  border-radius: var(--a11y-radius-sm);
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: inherit;
+  text-align: center;
+}
+.aw-profile:hover  { background: var(--a11y-primary-lt); border-color: #B8CCFF; }
+.aw-profile.on     { background: var(--a11y-primary-lt); border-color: var(--a11y-primary); }
+.aw-profile:focus-visible { outline: 2px solid var(--a11y-primary); outline-offset: 2px; }
+.aw-profile-ico    { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; color: var(--a11y-muted); }
+.aw-profile-ico svg { width: 26px; height: 26px; }
+.aw-profile.on .aw-profile-ico { color: var(--a11y-primary); }
+.aw-profile-name   { font-size: 0.61rem; font-weight: 600; color: var(--a11y-text); line-height: 1.3; }
+
+/* ── Text Size Stepper ───────────────────────────────────────── */
+.aw-stepper {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  background: var(--a11y-surface);
+  border-radius: var(--a11y-radius-sm);
+  padding: 11px 14px; gap: 10px;
+}
+.aw-stepper-lbl {
+  display: flex; align-items: center;
+  gap: 9px; font-size: 0.82rem; font-weight: 600; color: var(--a11y-text);
+}
+.aw-stepper-lbl svg { color: var(--a11y-primary); flex-shrink: 0; width: 20px; height: 20px; }
+.aw-stepper-ctrl { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.aw-step-btn {
+  width: 30px; height: 30px;
+  background: var(--a11y-primary); color: #fff;
+  border: none; border-radius: 50%;
+  font-size: 1.1rem; font-weight: 700;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+  line-height: 1; font-family: inherit;
+}
+.aw-step-btn:hover    { background: var(--a11y-primary-dk); }
+.aw-step-btn:disabled { background: #CBD5E0; cursor: not-allowed; }
+.aw-step-btn:focus-visible { outline: 2px solid var(--a11y-primary); outline-offset: 2px; }
+.aw-step-val {
+  font-size: 0.82rem; font-weight: 700;
+  color: var(--a11y-primary);
+  min-width: 40px; text-align: center;
+}
+
+/* ── Adjustments Grid ────────────────────────────────────────── */
+.aw-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+/* ── Card ────────────────────────────────────────────────────── */
+.aw-card {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 7px;
+  padding: 14px 5px 11px;
+  background: var(--a11y-surface);
+  border: 1.5px solid transparent;
+  border-radius: var(--a11y-radius-sm);
+  cursor: pointer;
+  transition: all 0.18s;
+  position: relative;
+  font-family: inherit;
+  min-height: 80px;
+  justify-content: center;
+  text-align: center;
+}
+.aw-card:hover {
+  background: var(--a11y-primary-lt);
+  border-color: #B8CCFF;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,87,184,0.1);
+}
+.aw-card:focus-visible { outline: 2px solid var(--a11y-primary); outline-offset: 2px; }
+.aw-card.on {
+  background: var(--a11y-primary);
+  border-color: var(--a11y-primary);
+  box-shadow: 0 3px 12px rgba(0,87,184,0.3);
+}
+.aw-card.on .aw-card-ico,
+.aw-card.on .aw-card-lbl { color: #fff; }
+.aw-card.on::after {
+  content: '✓';
+  position: absolute;
+  top: 5px; right: 7px;
+  font-size: 9px; font-weight: 800;
+  color: rgba(255,255,255,0.85);
+}
+.aw-card-ico {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--a11y-primary);
+}
+.aw-card-ico svg { width: 24px; height: 24px; }
+.aw-card-lbl { font-size: 0.62rem; font-weight: 600; color: var(--a11y-text); line-height: 1.3; }
+
+/* ── Reset ───────────────────────────────────────────────────── */
+.aw-reset {
+  display: flex; align-items: center; justify-content: center;
+  gap: 7px; width: 100%; padding: 9px;
+  background: transparent;
+  border: 1.5px solid var(--a11y-border);
+  border-radius: var(--a11y-radius-sm);
+  color: var(--a11y-muted);
+  font-size: 0.78rem; font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  margin-top: 4px;
+  font-family: inherit;
+}
+.aw-reset:hover   { border-color: #E53E3E; color: #E53E3E; background: #FFF5F5; }
+.aw-reset:focus-visible { outline: 2px solid #E53E3E; outline-offset: 2px; }
+
+/* ── Footer ──────────────────────────────────────────────────── */
+.aw-footer {
+  padding: 13px 20px;
+  border-top: 1px solid var(--a11y-border);
+  background: #FAFBFC;
+  flex-shrink: 0;
+  text-align: center;
+}
+.aw-footer a.stmt {
+  display: inline-block;
+  color: var(--a11y-primary);
+  font-size: 0.73rem; font-weight: 600;
+  text-decoration: none;
+  margin-bottom: 5px;
+}
+.aw-footer a.stmt:hover { text-decoration: underline; }
+.aw-branding { font-size: 0.66rem; color: var(--a11y-muted); }
+.aw-branding a { color: var(--a11y-muted); text-decoration: none; font-weight: 500; }
+.aw-branding a:hover { text-decoration: underline; }
+
+/* ── Reading Overlays ────────────────────────────────────────── */
+#a11y-guide {
+  display: none;
+  position: fixed; left: 0; right: 0;
+  height: 2px;
+  background: rgba(0,87,184,0.8);
+  z-index: 99990;
+  pointer-events: none;
+  top: var(--aw-guide, -4px);
+  box-shadow: 0 0 10px rgba(0,87,184,0.5);
+}
+html.aw-guide-on #a11y-guide { display: block; }
+
+#a11y-mask {
+  display: none;
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 99989;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.73) calc(var(--aw-mask,50%) - 55px),
+    transparent      calc(var(--aw-mask,50%) - 55px),
+    transparent      calc(var(--aw-mask,50%) + 55px),
+    rgba(0,0,0,0.73) calc(var(--aw-mask,50%) + 55px)
+  );
+}
+html.aw-mask-on #a11y-mask { display: block; }
+
+/* ── Live region ─────────────────────────────────────────────── */
+#a11y-live {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
   white-space: nowrap;
   border: 0;
 }
 
-/* ============================================
-   11. CSS MODIFIER CLASSES (applied to <html>)
-   ============================================ */
+/* ================================================================
+   PAGE-LEVEL OVERRIDES
+   ================================================================ */
 
-/* --- Stop Animations --- */
-html.a11y-no-animations *,
-html.a11y-no-animations *::before,
-html.a11y-no-animations *::after {
+/* Text size */
+html.aw-t110 { font-size: 110% !important; }
+html.aw-t120 { font-size: 120% !important; }
+html.aw-t130 { font-size: 130% !important; }
+html.aw-t140 { font-size: 140% !important; }
+html.aw-t150 { font-size: 150% !important; }
+
+/* High Contrast */
+html.aw-contrast body { background: #000 !important; color: #FFFF00 !important; }
+html.aw-contrast a:not(#a11y-panel a) { color: #00FFFF !important; }
+html.aw-contrast h1:not(#a11y-panel *),
+html.aw-contrast h2:not(#a11y-panel *),
+html.aw-contrast h3:not(#a11y-panel *) { color: #FFFF00 !important; }
+html.aw-contrast button:not(#a11y-panel *):not(#a11y-trigger) {
+  background: #000 !important; color: #FFFF00 !important; border: 2px solid #FFFF00 !important;
+}
+html.aw-contrast input:not(#a11y-panel *),
+html.aw-contrast select:not(#a11y-panel *),
+html.aw-contrast textarea:not(#a11y-panel *) {
+  background: #000 !important; color: #FFFF00 !important; border: 2px solid #FFFF00 !important;
+}
+
+/* Dark Mode */
+html.aw-dark body { filter: invert(93%) hue-rotate(180deg); }
+html.aw-dark img, html.aw-dark video, html.aw-dark canvas { filter: invert(100%) hue-rotate(180deg); }
+html.aw-dark #a11y-panel, html.aw-dark #a11y-trigger, html.aw-dark #a11y-overlay { filter: none; }
+
+/* Desaturate */
+html.aw-desat body { filter: saturate(15%); }
+html.aw-desat #a11y-panel, html.aw-desat #a11y-trigger { filter: none; }
+
+/* Highlight Links */
+html.aw-hilite a:not(#a11y-panel a):not(#a11y-trigger) {
+  background: #FFFF00 !important; color: #000 !important;
+  padding: 1px 4px !important; border-radius: 3px !important;
+  text-decoration: underline !important;
+}
+
+/* Link Underline */
+html.aw-underline a:not(#a11y-panel a) {
+  text-decoration: underline !important;
+  text-decoration-thickness: 2px !important;
+  text-underline-offset: 3px !important;
+}
+
+/* Dyslexia */
+html.aw-dyslexia *:not(#a11y-panel *) {
+  font-family: 'OpenDyslexic', 'Comic Sans MS', 'Comic Sans', cursive !important;
+  line-height: 1.75 !important; letter-spacing: 0.06em !important; word-spacing: 0.18em !important;
+}
+
+/* Big Cursor */
+html.aw-cursor, html.aw-cursor * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Cpath d='M8 4L8 35 15 27 22 40 27 37 20 24 30 24Z' fill='%23000' stroke='%23fff' stroke-width='2.5' stroke-linejoin='round'/%3E%3C/svg%3E") 4 4, auto !important;
+}
+
+/* Stop Animations */
+html.aw-freeze *, html.aw-freeze *::before, html.aw-freeze *::after {
   animation-duration: 0.001ms !important;
   animation-iteration-count: 1 !important;
   transition-duration: 0.001ms !important;
   scroll-behavior: auto !important;
 }
 
-html.a11y-no-animations .reveal-fade,
-html.a11y-no-animations .reveal-slide-up,
-html.a11y-no-animations .reveal-slide-left,
-html.a11y-no-animations .reveal-slide-right {
-  opacity: 1 !important;
-  transform: none !important;
-  pointer-events: auto !important;
-}
-
-/* --- Keyboard Navigation Mode (enhanced focus) --- */
-html.a11y-keyboard-mode *:focus {
-  outline: 3px solid #FF6600 !important;
+/* Keyboard Nav */
+html.aw-keynav *:focus, html.aw-keynav *:focus-visible {
+  outline: 3px solid var(--a11y-primary) !important;
   outline-offset: 3px !important;
-  box-shadow: 0 0 0 6px rgba(255, 102, 0, 0.25) !important;
+  box-shadow: 0 0 0 6px rgba(0,87,184,0.22) !important;
 }
 
-/* --- Highlight Links --- */
-html.a11y-highlight-links a,
-html.a11y-highlight-links [role="link"] {
-  background: #FFFF99 !important;
-  color: #000080 !important;
-  text-decoration: underline !important;
-  text-decoration-thickness: 2px !important;
-  padding: 0 2px !important;
-  border-radius: 2px !important;
+/* Screen Reader */
+html.aw-sr img:not([alt]), html.aw-sr img[alt=""] {
+  outline: 3px solid #E53E3E !important;
 }
 
-/* --- Highlight Headings --- */
-html.a11y-highlight-headings h1,
-html.a11y-highlight-headings h2,
-html.a11y-highlight-headings h3,
-html.a11y-highlight-headings h4,
-html.a11y-highlight-headings h5,
-html.a11y-highlight-headings h6 {
-  outline: 2px solid #005A8C !important;
-  outline-offset: 2px !important;
-  background: rgba(0, 90, 140, 0.06) !important;
-  padding: 4px 6px !important;
-  border-radius: 3px !important;
-}
-
-/* --- Hide Images --- */
-html.a11y-hide-images img,
-html.a11y-hide-images [role="img"] {
-  visibility: hidden !important;
-}
-
-html.a11y-hide-images img::after {
-  content: attr(alt);
-  display: block;
-  visibility: visible;
-  font-size: 12px;
-  color: #555;
-  font-style: italic;
-  text-align: center;
-}
-
-/* --- Grayscale --- */
-html.a11y-grayscale {
-  filter: grayscale(100%) !important;
-}
-
-/* --- High Contrast Mode --- */
-html.a11y-contrast-high {
-  filter: none !important;
-}
-
-html.a11y-contrast-high body {
-  background: #ffffff !important;
-  color: #000000 !important;
-}
-
-html.a11y-contrast-high a {
-  color: #0000cc !important;
-  text-decoration: underline !important;
-}
-
-html.a11y-contrast-high a:visited {
-  color: #551a8b !important;
-}
-
-html.a11y-contrast-high button,
-html.a11y-contrast-high .btn {
-  border: 2px solid #000000 !important;
-}
-
-html.a11y-contrast-high input,
-html.a11y-contrast-high select,
-html.a11y-contrast-high textarea {
-  border: 2px solid #000000 !important;
-  background: #ffffff !important;
-  color: #000000 !important;
-}
-
-html.a11y-contrast-high .site-header,
-html.a11y-contrast-high .site-footer {
-  background: #000000 !important;
-  color: #ffffff !important;
-}
-
-html.a11y-contrast-high .site-header a,
-html.a11y-contrast-high .site-footer a {
-  color: #ffff00 !important;
-}
-
-html.a11y-contrast-high .hero {
-  background: #000000 !important;
-  color: #ffffff !important;
-}
-
-html.a11y-contrast-high .btn-primary {
-  background: #000000 !important;
-  color: #ffffff !important;
-  border: 2px solid #ffffff !important;
-}
-
-html.a11y-contrast-high .btn-secondary {
-  background: #ffff00 !important;
-  color: #000000 !important;
-  border: 2px solid #000000 !important;
-}
-
-/* --- Dark Mode --- */
-html.a11y-contrast-dark {
-  filter: none !important;
-}
-
-html.a11y-contrast-dark body {
-  background: #1a1a1a !important;
-  color: #e8e8e8 !important;
-}
-
-html.a11y-contrast-dark .site-header {
-  background: #0a0a0a !important;
-}
-
-html.a11y-contrast-dark .site-footer {
-  background: #0a0a0a !important;
-}
-
-html.a11y-contrast-dark .auth-card,
-html.a11y-contrast-dark .card,
-html.a11y-contrast-dark .pathway-card,
-html.a11y-contrast-dark .action-tile,
-html.a11y-contrast-dark .opportunity-card {
-  background: #2d2d2d !important;
-  color: #e8e8e8 !important;
-  border-color: #444444 !important;
-}
-
-html.a11y-contrast-dark input,
-html.a11y-contrast-dark select,
-html.a11y-contrast-dark textarea {
-  background: #2d2d2d !important;
-  color: #e8e8e8 !important;
-  border-color: #666666 !important;
-}
-
-html.a11y-contrast-dark a {
-  color: #6ab4f5 !important;
-}
-
-html.a11y-contrast-dark h1,
-html.a11y-contrast-dark h2,
-html.a11y-contrast-dark h3,
-html.a11y-contrast-dark h4,
-html.a11y-contrast-dark h5,
-html.a11y-contrast-dark h6 {
-  color: #e8e8e8 !important;
-}
-
-/* --- Line Height --- */
-html.a11y-line-height-relaxed body,
-html.a11y-line-height-relaxed p,
-html.a11y-line-height-relaxed li,
-html.a11y-line-height-relaxed td {
-  line-height: 1.8 !important;
-}
-
-html.a11y-line-height-loose body,
-html.a11y-line-height-loose p,
-html.a11y-line-height-loose li,
-html.a11y-line-height-loose td {
-  line-height: 2.2 !important;
-}
-
-/* --- Letter Spacing --- */
-html.a11y-letter-spacing-wide body,
-html.a11y-letter-spacing-wide p,
-html.a11y-letter-spacing-wide li,
-html.a11y-letter-spacing-wide a {
-  letter-spacing: 0.05em !important;
-}
-
-html.a11y-letter-spacing-wider body,
-html.a11y-letter-spacing-wider p,
-html.a11y-letter-spacing-wider li,
-html.a11y-letter-spacing-wider a {
-  letter-spacing: 0.12em !important;
-}
-
-/* --- Dyslexia-Friendly Font --- */
-html.a11y-dyslexic-font body,
-html.a11y-dyslexic-font p,
-html.a11y-dyslexic-font li,
-html.a11y-dyslexic-font a,
-html.a11y-dyslexic-font button,
-html.a11y-dyslexic-font input,
-html.a11y-dyslexic-font label,
-html.a11y-dyslexic-font td,
-html.a11y-dyslexic-font th {
-  font-family: 'Verdana', 'Comic Sans MS', 'Trebuchet MS', sans-serif !important;
-  word-spacing: 0.1em !important;
-}
-
-/* ============================================
-   12. SITEWIDE ACCESSIBILITY IMPROVEMENTS
-       (always active, not widget-controlled)
-   ============================================ */
-
-/* Respect prefers-reduced-motion at the OS level */
+/* Prefers reduced motion (always on) */
 @media (prefers-reduced-motion: reduce) {
-  .reveal-fade,
-  .reveal-slide-up,
-  .reveal-slide-left,
-  .reveal-slide-right {
-    opacity: 1 !important;
-    transform: none !important;
-    transition: none !important;
-    pointer-events: auto !important;
-  }
-
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
   }
 }
 
-/* External link announcement for screen readers */
-a[target="_blank"]::after {
-  content: ' (opens in new window)';
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-/* Ensure touch targets are large enough (44x44px) */
-button,
-[role="button"],
-input[type="checkbox"],
-input[type="radio"],
-select {
-  min-height: 44px;
-}
-
-input[type="checkbox"],
-input[type="radio"] {
-  min-width: 20px;
-  min-height: 20px;
-}
-
-/* ============================================
-   12b. NEW MODIFIER CLASSES
-   ============================================ */
-
-/* --- Word Spacing --- */
-html.a11y-word-spacing-wide body,
-html.a11y-word-spacing-wide p,
-html.a11y-word-spacing-wide li,
-html.a11y-word-spacing-wide a {
-  word-spacing: 0.15em !important;
-}
-
-html.a11y-word-spacing-wider body,
-html.a11y-word-spacing-wider p,
-html.a11y-word-spacing-wider li,
-html.a11y-word-spacing-wider a {
-  word-spacing: 0.35em !important;
-}
-
-/* --- Invert Colors --- */
-html.a11y-invert body {
-  filter: invert(100%) hue-rotate(180deg) !important;
-}
-
-html.a11y-invert img,
-html.a11y-invert video,
-html.a11y-invert iframe {
-  filter: invert(100%) hue-rotate(180deg) !important;
-}
-
-/* --- Low Saturation --- */
-html.a11y-saturation-low body {
-  filter: saturate(30%) !important;
-}
-
-/* --- High Saturation --- */
-html.a11y-saturation-high body {
-  filter: saturate(200%) !important;
-}
-
-/* --- Large Cursor --- */
-html.a11y-large-cursor,
-html.a11y-large-cursor * {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M8 4 L8 26 L13 21 L18 30 L21 28 L16 19 L24 19 Z' fill='black' stroke='white' stroke-width='2'/%3E%3C/svg%3E") 8 4, auto !important;
-}
-
-/* --- Reading Mask --- */
-.a11y-reading-mask {
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  pointer-events: none;
-  z-index: 99989;
-  display: none;
-  --mask-y: 50vh;
-  background:
-    linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 0.65) 0px,
-      rgba(0, 0, 0, 0.65) calc(var(--mask-y) - 50px),
-      transparent calc(var(--mask-y) - 50px),
-      transparent calc(var(--mask-y) + 50px),
-      rgba(0, 0, 0, 0.65) calc(var(--mask-y) + 50px),
-      rgba(0, 0, 0, 0.65) 100%
-    );
-}
-
-.a11y-reading-mask.a11y-reading-mask-active {
-  display: block;
-}
-
-/* ============================================
-   13. WIDGET PROFILES & BADGE
-   ============================================ */
-
-/* Badge counter on trigger button */
-.a11y-badge {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  background: #C62828;
-  color: #ffffff;
-  border: 2px solid #ffffff;
-  border-radius: 50%;
-  width: 22px;
-  height: 22px;
-  font-size: 11px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: Arial, sans-serif;
-  pointer-events: none;
-}
-
-/* Trigger needs relative positioning for badge */
-.a11y-trigger {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-}
-
-/* Profile buttons grid */
-.a11y-profiles {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 6px;
-  margin-top: 4px;
-}
-
-.a11y-profile-btn {
-  background: #f5f5f5;
-  border: 1.5px solid #cccccc;
-  border-radius: 8px;
-  padding: 6px 4px;
-  cursor: pointer;
-  font-family: Arial, sans-serif;
-  transition: background 0.15s, border-color 0.15s;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  min-height: 44px;
-}
-
-.a11y-profile-btn:hover {
-  background: #e8f0f7;
-  border-color: #005A8C;
-}
-
-.a11y-profile-btn:focus {
-  outline: 2px solid #005A8C;
-  outline-offset: 2px;
-}
-
-.a11y-profile-btn.a11y-profile-active,
-.a11y-profile-btn[aria-pressed="true"] {
-  background: #005A8C;
-  border-color: #005A8C;
-  color: #ffffff;
-}
-
-.a11y-profile-icon {
-  font-size: 18px;
-  line-height: 1;
-}
-
-.a11y-profile-name {
-  font-size: 9px;
-  font-weight: 600;
-  text-align: center;
-  line-height: 1.1;
-  color: inherit;
-}
-
-/* ============================================
-   14. MOBILE ADJUSTMENTS FOR WIDGET
-   ============================================ */
-
+/* ── Responsive ──────────────────────────────────────────────── */
 @media (max-width: 480px) {
-  .a11y-panel {
-    width: calc(100vw - 32px);
-    right: 16px;
-    bottom: 88px;
-  }
-
-  .a11y-trigger {
-    bottom: 16px;
-    right: 16px;
-  }
-
-  .a11y-profiles {
-    grid-template-columns: repeat(3, 1fr);
-  }
+  #a11y-panel { width: 100vw; }
+  #a11y-trigger { bottom: 80px; right: 16px; }
+  .aw-grid { grid-template-columns: repeat(3, 1fr); }
 }
