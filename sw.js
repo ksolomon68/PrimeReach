@@ -6,7 +6,7 @@
  *   - Navigations (HTML pages):            Network-first, fallback to cached page or offline shell
  */
 
-const CACHE_VERSION = 'v1.0.0';
+const CACHE_VERSION = 'v1.0.1';
 const STATIC_CACHE  = `caltrans-static-${CACHE_VERSION}`;
 const API_CACHE     = `caltrans-api-${CACHE_VERSION}`;
 const ALL_CACHES    = [STATIC_CACHE, API_CACHE];
@@ -39,9 +39,13 @@ const PRECACHE_ASSETS = [
   '/js/components/navigation.js',
   '/js/components/filter-bar.js',
   '/assets/favicon.ico',
+  '/assets/favicon-32.png',
+  '/assets/favicon-16.png',
   '/assets/caltrans-logo.png',
   '/assets/icon-192.png',
-  '/assets/icon-512.png'
+  '/assets/icon-512.png',
+  '/assets/icon-maskable.png',
+  '/assets/apple-touch-icon.png'
 ];
 
 // ─── Install ─────────────────────────────────────────────────────────────────
