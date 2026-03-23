@@ -64,7 +64,7 @@
     banner.setAttribute('aria-label', 'Install app prompt');
     banner.innerHTML = `
       <div id="pwa-banner-inner">
-        <img src="/assets/caltrans-logo.png" alt="" aria-hidden="true" id="pwa-banner-logo">
+        <img src="/assets/icon-192.png" alt="" aria-hidden="true" id="pwa-banner-logo">
         <div id="pwa-banner-text">
           <strong>Install CaltransBizConnect</strong>
           <span>Add to your home screen for quick access</span>
