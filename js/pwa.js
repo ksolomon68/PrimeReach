@@ -1,8 +1,32 @@
 /**
  * CaltransBizConnect PWA – Service Worker Registration & Install Prompt
+ * Handles: Android Chrome (beforeinstallprompt), iOS Safari (manual guide),
+ *          Android fallback (manual guide), and app update notifications.
  */
 (function () {
   'use strict';
+
+  const ICON = '/assets/icon-192.png';
+  const DISMISS_KEY = 'pwa-install-dismissed';
+  const INSTALLED_KEY = 'pwa-installed';
+  const DISMISS_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+  // ── Platform Detection ───────────────────────────────────────────────────
+  const ua = navigator.userAgent;
+  const isIOS = /iphone|ipad|ipod/i.test(ua);
+  const isAndroid = /android/i.test(ua);
+  const isMobile = isIOS || isAndroid;
+  const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true;
+
+  function wasDismissedRecently() {
+    const ts = localStorage.getItem(DISMISS_KEY);
+    return ts && Date.now() - parseInt(ts, 10) < DISMISS_TTL;
+  }
+
+  function isAlreadyInstalled() {
+    return localStorage.getItem(INSTALLED_KEY) === 'true' || isInStandaloneMode;
+  }
 
   // ── Service Worker Registration ──────────────────────────────────────────
   if ('serviceWorker' in navigator) {
@@ -10,7 +34,6 @@
       navigator.serviceWorker
         .register('/sw.js', { scope: '/' })
         .then(reg => {
-          // Check for updates every time the page loads
           reg.addEventListener('updatefound', () => {
             const newWorker = reg.installing;
             newWorker.addEventListener('statechange', () => {
@@ -20,221 +43,267 @@
             });
           });
         })
-        .catch(err => console.warn('[PWA] Service worker registration failed:', err));
+        .catch(err => console.warn('[PWA] SW registration failed:', err));
 
-      // Reload once when a new SW takes control (after update)
       let refreshing = false;
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!refreshing) {
-          refreshing = true;
-          window.location.reload();
-        }
+        if (!refreshing) { refreshing = true; window.location.reload(); }
       });
     });
   }
 
-  // ── Install Prompt ───────────────────────────────────────────────────────
+  // ── Android: beforeinstallprompt ─────────────────────────────────────────
   let deferredPrompt = null;
 
   window.addEventListener('beforeinstallprompt', e => {
     e.preventDefault();
     deferredPrompt = e;
-
-    // Don't show again if dismissed within the last 7 days
-    const dismissed = localStorage.getItem('pwa-install-dismissed');
-    if (dismissed && Date.now() - parseInt(dismissed, 10) < 7 * 24 * 60 * 60 * 1000) return;
-
-    showInstallBanner();
+    if (isAlreadyInstalled() || wasDismissedRecently()) return;
+    showAndroidBanner();
   });
 
   window.addEventListener('appinstalled', () => {
     deferredPrompt = null;
-    removeInstallBanner();
-    localStorage.setItem('pwa-installed', 'true');
-    console.log('[PWA] App installed.');
+    removeBanner('pwa-install-banner');
+    localStorage.setItem(INSTALLED_KEY, 'true');
   });
 
-  // ── Install Banner UI ────────────────────────────────────────────────────
-  function showInstallBanner() {
-    if (document.getElementById('pwa-install-banner')) return;
+  // ── iOS: show guide after short delay ────────────────────────────────────
+  if (isIOS && !isAlreadyInstalled() && !wasDismissedRecently()) {
+    window.addEventListener('load', () => {
+      setTimeout(showIOSBanner, 3000);
+    });
+  }
 
-    const banner = document.createElement('div');
-    banner.id = 'pwa-install-banner';
-    banner.setAttribute('role', 'region');
-    banner.setAttribute('aria-label', 'Install app prompt');
-    banner.innerHTML = `
-      <div id="pwa-banner-inner">
-        <img src="/assets/icon-192.png" alt="" aria-hidden="true" id="pwa-banner-logo">
-        <div id="pwa-banner-text">
+  // ── Android fallback: if beforeinstallprompt never fires (HTTP/old Chrome)
+  if (isAndroid && !isAlreadyInstalled() && !wasDismissedRecently()) {
+    window.addEventListener('load', () => {
+      // Wait 5s — if beforeinstallprompt hasn't fired, show manual guide
+      setTimeout(() => {
+        if (!deferredPrompt && !document.getElementById('pwa-install-banner')) {
+          showAndroidManualBanner();
+        }
+      }, 5000);
+    });
+  }
+
+  // ── Android Auto-prompt Banner ───────────────────────────────────────────
+  function showAndroidBanner() {
+    if (document.getElementById('pwa-install-banner')) return;
+    injectStyles();
+
+    const banner = createBanner('pwa-install-banner', `
+      <div class="pwa-inner">
+        <img src="${ICON}" alt="" aria-hidden="true" class="pwa-logo">
+        <div class="pwa-text">
           <strong>Install CaltransBizConnect</strong>
           <span>Add to your home screen for quick access</span>
         </div>
-        <div id="pwa-banner-actions">
-          <button id="pwa-install-btn" aria-label="Install app">Install</button>
-          <button id="pwa-dismiss-btn" aria-label="Dismiss install prompt">✕</button>
+        <div class="pwa-actions">
+          <button id="pwa-install-btn">Install</button>
+          <button class="pwa-dismiss" aria-label="Dismiss">✕</button>
         </div>
       </div>
-    `;
+    `);
 
-    injectBannerStyles();
-    document.body.appendChild(banner);
-
-    document.getElementById('pwa-install-btn').addEventListener('click', () => {
+    banner.querySelector('#pwa-install-btn').addEventListener('click', () => {
       if (!deferredPrompt) return;
       deferredPrompt.prompt();
       deferredPrompt.userChoice.then(choice => {
         deferredPrompt = null;
-        removeInstallBanner();
+        removeBanner('pwa-install-banner');
         if (choice.outcome === 'dismissed') {
-          localStorage.setItem('pwa-install-dismissed', Date.now().toString());
+          localStorage.setItem(DISMISS_KEY, Date.now().toString());
         }
       });
     });
 
-    document.getElementById('pwa-dismiss-btn').addEventListener('click', () => {
-      removeInstallBanner();
-      localStorage.setItem('pwa-install-dismissed', Date.now().toString());
+    banner.querySelector('.pwa-dismiss').addEventListener('click', () => {
+      removeBanner('pwa-install-banner');
+      localStorage.setItem(DISMISS_KEY, Date.now().toString());
     });
   }
 
-  function removeInstallBanner() {
-    const banner = document.getElementById('pwa-install-banner');
-    if (banner) {
-      banner.style.transform = 'translateY(120%)';
-      setTimeout(() => banner.remove(), 300);
-    }
+  // ── Android Manual Guide (HTTP / no prompt) ──────────────────────────────
+  function showAndroidManualBanner() {
+    if (document.getElementById('pwa-install-banner')) return;
+    injectStyles();
+
+    const banner = createBanner('pwa-install-banner', `
+      <div class="pwa-inner">
+        <img src="${ICON}" alt="" aria-hidden="true" class="pwa-logo">
+        <div class="pwa-text">
+          <strong>Install CaltransBizConnect</strong>
+          <span>Tap <b>⋮ Menu</b> → <b>Add to Home screen</b></span>
+        </div>
+        <div class="pwa-actions">
+          <button class="pwa-dismiss" aria-label="Dismiss">✕</button>
+        </div>
+      </div>
+    `);
+
+    banner.querySelector('.pwa-dismiss').addEventListener('click', () => {
+      removeBanner('pwa-install-banner');
+      localStorage.setItem(DISMISS_KEY, Date.now().toString());
+    });
   }
 
-  // ── Update Banner UI ─────────────────────────────────────────────────────
+  // ── iOS Guide Banner ─────────────────────────────────────────────────────
+  function showIOSBanner() {
+    if (document.getElementById('pwa-install-banner')) return;
+    injectStyles();
+
+    const banner = createBanner('pwa-install-banner', `
+      <div class="pwa-inner pwa-ios">
+        <img src="${ICON}" alt="" aria-hidden="true" class="pwa-logo">
+        <div class="pwa-text">
+          <strong>Install CaltransBizConnect</strong>
+          <span>Tap <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;margin:0 2px"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> then <b>"Add to Home Screen"</b></span>
+        </div>
+        <div class="pwa-actions">
+          <button class="pwa-dismiss" aria-label="Dismiss">✕</button>
+        </div>
+      </div>
+      <div class="pwa-ios-arrow" aria-hidden="true">▼</div>
+    `);
+
+    banner.querySelector('.pwa-dismiss').addEventListener('click', () => {
+      removeBanner('pwa-install-banner');
+      localStorage.setItem(DISMISS_KEY, Date.now().toString());
+    });
+  }
+
+  // ── Update Banner ────────────────────────────────────────────────────────
   function showUpdateBanner() {
     if (document.getElementById('pwa-update-banner')) return;
+    injectStyles();
 
-    const banner = document.createElement('div');
-    banner.id = 'pwa-update-banner';
-    banner.setAttribute('role', 'alert');
-    banner.innerHTML = `
-      <div id="pwa-banner-inner">
-        <span>🔄 A new version of CaltransBizConnect is available.</span>
-        <button id="pwa-reload-btn">Reload</button>
-        <button id="pwa-update-dismiss-btn" aria-label="Dismiss update prompt">✕</button>
+    const banner = createBanner('pwa-update-banner', `
+      <div class="pwa-inner">
+        <span style="flex:1;font-size:0.88rem;color:#333;">🔄 A new version is available.</span>
+        <div class="pwa-actions">
+          <button id="pwa-reload-btn">Reload</button>
+          <button class="pwa-dismiss" aria-label="Dismiss">✕</button>
+        </div>
       </div>
-    `;
+    `);
 
-    injectBannerStyles();
-    document.body.appendChild(banner);
-
-    document.getElementById('pwa-reload-btn').addEventListener('click', () => {
-      window.location.reload();
-    });
-
-    document.getElementById('pwa-update-dismiss-btn').addEventListener('click', () => {
-      banner.remove();
-    });
+    banner.querySelector('#pwa-reload-btn').addEventListener('click', () => window.location.reload());
+    banner.querySelector('.pwa-dismiss').addEventListener('click', () => banner.remove());
   }
 
-  // ── Inline Styles ────────────────────────────────────────────────────────
-  function injectBannerStyles() {
-    if (document.getElementById('pwa-banner-styles')) return;
-    const style = document.createElement('style');
-    style.id = 'pwa-banner-styles';
-    style.textContent = `
-      #pwa-install-banner,
-      #pwa-update-banner {
+  // ── Helpers ──────────────────────────────────────────────────────────────
+  function createBanner(id, html) {
+    const el = document.createElement('div');
+    el.id = id;
+    el.setAttribute('role', id === 'pwa-update-banner' ? 'alert' : 'region');
+    el.setAttribute('aria-label', 'App install prompt');
+    el.innerHTML = html;
+    document.body.appendChild(el);
+    return el;
+  }
+
+  function removeBanner(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.transform = 'translateX(-50%) translateY(120%)';
+    setTimeout(() => el.remove(), 300);
+  }
+
+  function injectStyles() {
+    if (document.getElementById('pwa-styles')) return;
+    const s = document.createElement('style');
+    s.id = 'pwa-styles';
+    s.textContent = `
+      #pwa-install-banner, #pwa-update-banner {
         position: fixed;
-        bottom: 80px;
+        bottom: 76px;
         left: 50%;
-        transform: translateX(-50%) translateY(0);
+        transform: translateX(-50%);
         z-index: 99999;
-        width: min(480px, calc(100vw - 2rem));
+        width: min(500px, calc(100vw - 1.5rem));
         background: #fff;
         border: 1.5px solid #005A8C;
-        border-radius: 12px;
+        border-radius: 14px;
         box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-        animation: pwaSlideUp 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+        animation: pwaUp 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        overflow: hidden;
       }
-      @keyframes pwaSlideUp {
-        from { opacity: 0; transform: translateX(-50%) translateY(40px); }
-        to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+      @keyframes pwaUp {
+        from { opacity:0; transform:translateX(-50%) translateY(40px); }
+        to   { opacity:1; transform:translateX(-50%) translateY(0); }
       }
-      #pwa-banner-inner {
+      .pwa-inner {
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        padding: 0.875rem 1rem;
+        padding: 0.9rem 1rem;
       }
-      #pwa-banner-logo {
-        width: 40px;
-        height: 40px;
+      .pwa-logo {
+        width: 42px; height: 42px;
         object-fit: contain;
+        border-radius: 10px;
         flex-shrink: 0;
-        border-radius: 8px;
       }
-      #pwa-banner-text {
+      .pwa-text {
         flex: 1;
         min-width: 0;
         display: flex;
         flex-direction: column;
-        gap: 0.15rem;
+        gap: 0.2rem;
       }
-      #pwa-banner-text strong {
-        font-size: 0.9rem;
-        color: #005A8C;
+      .pwa-text strong {
+        font-size: 0.88rem;
         font-weight: 700;
+        color: #005A8C;
       }
-      #pwa-banner-text span {
+      .pwa-text span {
         font-size: 0.78rem;
         color: #555;
+        line-height: 1.4;
       }
-      #pwa-banner-actions {
+      .pwa-actions {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.4rem;
         flex-shrink: 0;
       }
-      #pwa-install-btn,
-      #pwa-reload-btn {
+      #pwa-install-btn, #pwa-reload-btn {
         background: #005A8C;
         color: #fff;
         border: none;
-        border-radius: 6px;
+        border-radius: 7px;
         padding: 0.45rem 1rem;
         font-size: 0.85rem;
         font-weight: 600;
         cursor: pointer;
-        transition: background 0.2s;
+        white-space: nowrap;
       }
-      #pwa-install-btn:hover,
-      #pwa-reload-btn:hover { background: #004470; }
-      #pwa-dismiss-btn,
-      #pwa-update-dismiss-btn {
+      #pwa-install-btn:hover, #pwa-reload-btn:hover { background: #004470; }
+      .pwa-dismiss {
         background: transparent;
         border: none;
-        color: #888;
-        font-size: 1rem;
+        color: #999;
+        font-size: 1.1rem;
         cursor: pointer;
-        padding: 0.25rem;
-        line-height: 1;
+        padding: 0.25rem 0.4rem;
         border-radius: 4px;
+        line-height: 1;
       }
-      #pwa-dismiss-btn:hover,
-      #pwa-update-dismiss-btn:hover { color: #333; background: #f0f0f0; }
-      #pwa-update-banner #pwa-banner-inner {
-        gap: 1rem;
-        flex-wrap: wrap;
-      }
-      #pwa-update-banner span {
-        flex: 1;
-        font-size: 0.88rem;
-        color: #333;
+      .pwa-dismiss:hover { color: #333; background: #f0f0f0; }
+      /* iOS arrow pointing to browser share button */
+      .pwa-ios-arrow {
+        text-align: center;
+        font-size: 1.3rem;
+        color: #005A8C;
+        padding-bottom: 0.5rem;
+        margin-top: -0.5rem;
       }
       @media (max-width: 480px) {
-        #pwa-install-banner, #pwa-update-banner {
-          bottom: 70px;
-          border-radius: 10px;
-        }
+        #pwa-install-banner, #pwa-update-banner { bottom: 68px; border-radius: 12px; }
       }
     `;
-    document.head.appendChild(style);
+    document.head.appendChild(s);
   }
 })();
