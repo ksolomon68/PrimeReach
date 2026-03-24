@@ -193,10 +193,19 @@ router.post('/:id/approve', async (req, res) => {
     const { id } = req.params;
 
     try {
+        const [existing] = await db.execute('SELECT status, title, posted_by, posted_by_name FROM opportunities WHERE id = ?', [id]);
+        if (existing.length === 0) return res.status(404).json({ error: 'Opportunity not found' });
+
         const [result] = await db.execute('UPDATE opportunities SET status = ? WHERE id = ?', ['published', id]);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Opportunity not found' });
+        }
+
+        if (existing[0].status !== 'published') {
+            const senderId = existing[0].posted_by || req.user?.id || 1;
+            const senderName = existing[0].posted_by_name || 'Caltrans Admin';
+            await notifyApplicantsOfStatusChange(id, existing[0].title, 'published', senderId, senderName);
         }
 
         res.json({ id, status: 'published' });
@@ -204,6 +213,47 @@ router.post('/:id/approve', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+// Helper: notify all applicants of a status change via the messages system
+async function notifyApplicantsOfStatusChange(opportunityId, opportunityTitle, newStatus, senderId, senderName) {
+    try {
+        const [applicants] = await db.execute(
+            `SELECT a.small_business_id, u.business_name
+             FROM applications a
+             JOIN users u ON u.id = a.small_business_id
+             WHERE a.opportunity_id = ?`,
+            [opportunityId]
+        );
+        if (applicants.length === 0) return;
+
+        const statusLabels = {
+            published: 'open and accepting applications',
+            open: 'open and accepting applications',
+            closed: 'closed — applications are no longer being accepted',
+            awarded: 'awarded',
+            cancelled: 'cancelled'
+        };
+        const label = statusLabels[newStatus] || newStatus;
+        const subject = `Update: ${opportunityTitle}`;
+        const body = `This is an update regarding the opportunity you applied for.\n\nOpportunity: ${opportunityTitle}\nNew Status: ${newStatus.toUpperCase()}\n\nThis opportunity is now ${label}.\n\nPlease log in to CaltransBizConnect to view full details.`;
+
+        for (const applicant of applicants) {
+            const receiverName = applicant.business_name || `Applicant ${applicant.small_business_id}`;
+            const [msgResult] = await db.execute(
+                `INSERT INTO messages (sender_id, receiver_id, sender_business_name, receiver_business_name, opportunity_id, message_type, subject, body)
+                 VALUES (?, ?, ?, ?, ?, 'reply', ?, ?)`,
+                [senderId, applicant.small_business_id, senderName, receiverName, opportunityId, subject, body]
+            );
+            await db.execute(
+                `INSERT INTO notifications (user_id, message_id) VALUES (?, ?)`,
+                [applicant.small_business_id, msgResult.insertId]
+            );
+        }
+        console.log(`CaltransBizConnect: Notified ${applicants.length} applicants of status change to "${newStatus}" for ${opportunityId}`);
+    } catch (err) {
+        console.error('CaltransBizConnect: Failed to notify applicants:', err.message);
+    }
+}
 
 // Update opportunity
 router.put('/:id', requireRole(['prime_contractor', 'admin']), async (req, res) => {
@@ -220,16 +270,24 @@ router.put('/:id', requireRole(['prime_contractor', 'admin']), async (req, res) 
     const cleanNaics = naics_codes ? naics_codes.filter(n => n && n.trim()) : [];
 
     try {
+        // Fetch current record to detect status change
+        const [existing] = await db.execute('SELECT status, title, posted_by, posted_by_name FROM opportunities WHERE id = ?', [id]);
+        if (existing.length === 0) return res.status(404).json({ error: 'Opportunity not found' });
+        const oldStatus = existing[0].status;
+        const oppTitle = title || existing[0].title;
+        const senderId = existing[0].posted_by || req.user.id;
+        const senderName = existing[0].posted_by_name || req.user.organization_name || 'Prime Contractor';
+
         const sql = `
-            UPDATE opportunities SET 
-                title = ?, scope_summary = ?, district = ?, district_name = ?, 
-                category = ?, category_name = ?, subcategory = ?, estimated_value = ?, 
+            UPDATE opportunities SET
+                title = ?, scope_summary = ?, district = ?, district_name = ?,
+                category = ?, category_name = ?, subcategory = ?, estimated_value = ?,
                 due_date = ?, due_time = ?, submission_method = ?, status = ?, attachments = ?,
                 duration = ?, requirements = ?, certifications = ?, experience = ?, description = ?, tags = ?, naics_codes = ?
             WHERE id = ?
         `;
 
-        const [result] = await db.execute(sql, [
+        await db.execute(sql, [
             title, desc, district, districtName,
             category, categoryName, subcategory || null, estimatedValue || null,
             dueDate || null, dueTime || null, submissionMethod || null,
@@ -238,8 +296,14 @@ router.put('/:id', requireRole(['prime_contractor', 'admin']), async (req, res) 
             id
         ]);
 
-        res.json({ id, title, status: status || 'published' });
+        const newStatus = status || 'published';
+        if (newStatus !== oldStatus) {
+            await notifyApplicantsOfStatusChange(id, oppTitle, newStatus, senderId, senderName);
+        }
+
+        res.json({ id, title, status: newStatus });
     } catch (error) {
+        console.error('Error updating opportunity:', error);
         res.status(500).json({ error: error.message });
     }
 });
