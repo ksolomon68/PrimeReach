@@ -220,10 +220,15 @@
             }
         });
 
-        const getHeaders = () => ({
-            'Content-Type': 'application/json',
-            'x-user-id': currentUserId
-        });
+        const getHeaders = () => {
+            const token = localStorage.getItem('caltrans_token');
+            const headers = {
+                'Content-Type': 'application/json',
+                'x-user-id': currentUserId
+            };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            return headers;
+        };
 
         async function loadInbox() {
             try {
