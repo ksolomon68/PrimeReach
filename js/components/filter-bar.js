@@ -60,6 +60,13 @@ document.addEventListener('DOMContentLoaded', async function () {
         allOpportunities = allData.filter(opp => opp.status === 'published');
         filteredOpportunities = [...allOpportunities];
 
+        // Ensure Top Matches appear first initially
+        filteredOpportunities.sort((a,b) => {
+            if (a.is_top_match && !b.is_top_match) return -1;
+            if (!a.is_top_match && b.is_top_match) return 1;
+            return 0;
+        });
+
         // Populate filter dropdowns
         populateDistrictFilter();
         populateCategoryFilter();
@@ -182,10 +189,15 @@ function createOpportunityCard(opp) {
         }
     }
 
+    const topMatchBadge = opp.is_top_match ? '<span class="status-badge" style="background:#f59e0b; color:#fff; border:none; margin-left:8px;">⭐ Top Match</span>' : '';
+
     card.innerHTML = `
       <div class="opportunity-header">
         <h3 id="opp-title-${opp.id}" class="opportunity-title">${opp.title || 'Untitled Opportunity'}</h3>
-        ${getStatusBadgeHtml(opp.status, dueDateVal)}
+        <div>
+           ${getStatusBadgeHtml(opp.status, dueDateVal)}
+           ${topMatchBadge}
+        </div>
       </div>
       <div class="opportunity-id">${opp.id || 'OPP-UNKNOWN'}</div>
       
@@ -232,6 +244,8 @@ function applyFilters() {
     const categoryFilter = document.getElementById('categoryFilter').value;
     const dueDateFilter = document.getElementById('dueDateFilter').value;
     const keywordFilter = document.getElementById('keywordFilter').value.toLowerCase();
+    const naicsEl = document.getElementById('naicsFilter');
+    const naicsFilter = naicsEl ? naicsEl.value.trim() : '';
 
     filteredOpportunities = allOpportunities.filter(opp => {
         // District filter
@@ -257,6 +271,16 @@ function applyFilters() {
             }
         }
 
+        // NAICS filter
+        if (naicsFilter) {
+            const searchCodes = naicsFilter.split(',').map(c => c.trim()).filter(c => c);
+            if (searchCodes.length > 0) {
+                const oppNaics = Array.isArray(opp.naics_codes) ? opp.naics_codes : [];
+                const hasMatch = searchCodes.some(searchCode => oppNaics.includes(searchCode));
+                if (!hasMatch) return false;
+            }
+        }
+
         // Keyword filter
         if (keywordFilter) {
             const scopeSummaryVal = opp.scopeSummary || opp.scope_summary || '';
@@ -273,6 +297,13 @@ function applyFilters() {
         return true;
     });
 
+    // Sort by Top Match first
+    filteredOpportunities.sort((a,b) => {
+        if (a.is_top_match && !b.is_top_match) return -1;
+        if (!a.is_top_match && b.is_top_match) return 1;
+        return 0; // maintain descending date sort from backend
+    });
+
     displayOpportunities();
     updateResultsCount();
 }
@@ -282,9 +313,16 @@ function clearFilters() {
     document.getElementById('districtFilter').value = '';
     document.getElementById('categoryFilter').value = '';
     document.getElementById('dueDateFilter').value = '';
-    document.getElementById('keywordFilter').value = '';
+    const naicsEl = document.getElementById('naicsFilter');
+    if (naicsEl) naicsEl.value = '';
 
     filteredOpportunities = [...allOpportunities];
+    filteredOpportunities.sort((a,b) => {
+        if (a.is_top_match && !b.is_top_match) return -1;
+        if (!a.is_top_match && b.is_top_match) return 1;
+        return 0;
+    });
+
     displayOpportunities();
     updateResultsCount();
 }

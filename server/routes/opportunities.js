@@ -10,7 +10,20 @@ router.get('/', async (req, res) => {
         let query = 'SELECT * FROM opportunities WHERE 1=1';
         const params = [];
         
-        const { district, category } = req.query;
+        const { district, category, naics } = req.query;
+        const userId = req.headers['x-user-id'];
+
+        // Filter by NAICS code (exact match within JSON array)
+        if (naics) {
+            const naicsArray = naics.split(',').map(n => n.trim());
+            if (naicsArray.length > 0) {
+                // Construct JSON_CONTAINS for each provided NAICS
+                const naicsConditions = naicsArray.map(() => 'JSON_CONTAINS(naics_codes, ?)').join(' OR ');
+                query += ` AND (${naicsConditions})`;
+                naicsArray.forEach(code => params.push(`"${code}"`));
+            }
+        }
+
         // Filter by district (handle "all" districts)
         if (district && district !== 'all') {
             query += ' AND (district = ? OR district = "all")';
@@ -28,11 +41,28 @@ router.get('/', async (req, res) => {
         const [rows] = await db.execute(query, params);
         console.log(`CaltransBizConnect API: Found ${rows.length} opportunities`);
         
-        // Parse tags from JSON
-        rows.forEach(opp => {
+        let userNaics = [];
+        if (userId) {
             try {
-                opp.tags = opp.tags ? JSON.parse(opp.tags) : [];
-            } catch(e) { opp.tags = []; }
+                const [uRows] = await db.execute('SELECT naics_codes FROM users WHERE id = ?', [userId]);
+                if (uRows.length > 0 && uRows[0].naics_codes) {
+                    const parsed = typeof uRows[0].naics_codes === 'string' && uRows[0].naics_codes.startsWith('[') ? JSON.parse(uRows[0].naics_codes) : [];
+                    userNaics = Array.isArray(parsed) ? parsed : [parsed];
+                }
+            } catch (e) {}
+        }
+
+        // Parse tags and NAICS from JSON, and determine Top Match
+        rows.forEach(opp => {
+            try { opp.tags = opp.tags ? JSON.parse(opp.tags) : []; } catch(e) { opp.tags = []; }
+            try { opp.naics_codes = opp.naics_codes ? JSON.parse(opp.naics_codes) : []; } catch(e) { opp.naics_codes = []; }
+            
+            opp.is_top_match = false;
+            if (userNaics.length > 0 && Array.isArray(opp.naics_codes) && opp.naics_codes.length > 0) {
+                if (opp.naics_codes.some(code => userNaics.includes(code))) {
+                    opp.is_top_match = true;
+                }
+            }
         });
         
         res.json(rows);
@@ -83,7 +113,12 @@ router.get('/:id', async (req, res) => {
         if (rows.length === 0) {
             return res.status(404).json({ error: 'Opportunity not found' });
         }
-        res.json(rows[0]);
+        
+        const opp = rows[0];
+        try { opp.tags = opp.tags ? JSON.parse(opp.tags) : []; } catch(e) { opp.tags = []; }
+        try { opp.naics_codes = opp.naics_codes ? JSON.parse(opp.naics_codes) : []; } catch(e) { opp.naics_codes = []; }
+        
+        res.json(opp);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -95,7 +130,7 @@ router.post('/', requireRole('prime_contractor'), async (req, res) => {
         id, title, scopeSummary, district, districtName,
         category, categoryName, subcategory, estimatedValue,
         dueDate, dueTime, submissionMethod, postedBy, status, attachments,
-        duration, requirements, certifications, experience, description, tags
+        duration, requirements, certifications, experience, description, tags, naics_codes
     } = req.body;
 
     const oppId = id || `OPP-${Date.now()}`;
@@ -123,17 +158,18 @@ router.post('/', requireRole('prime_contractor'), async (req, res) => {
         
         const postedByName = userRows[0].business_name || userRows[0].organization_name || 'Prime Contractor';
         
-        // Clean tags - only include non-empty tags
+        // Clean tags and NAICS
         const cleanTags = tags ? tags.filter(tag => tag && tag.trim()) : [];
+        const cleanNaics = naics_codes ? naics_codes.filter(n => n && n.trim()) : [];
 
         const sql = `
             INSERT INTO opportunities (
                 id, title, scope_summary, district, district_name, 
                 category, category_name, subcategory, estimated_value, 
                 due_date, due_time, submission_method, status, posted_by, attachments,
-                duration, requirements, certifications, experience, description, tags, posted_by_name
+                duration, requirements, certifications, experience, description, tags, naics_codes, posted_by_name
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         await db.execute(sql, [
@@ -142,7 +178,7 @@ router.post('/', requireRole('prime_contractor'), async (req, res) => {
             dueDate || null, dueTime || null, submissionMethod || null,
             calcStatus, uId, attachments ? JSON.stringify(attachments) : null,
             duration || null, requirements || null, certifications || null, experience || null,
-            desc, JSON.stringify(cleanTags), postedByName
+            desc, JSON.stringify(cleanTags), JSON.stringify(cleanNaics), postedByName
         ]);
 
         res.status(201).json({ id: oppId, success: true, opportunityId: oppId, title, status: calcStatus });
@@ -176,11 +212,12 @@ router.put('/:id', requireRole(['prime_contractor', 'admin']), async (req, res) 
         title, scopeSummary, description, tags, district, districtName,
         category, categoryName, subcategory, estimatedValue,
         dueDate, dueTime, submissionMethod, status, attachments,
-        duration, requirements, certifications, experience
+        duration, requirements, certifications, experience, naics_codes
     } = req.body;
 
     const desc = description || scopeSummary;
     const cleanTags = tags ? tags.filter(tag => tag && tag.trim()) : [];
+    const cleanNaics = naics_codes ? naics_codes.filter(n => n && n.trim()) : [];
 
     try {
         const sql = `
@@ -188,7 +225,7 @@ router.put('/:id', requireRole(['prime_contractor', 'admin']), async (req, res) 
                 title = ?, scope_summary = ?, district = ?, district_name = ?, 
                 category = ?, category_name = ?, subcategory = ?, estimated_value = ?, 
                 due_date = ?, due_time = ?, submission_method = ?, status = ?, attachments = ?,
-                duration = ?, requirements = ?, certifications = ?, experience = ?, description = ?, tags = ?
+                duration = ?, requirements = ?, certifications = ?, experience = ?, description = ?, tags = ?, naics_codes = ?
             WHERE id = ?
         `;
 
@@ -197,7 +234,7 @@ router.put('/:id', requireRole(['prime_contractor', 'admin']), async (req, res) 
             category, categoryName, subcategory || null, estimatedValue || null,
             dueDate || null, dueTime || null, submissionMethod || null,
             status || 'published', attachments ? JSON.stringify(attachments) : null,
-            duration || null, requirements || null, certifications || null, experience || null, desc, JSON.stringify(cleanTags),
+            duration || null, requirements || null, certifications || null, experience || null, desc, JSON.stringify(cleanTags), JSON.stringify(cleanNaics),
             id
         ]);
 
@@ -344,6 +381,69 @@ router.post('/:id/invite', requireRole('prime_contractor'), async (req, res) => 
         res.status(200).json({ message: 'Invitation sent successfully' });
     } catch (error) {
         console.error('Error sending invite:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get recommended Small Businesses for a specific opportunity
+router.get('/:id/recommended-sbs', requireRole(['prime_contractor', 'admin']), async (req, res) => {
+    const { id } = req.params;
+    
+    try {
+        // Fetch opportunity's NAICS codes
+        const [oppRows] = await db.execute('SELECT naics_codes FROM opportunities WHERE id = ?', [id]);
+        if (oppRows.length === 0) {
+            return res.status(404).json({ error: 'Opportunity not found' });
+        }
+        
+        let oppNaics = [];
+        try {
+            oppNaics = oppRows[0].naics_codes ? JSON.parse(oppRows[0].naics_codes) : [];
+        } catch (e) {}
+
+        if (!Array.isArray(oppNaics) || oppNaics.length === 0) {
+            // If the opportunity has no NAICS codes, we can't recommend matches based on NAICS
+            return res.json([]);
+        }
+
+        // Construct JSON_CONTAINS conditions to find users that have at least one matching NAICS
+        const conditions = oppNaics.map(() => 'JSON_CONTAINS(naics_codes, ?)').join(' OR ');
+        const params = oppNaics.map(code => `"${code}"`);
+
+        const query = `
+            SELECT id, business_name, email, city, naics_codes
+            FROM users 
+            WHERE type = 'small_business' 
+            AND (${conditions})
+            LIMIT 50
+        `;
+        
+        const [rows] = await db.execute(query, params);
+        
+        // Parse the naics_codes and identify matches
+        const recommended = rows.map(sb => {
+            let sbNaics = [];
+            try { sbNaics = JSON.parse(sb.naics_codes); } catch (e) {}
+            
+            // Calculate intersection
+            const matches = sbNaics.filter(code => oppNaics.includes(code));
+            
+            return {
+                id: sb.id,
+                business_name: sb.business_name,
+                email: sb.email,
+                city: sb.city,
+                naics_codes: sbNaics,
+                matched_codes: matches
+            };
+        });
+
+        // Sort by number of matched NAICS codes descending
+        recommended.sort((a, b) => b.matched_codes.length - a.matched_codes.length);
+
+        res.json(recommended);
+    } catch (error) {
+        console.error('Error fetching recommended SBs:', error);
         res.status(500).json({ error: error.message });
     }
 });

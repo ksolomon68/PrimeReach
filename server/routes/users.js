@@ -7,7 +7,7 @@ router.get('/', async (req, res) => {
     const { type, district, category, search } = req.query;
 
     try {
-        let query = "SELECT id, email, type, business_name, organization_name, contact_name, phone, districts, categories, business_description, certifications, years_in_business, capability_statement, created_at FROM users WHERE 1=1";
+        let query = "SELECT id, email, type, business_name, organization_name, contact_name, phone, districts, categories, business_description, certifications, years_in_business, capability_statement, created_at, naics_codes FROM users WHERE 1=1";
         const params = [];
 
         if (type) {
@@ -35,19 +35,21 @@ router.get('/', async (req, res) => {
 
         const [rows] = await db.execute(query, params);
 
-        // Parse JSON fields safely
         const processedUsers = rows.map(user => {
             let districts = [];
             let categories = [];
+            let naics_codes = [];
             try {
                 districts = user.districts ? (typeof user.districts === 'string' && user.districts.startsWith('[') ? JSON.parse(user.districts) : (Array.isArray(user.districts) ? user.districts : [user.districts])) : [];
                 categories = user.categories ? (typeof user.categories === 'string' && user.categories.startsWith('[') ? JSON.parse(user.categories) : (Array.isArray(user.categories) ? user.categories : [user.categories])) : [];
+                naics_codes = user.naics_codes ? (typeof user.naics_codes === 'string' && user.naics_codes.startsWith('[') ? JSON.parse(user.naics_codes) : (Array.isArray(user.naics_codes) ? user.naics_codes : [user.naics_codes])) : [];
             } catch (e) {
                 console.warn(`Failed to parse fields for user ${user.id}`, e);
                 districts = user.districts ? [user.districts] : [];
                 categories = user.categories ? [user.categories] : [];
+                naics_codes = user.naics_codes ? [user.naics_codes] : [];
             }
-            return { ...user, districts, categories };
+            return { ...user, districts, categories, naics_codes };
         });
 
         res.json(processedUsers);
@@ -65,7 +67,7 @@ router.get('/:id', async (req, res) => {
         const [rows] = await db.execute(`
             SELECT id, email, type, business_name, organization_name, contact_name, 
                    phone, ein, certification_number, districts, categories, business_description, 
-                   capability_statement, website, address, city, state, zip, years_in_business, certifications, created_at 
+                   capability_statement, website, address, city, state, zip, years_in_business, certifications, created_at, naics_codes 
             FROM users WHERE id = ?
         `, [id]);
 
@@ -80,10 +82,12 @@ router.get('/:id', async (req, res) => {
         try {
             user.districts = user.districts ? (typeof user.districts === 'string' && user.districts.startsWith('[') ? JSON.parse(user.districts) : (Array.isArray(user.districts) ? user.districts : [user.districts])) : [];
             user.categories = user.categories ? (typeof user.categories === 'string' && user.categories.startsWith('[') ? JSON.parse(user.categories) : (Array.isArray(user.categories) ? user.categories : [user.categories])) : [];
+            user.naics_codes = user.naics_codes ? (typeof user.naics_codes === 'string' && user.naics_codes.startsWith('[') ? JSON.parse(user.naics_codes) : (Array.isArray(user.naics_codes) ? user.naics_codes : [user.naics_codes])) : [];
         } catch (e) {
             console.warn(`Failed to parse fields for user ${user.id}`, e);
             user.districts = user.districts ? [user.districts] : [];
             user.categories = user.categories ? [user.categories] : [];
+            user.naics_codes = user.naics_codes ? [user.naics_codes] : [];
         }
 
         res.json(user);
@@ -100,7 +104,7 @@ router.put('/:id', async (req, res) => {
         business_name, organization_name, contact_name, phone,
         website, address, city, state, zip, description,
         certifications, years_in_business, districts, categories,
-        capability_statement
+        capability_statement, naics_codes
     } = req.body;
 
     const bizDesc = description || req.body.business_description;
@@ -140,12 +144,17 @@ router.put('/:id', async (req, res) => {
             newCategories = Array.isArray(categories) ? JSON.stringify(categories) : categories;
         }
 
+        let newNaicsCodes = existingUser.naics_codes;
+        if (naics_codes !== undefined) {
+            newNaicsCodes = Array.isArray(naics_codes) ? JSON.stringify(naics_codes) : naics_codes;
+        }
+
         const sql = `
             UPDATE users SET
                 business_name = ?, organization_name = ?, contact_name = ?, phone = ?,
                 website = ?, address = ?, city = ?, state = ?, zip = ?,
                 business_description = ?, certifications = ?, years_in_business = ?,
-                districts = ?, categories = ?, capability_statement = ?
+                districts = ?, categories = ?, capability_statement = ?, naics_codes = ?
             WHERE id = ?
         `;
 
@@ -153,7 +162,7 @@ router.put('/:id', async (req, res) => {
             newBusinessName, newOrgName, newContactName, newPhone,
             newWebsite, newAddress, newCity, newState, newZip,
             newDesc, newCerts, newYears,
-            newDistricts, newCategories, newCS,
+            newDistricts, newCategories, newCS, newNaicsCodes,
             id
         ]);
 

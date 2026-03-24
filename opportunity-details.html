@@ -171,6 +171,14 @@
                         <button id="contactPrimeContractorBtn" class="btn btn-secondary" onclick="contactPrimeContractor()" style="display:none;">Contact Prime Contractor</button>
                         <button id="inviteBtn" class="btn btn-secondary" style="display:none;" onclick="showInviteModal()">Invite Small Business to Apply</button>
                     </div>
+
+                    <div id="recommendedSbSection" style="display: none; margin-top: var(--space-2xl); border-top: 1px solid var(--color-border-light); padding-top: var(--space-xl);">
+                        <h3>🤝 Recommended Small Businesses</h3>
+                        <p class="text-muted" style="margin-bottom: var(--space-lg);">Based on matching Required NAICS codes.</p>
+                        <div id="recommendedSbList" style="display: grid; gap: var(--space-md); grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Invite Modal -->
@@ -274,9 +282,42 @@
                 }
 
                 renderDetails(currentOpportunity);
+                
+                // If Prime Contractor views their own opportunity, load recommendations
+                if (user && user.type === 'prime_contractor' && String(currentOpportunity.posted_by) === String(user.id)) {
+                    loadRecommendedSBs(currentOpportunity.id);
+                }
             } catch (error) {
                 console.error('Error loading opportunity:', error);
                 showError();
+            }
+        }
+
+        async function loadRecommendedSBs(oppId) {
+            document.getElementById('recommendedSbSection').style.display = 'block';
+            const listEl = document.getElementById('recommendedSbList');
+            try {
+                const sbs = await DataService.fetch(`/opportunities/${oppId}/recommended-sbs`);
+                if (!Array.isArray(sbs) || sbs.length === 0) {
+                    listEl.innerHTML = '<p class="text-muted" style="grid-column: 1/-1;">No matching small businesses found for the required NAICS codes.</p>';
+                    return;
+                }
+                
+                listEl.innerHTML = sbs.map(sb => {
+                    const matchedTags = sb.matched_codes.map(c => `<span style="background:var(--color-bg-tertiary); color:var(--color-primary); padding:2px 6px; border-radius:4px; font-size:0.75rem; font-weight:600;">⭐ ${c}</span>`).join(' ');
+                    return `
+                        <div style="background: var(--color-bg-secondary); padding: var(--space-md); border-radius: var(--border-radius-md); border: 1px solid var(--color-border-light); display: flex; flex-direction: column; justify-content: space-between;">
+                            <div>
+                                <h4 style="margin: 0 0 8px 0; font-size: 1.1rem; color: var(--color-primary);">${sb.business_name || 'Small Business'}</h4>
+                                <div style="margin-bottom: 8px;">${matchedTags}</div>
+                                <p class="text-muted" style="margin: 0; font-size: 0.9rem;">${sb.city || 'Location N/A'}</p>
+                            </div>
+                            <button class="btn btn-sm btn-outline" style="margin-top: 12px; align-self: flex-start;" onclick="inviteSingleSb('${sb.id}')">Invite to Apply</button>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                listEl.innerHTML = '<p class="color-error">Failed to load recommendations.</p>';
             }
         }
 
@@ -465,6 +506,27 @@
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Send Invitation';
+            }
+        }
+
+        async function inviteSingleSb(sbId) {
+            const user = Auth.getUser();
+            try {
+                const res = await fetch(`${APP_CONFIG.API_URL}/opportunities/${currentOpportunity.id}/invite`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-user-id': user.id },
+                    body: JSON.stringify({ smallBusinessId: sbId })
+                });
+                
+                if (res.ok) {
+                    alert('Invitation sent successfully!');
+                } else {
+                    const error = await res.json();
+                    alert('Error sending invite: ' + (error.error || 'Unknown error'));
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Connection error');
             }
         }
     </script>

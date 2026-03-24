@@ -289,6 +289,11 @@
                     </div>
 
                     <div class="filter-group">
+                        <label for="naicsFilter"><span aria-hidden="true">🔢</span> NAICS Codes</label>
+                        <input type="text" id="naicsFilter" name="naics" placeholder="e.g. 541511, 236220">
+                    </div>
+
+                    <div class="filter-group">
                         <label for="keywordFilter"><span aria-hidden="true">🔍</span> Keywords</label>
                         <input type="text" id="keywordFilter" name="keywords"
                             placeholder="Search by title, description, or ID..."
@@ -368,6 +373,7 @@
                     document.getElementById('districtFilter').value = '';
                     document.getElementById('categoryFilter').value = '';
                     document.getElementById('dueDateFilter').value = '';
+                    document.getElementById('naicsFilter').value = '';
                     document.getElementById('keywordFilter').value = '';
                     applyFilters();
                 });
@@ -431,11 +437,26 @@
                         if (daysUntilDue > parseInt(dueDateFilter)) return false;
                     }
 
+                    const naicsFilter = document.getElementById('naicsFilter').value.trim();
+                    if (naicsFilter) {
+                        const searchCodes = naicsFilter.split(',').map(c => c.trim()).filter(c => c);
+                        const oppNaics = Array.isArray(opp.naics_codes) ? opp.naics_codes : [];
+                        const hasMatch = searchCodes.some(c => oppNaics.includes(c));
+                        if (!hasMatch) return false;
+                    }
+
                     if (keywordFilter) {
                         const searchableText = `${opp.title} ${opp.scope_summary || opp.scopeSummary} ${opp.district_name || opp.districtName} ${opp.category_name || opp.categoryName} ${opp.id}`.toLowerCase();
                         if (!searchableText.includes(keywordFilter)) return false;
                     }
                     return true;
+                });
+                
+                // Sort by Top Match first
+                filteredOpps.sort((a,b) => {
+                    if (a.is_top_match && !b.is_top_match) return -1;
+                    if (!a.is_top_match && b.is_top_match) return 1;
+                    return 0; // maintain descending date sort from backend
                 });
                 console.log('Filtered down to:', filteredOpps.length);
 
@@ -478,6 +499,7 @@
                     const urgencyLabel = (daysUntilDue <= 7 && daysUntilDue >= 0) ? 'Due Soon' : (daysUntilDue < 0 ? 'Closed' : daysUntilDue + ' days');
                     const distName = opp.district_name || opp.districtName || 'District ' + opp.district;
                     const catName = opp.category_name || opp.categoryName || 'General';
+                    const topMatchBadge = opp.is_top_match ? '<span class="status-badge" style="background:#f59e0b; color:#fff; border:none; padding:4px 8px; border-radius:12px; font-weight:700; font-size:0.75rem;"><span aria-hidden="true" style="margin-right:2px;">⭐</span>Top Match</span>' : '';
 
                     card.innerHTML = `
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-md);">
@@ -485,7 +507,8 @@
                                 <h3 style="margin: 0 0 var(--space-xs) 0; color: var(--color-primary); font-size: 1.25rem; font-weight: 600;">
                                     ${opp.title}
                                 </h3>
-                                <div style="display: flex; flex-wrap: wrap; gap: var(--space-sm); margin-top: var(--space-sm);">
+                                <div style="display: flex; flex-wrap: wrap; gap: var(--space-sm); margin-top: var(--space-sm); align-items: center;">
+                                    ${topMatchBadge}
                                     <span class="badge badge-secondary">${catName}</span>
                                     <span class="badge badge-secondary">${distName}</span>
                                     <span class="badge ${urgencyClass}">${urgencyLabel}</span>
@@ -607,8 +630,10 @@
                     if (el) el.addEventListener('change', window.applyFilters);
                 });
 
-                const keywordEl = document.getElementById('keywordFilter');
-                if (keywordEl) keywordEl.addEventListener('input', window.applyFilters);
+                ['keywordFilter', 'naicsFilter'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.addEventListener('input', window.applyFilters);
+                });
 
                 const applyBtn = document.getElementById('applyFilters');
                 if (applyBtn) applyBtn.onclick = window.applyFilters;

@@ -326,6 +326,12 @@
                                         placeholder="Street, Suite, No."></textarea>
                                     <div class="readonly-value" id="view_address" style="display: none;">--</div>
                                 </div>
+                                <div class="form-group full-width" style="margin-top: var(--space-md);">
+                                    <label for="naicsCodes">Industry Codes (NAICS)</label>
+                                    <input type="text" id="naicsCodes" name="naics_codes" class="form-control" placeholder="e.g. 541511, 236220 (comma separated)">
+                                    <small class="text-muted edit-only" style="display:block; margin-top:4px;">Enter comma-separated NAICS codes to match with relevant opportunities.</small>
+                                    <div class="readonly-value" id="view_naicsCodes" style="display: none;">--</div>
+                                </div>
                             </div>
                         </section>
 
@@ -624,6 +630,7 @@
                 'address': data.address || '',
                 'email': data.email || '',
                 'phone': data.phone || '',
+                'naicsCodes': data.naics_codes ? (Array.isArray(data.naics_codes) ? data.naics_codes.join(', ') : data.naics_codes) : '',
             };
 
             for (const id in mapping) {
@@ -671,6 +678,7 @@
                 'lastName': data.contact_name ? data.contact_name.split(' ').slice(1).join(' ') : 'N/A',
                 'email': data.email || 'N/A',
                 'phone': data.phone || 'N/A',
+                'naicsCodes': data.naics_codes && data.naics_codes.length > 0 ? `<div style="display:flex; gap:8px; flex-wrap:wrap;">${(Array.isArray(data.naics_codes) ? data.naics_codes : [data.naics_codes]).map(c => `<span style="background:var(--color-bg-tertiary); color:var(--color-primary); padding:4px 8px; border-radius:4px; font-size:0.85rem; font-weight:600;">${c}</span>`).join('')}</div>` : 'Not provided',
             };
 
             for (const id in mapping) {
@@ -1043,7 +1051,8 @@
                     contact_name: contact_name,
                     phone: data.phone,
                     certification_number: data.certification_number,
-                    certifications: collectCertifications().join(', ')
+                    certifications: collectCertifications().join(', '),
+                    naics_codes: data.naics_codes ? data.naics_codes.split(',').map(s => s.trim()).filter(s => s) : []
                 };
 
                 try {

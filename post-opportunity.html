@@ -193,9 +193,17 @@
                                         <option value="D12">D12 - Orange County</option>
                                     </select>
                                 </div>
+                                </div>
                                 <div class="form-group">
                                     <label for="dueDate" class="required">Application Deadline</label>
                                     <input type="date" id="dueDate" name="dueDate" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="form-row" style="margin-top: var(--space-md);">
+                                <div class="form-group full-width">
+                                    <label for="naicsCodes">Required NAICS Codes</label>
+                                    <input type="text" id="naicsCodes" name="naicsCodes" class="form-control" placeholder="e.g. 541511, 236220 (comma separated)">
+                                    <small class="text-muted" style="display:block; margin-top:4px;">Enter comma-separated NAICS codes to help automatically match relevant small businesses.</small>
                                 </div>
                             </div>
                         </div>
@@ -391,6 +399,7 @@
                     <p><strong>Title:</strong> ${data.title}</p>
                     <p><strong>Category:</strong> ${data.category}</p>
                     <p><strong>District:</strong> District ${data.district}</p>
+                    <p><strong>NAICS Codes:</strong> ${data.naicsCodes || 'None specified'}</p>
                     <p><strong>Deadline:</strong> ${new Date(data.dueDate).toLocaleDateString()}</p>
                 </div>
                 <div class="review-section">
@@ -455,7 +464,8 @@
                     certifications: data.certifications,
                     experience: data.experience,
                     submissionMethod: 'Online',
-                    postedBy: user.id
+                    postedBy: user.id,
+                    naics_codes: data.naicsCodes ? data.naicsCodes.split(',').map(s => s.trim()).filter(s => s) : []
                 };
 
                 const result = await DataService.fetch(endpoint, {
@@ -497,6 +507,7 @@
                 setVal('requirements', opp.requirements);
                 setVal('certifications', opp.certifications);
                 setVal('experience', opp.experience);
+                setVal('naicsCodes', Array.isArray(opp.naics_codes) ? opp.naics_codes.join(', ') : (opp.naics_codes || ''));
 
                 // Date handling
                 if (opp.due_date) {
