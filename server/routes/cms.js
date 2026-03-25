@@ -24,6 +24,7 @@ const path    = require('path');
 const fs      = require('fs');
 const multer  = require('multer');
 const jwt     = require('jsonwebtoken');
+const bcrypt  = require('bcryptjs');
 const { db }  = require('../database');
 
 const router = express.Router();
@@ -93,34 +94,57 @@ function getCmsPassword() {
     return process.env.CMS_ADMIN_PASSWORD || null;
 }
 
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
     const { email, password } = req.body || {};
 
     if (!email || !password) {
         return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    const requiredPassword = getCmsPassword();
+    try {
+        // First: check DB for an admin/caltrans_admin user with this email
+        const [rows] = await db.execute(
+            "SELECT id, email, password_hash, type FROM users WHERE email = ? AND type IN ('admin', 'caltrans_admin')",
+            [email]
+        );
 
-    if (!requiredPassword) {
-        return res.status(500).json({ error: 'CMS_ADMIN_PASSWORD is not configured on the server' });
+        if (rows.length > 0) {
+            const user = rows[0];
+            const match = await bcrypt.compare(password, user.password_hash);
+            if (!match) {
+                return res.status(401).json({ error: 'Invalid credentials' });
+            }
+            const token = jwt.sign(
+                { id: user.id, email: user.email, type: 'caltrans_admin' },
+                CMS_JWT_SECRET,
+                { expiresIn: '8h' }
+            );
+            return res.json({ success: true, token, email: user.email, message: 'CMS login successful' });
+        }
+
+        // Fallback: static CMS password (env var or cms-auth.json override)
+        const requiredPassword = getCmsPassword();
+        if (!requiredPassword) {
+            return res.status(500).json({ error: 'CMS_ADMIN_PASSWORD is not configured on the server' });
+        }
+        if (password !== requiredPassword) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+
+        const token = jwt.sign(
+            { email, type: 'caltrans_admin' },
+            CMS_JWT_SECRET,
+            { expiresIn: '8h' }
+        );
+        res.json({ success: true, token, email, message: 'CMS login successful' });
+    } catch (err) {
+        console.error('CMS login error:', err.message);
+        res.status(500).json({ error: 'Login failed due to server error' });
     }
-
-    if (password !== requiredPassword) {
-        return res.status(401).json({ error: 'Invalid credentials' });
-    }
-
-    const token = jwt.sign(
-        { email, type: 'caltrans_admin' },
-        CMS_JWT_SECRET,
-        { expiresIn: '8h' }
-    );
-
-    res.json({ success: true, token, email, message: 'CMS login successful' });
 });
 
 /** POST /api/cms/change-password — change the CMS admin password (admin only) */
-router.post('/change-password', requireAdmin, (req, res) => {
+router.post('/change-password', requireAdmin, async (req, res) => {
     const { currentPassword, newPassword } = req.body || {};
 
     if (!currentPassword || !newPassword) {
@@ -130,19 +154,34 @@ router.post('/change-password', requireAdmin, (req, res) => {
         return res.status(400).json({ error: 'New password must be at least 8 characters' });
     }
 
-    const activePassword = getCmsPassword();
-    if (currentPassword !== activePassword) {
-        return res.status(401).json({ error: 'Current password is incorrect' });
-    }
-
     try {
+        // If the admin is a DB user, update their password_hash in the DB
+        const adminEmail = req.user.email;
+        const [rows] = await db.execute(
+            "SELECT id, password_hash FROM users WHERE email = ? AND type IN ('admin', 'caltrans_admin')",
+            [adminEmail]
+        );
+
+        if (rows.length > 0) {
+            const match = await bcrypt.compare(currentPassword, rows[0].password_hash);
+            if (!match) return res.status(401).json({ error: 'Current password is incorrect' });
+            const newHash = await bcrypt.hash(newPassword, 12);
+            await db.execute('UPDATE users SET password_hash = ? WHERE id = ?', [newHash, rows[0].id]);
+            return res.json({ success: true, message: 'Password updated successfully' });
+        }
+
+        // Fallback: update static CMS password file
+        const activePassword = getCmsPassword();
+        if (currentPassword !== activePassword) {
+            return res.status(401).json({ error: 'Current password is incorrect' });
+        }
         const dir = path.dirname(CMS_AUTH_FILE);
         if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
         fs.writeFileSync(CMS_AUTH_FILE, JSON.stringify({ password: newPassword, updatedAt: new Date().toISOString() }, null, 2), 'utf8');
         res.json({ success: true, message: 'Password updated successfully' });
     } catch (err) {
-        console.error('CMS: Failed to save new password:', err.message);
-        res.status(500).json({ error: `Failed to save password: ${err.message}` });
+        console.error('CMS: Failed to change password:', err.message);
+        res.status(500).json({ error: `Failed to change password: ${err.message}` });
     }
 });
 
