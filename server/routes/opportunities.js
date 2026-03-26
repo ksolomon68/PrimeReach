@@ -17,10 +17,10 @@ router.get('/', async (req, res) => {
         if (naics) {
             const naicsArray = naics.split(',').map(n => n.trim());
             if (naicsArray.length > 0) {
-                // Construct JSON_CONTAINS for each provided NAICS
-                const naicsConditions = naicsArray.map(() => 'JSON_CONTAINS(naics_codes, ?)').join(' OR ');
+                // Use LIKE to avoid JSON_CONTAINS crashes on malformed JSON data in the DB
+                const naicsConditions = naicsArray.map(() => 'naics_codes LIKE ?').join(' OR ');
                 query += ` AND (${naicsConditions})`;
-                naicsArray.forEach(code => params.push(`"${code}"`));
+                naicsArray.forEach(code => params.push(`%"${code}"%`));
             }
         }
 
@@ -470,9 +470,9 @@ router.get('/:id/recommended-sbs', requireRole(['agency', 'admin']), async (req,
             return res.json([]);
         }
 
-        // Construct JSON_CONTAINS conditions to find users that have at least one matching NAICS
-        const conditions = oppNaics.map(() => 'JSON_CONTAINS(naics_codes, ?)').join(' OR ');
-        const params = oppNaics.map(code => `"${code}"`);
+        // Use LIKE instead of JSON_CONTAINS to prevent crashes if DB contains malformed JSON
+        const conditions = oppNaics.map(() => 'naics_codes LIKE ?').join(' OR ');
+        const params = oppNaics.map(code => `%"${code}"%`);
 
         const query = `
             SELECT id, business_name, email, city, naics_codes
