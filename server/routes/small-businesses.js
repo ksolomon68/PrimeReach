@@ -106,9 +106,14 @@ router.get('/:id/capability-statement', async (req, res) => {
             return res.status(404).json({ error: 'No capability statement on file' });
         }
 
-        const filePath = path.join(__dirname, '../../', csPath);
+        // Robust path: extract filename only, join with known uploads dir
+        const uploadsDir = path.join(__dirname, '../../uploads');
+        const filename = path.basename(csPath);
+        const filePath = path.join(uploadsDir, filename);
+
         if (!fs.existsSync(filePath)) {
-            return res.status(404).json({ error: 'File not found on server' });
+            console.error('Capability statement not found. Expected path:', filePath, '| DB path:', csPath);
+            return res.status(404).json({ error: 'File not found on server', expected: filePath });
         }
 
         res.setHeader('Content-Type', 'application/pdf');
@@ -137,7 +142,8 @@ router.delete('/:id/capability-statement', async (req, res) => {
 
         // Delete the file from disk if it exists
         if (csPath && csPath.startsWith('/uploads/')) {
-            const filePath = path.join(__dirname, '../../', csPath);
+            const uploadsDir = path.join(__dirname, '../../uploads');
+            const filePath = path.join(uploadsDir, path.basename(csPath));
             if (fs.existsSync(filePath)) {
                 fs.unlinkSync(filePath);
             }
