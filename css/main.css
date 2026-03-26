@@ -456,6 +456,7 @@ body {
     display: flex;
     gap: var(--space-md);
     flex-wrap: wrap;
+    align-items: flex-start;
     margin-top: var(--space-lg);
 }
 
@@ -800,6 +801,8 @@ body {
     display: flex;
     gap: var(--space-md);
     justify-content: flex-end;
+    align-items: flex-start;
+    flex-wrap: wrap;
 }
 
 .opportunity-list {
@@ -871,6 +874,16 @@ body {
     display: flex;
     gap: var(--space-md);
     justify-content: flex-end;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.contact-card-actions {
+    display: flex;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+    align-items: flex-start;
+    margin-top: var(--space-md);
 }
 
 /* ============================================
@@ -1091,6 +1104,34 @@ body {
 
     .opportunity-actions {
         justify-content: flex-start;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .opportunity-actions .btn {
+        width: 100%;
+        align-self: auto;
+    }
+
+    .filter-actions {
+        justify-content: flex-start;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-actions .btn {
+        width: 100%;
+        align-self: auto;
+    }
+
+    .contact-card-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .contact-card-actions .btn {
+        width: 100%;
+        align-self: auto;
     }
 }
 
@@ -1101,10 +1142,17 @@ body {
 
     .hero-cta {
         flex-direction: column;
+        align-items: stretch;
+    }
+
+    .hero-cta .btn {
+        width: 100%;
+        align-self: auto;
     }
 
     .btn {
         width: 100%;
+        align-self: auto;
     }
 }
 

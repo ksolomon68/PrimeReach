@@ -267,7 +267,10 @@ li {
    ============================================ */
 
 .btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start; /* prevent vertical stretch in flex containers */
   padding: var(--space-sm) var(--space-lg);
   font-family: var(--font-family-primary);
   font-size: var(--font-size-base);
@@ -281,6 +284,7 @@ li {
   transition: all var(--transition-base);
   white-space: normal;
   word-break: break-word;
+  box-sizing: border-box;
 }
 
 .btn:focus {
