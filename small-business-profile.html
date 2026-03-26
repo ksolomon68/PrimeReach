@@ -15,9 +15,9 @@
   <meta name="apple-mobile-web-app-title" content="BizConnect">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
     <!-- Design System & Standard Styles -->
-    <link rel="stylesheet" href="css/design-system.css?v=1774523057000">
-    <link rel="stylesheet" href="css/dashboard-new.css?v=1774523057000">
-    <link rel="stylesheet" href="css/dashboard-common.css?v=1774523057000">
+    <link rel="stylesheet" href="css/design-system.css?v=1774549569000">
+    <link rel="stylesheet" href="css/dashboard-new.css?v=1774549569000">
+    <link rel="stylesheet" href="css/dashboard-common.css?v=1774549569000">
     <style>
         :root {
             --profile-sidebar-width: 280px;
@@ -219,7 +219,7 @@
             }
         }
     </style>
-  <link rel="stylesheet" href="css/accessibility-widget.css?v=1774523057000">
+  <link rel="stylesheet" href="css/accessibility-widget.css?v=1774549569000">
 </head>
 
 <body class="dashboard-v2">
@@ -244,7 +244,7 @@
                     <p id="heroSubtitle">Manage your business identities and certifications.</p>
                 </div>
                 <div id="viewModeBadge" class="view-mode-badge"
-                    style="display: none; position: absolute; top: var(--space-md); right: var(--space-md);">Agency View
+                    style="display: none; position: absolute; top: var(--space-md); right: var(--space-md);">Prime Contractor View
                     Mode</div>
             </section>
 
@@ -366,7 +366,7 @@
                                 </div>
                             </div>
 
-                            <!-- Agency Contact Actions -->
+                            <!-- Small Business Contact Actions -->
                             <div id="primeContractorActions" class="contact-card-actions" style="display: none;">
                                 <button type="button" class="btn btn-primary" id="btnMessage">Send Message</button>
                                 <button type="button" class="btn btn-outline" id="btnEmail">Direct Email</button>
@@ -421,7 +421,7 @@
                             <!-- Edit Mode Upload -->
                             <div class="edit-only">
                                 <p class="text-muted mb-md">Upload a professional PDF of your Capability Statement. This
-                                    will be visible to Agencies.</p>
+                                    will be visible to Prime Contractors.</p>
                                 <div
                                     style="border: 2px dashed var(--color-bg-tertiary); padding: var(--space-xl); border-radius: var(--border-radius-lg); text-align: center;">
                                     <input type="file" id="csFileInput" accept=".pdf" style="display: none;">
@@ -531,11 +531,11 @@
     </div>
 
     <!-- Scripts -->
-    <script src="js/config.js?v=1774523057000"></script>
-    <script src="js/auth.js?v=1774523057000"></script>
-    <script src="js/utils/data-resilience.js?v=1774523057000"></script>
-    <script src="js/utils/modal-trap.js?v=1774523057000"></script>
-    <script src="js/components/navigation.js?v=1774523057000"></script>
+    <script src="js/config.js?v=1774549569000"></script>
+    <script src="js/auth.js?v=1774549569000"></script>
+    <script src="js/utils/data-resilience.js?v=1774549569000"></script>
+    <script src="js/utils/modal-trap.js?v=1774549569000"></script>
+    <script src="js/components/navigation.js?v=1774549569000"></script>
     <script>
         // Global State
         let isViewMode = false;
@@ -553,14 +553,14 @@
             const targetId = params.get('id');
 
             // Mode Logic
-            // 1. Agency viewing a small business (targetId is present and currentUser is agency)
-            // 2. Small Business viewing another small business (targetId present and != currentUser.id)
+            // 1. Prime Contractor viewing a small business (targetId is present and currentUser is agency)
+            // 2. Prime Contractor viewing another small business (targetId present and != currentUser.id)
             if (targetId && targetId != user.id) {
                 isViewMode = true;
             } else if (user.type === 'agency' && !targetId) {
-                // Agency should not be on this page without an ID
+                // Small Business should not be on this page without an ID
                 alert('Redirecting to dashboard...');
-                window.location.href = 'dashboard-agency.html';
+                window.location.href = 'dashboard-prime-contractor.html';
                 return;
             }
 
@@ -1240,8 +1240,8 @@
             });
         });
     </script>
-  <script src="js/accessibility-widget.js?v=1774523057000"></script>
-  <script src="js/pwa.js?v=1774523057000"></script>
+  <script src="js/accessibility-widget.js?v=1774549569000"></script>
+  <script src="js/pwa.js?v=1774549569000"></script>
 </body>
 
 </html>

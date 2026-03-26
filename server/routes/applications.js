@@ -76,7 +76,7 @@ router.post('/', requireRole('small_business'), async (req, res) => {
 
         // Fetch Prime's business name
         const [primeRows] = await db.execute('SELECT organization_name, business_name FROM users WHERE id = ?', [opp.posted_by]);
-        const receiverBusinessName = primeRows[0]?.organization_name || primeRows[0]?.business_name || 'Agency';
+        const receiverBusinessName = primeRows[0]?.organization_name || primeRows[0]?.business_name || 'Prime Contractor';
 
         const senderBusinessName = req.user.business_name || req.user.contact_name;
 
@@ -87,7 +87,7 @@ router.post('/', requireRole('small_business'), async (req, res) => {
 
         await db.execute(sql, [opportunityId, smallBusinessId, opp.posted_by, notes || null]);
 
-        // Create message for Agency
+        // Create message for Prime Contractor
         const body = `We have submitted an application for the opportunity: ${opp.title}.\n\nAdditional Notes: ${notes || 'None provided.'}`;
         
         const [msgResult] = await db.execute(`
@@ -95,7 +95,7 @@ router.post('/', requireRole('small_business'), async (req, res) => {
             VALUES (?, ?, ?, ?, ?, 'application', ?, ?)
         `, [smallBusinessId, opp.posted_by, senderBusinessName, receiverBusinessName, opportunityId, `New Application: ${opp.title}`, body]);
 
-        // Create notification for Agency
+        // Create notification for Prime Contractor
         await db.execute(`
             INSERT INTO notifications (user_id, message_id)
             VALUES (?, ?)
@@ -111,7 +111,7 @@ router.post('/', requireRole('small_business'), async (req, res) => {
     }
 });
 
-// Get applications for a specific opportunity (Agency view)
+// Get applications for a specific opportunity (Prime Contractor view)
 router.get('/opportunity/:opportunityId', async (req, res) => {
     const { opportunityId } = req.params;
     try {
@@ -158,7 +158,7 @@ router.get('/small-business/:smallBusinessId', async (req, res) => {
     }
 });
 
-// Update application status (Agency: approve/decline; Admin: any status)
+// Update application status (Prime Contractor: approve/decline; Admin: any status)
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;

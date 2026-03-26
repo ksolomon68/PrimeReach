@@ -14,9 +14,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="BizConnect">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-    <link rel="stylesheet" href="css/design-system.css?v=1774523057000">
-    <link rel="stylesheet" href="css/dashboard-new.css?v=1774523057000">
-    <link rel="stylesheet" href="css/dashboard-common.css?v=1774523057000">
+    <link rel="stylesheet" href="css/design-system.css?v=1774549569000">
+    <link rel="stylesheet" href="css/dashboard-new.css?v=1774549569000">
+    <link rel="stylesheet" href="css/dashboard-common.css?v=1774549569000">
     <style>
         .opportunity-detail-card {
             background: var(--card-bg);
@@ -90,7 +90,7 @@
             color: var(--color-primary);
         }
     </style>
-  <link rel="stylesheet" href="css/accessibility-widget.css?v=1774523057000">
+  <link rel="stylesheet" href="css/accessibility-widget.css?v=1774549569000">
 </head>
 
 <body class="dashboard-v2">
@@ -167,8 +167,8 @@
                     <div class="action-bar" style="flex-wrap: wrap;">
                         <button id="saveBtn" class="btn btn-outline" onclick="toggleSave()" style="display:none;">Save Opportunity</button>
                         <button id="applyBtn" class="btn btn-primary" onclick="applyForOpportunity()" style="display:none;">Apply for This Opportunity</button>
-                        <button id="viewPrimeContractorBtn" class="btn btn-outline" onclick="viewPrimeContractorProfile()" style="display:none;">View Agency Profile</button>
-                        <button id="contactPrimeContractorBtn" class="btn btn-secondary" onclick="contactPrimeContractor()" style="display:none;">Contact Agency</button>
+                        <button id="viewPrimeContractorBtn" class="btn btn-outline" onclick="viewPrimeContractorProfile()" style="display:none;">View Prime Contractor Profile</button>
+                        <button id="contactPrimeContractorBtn" class="btn btn-secondary" onclick="contactPrimeContractor()" style="display:none;">Contact Prime Contractor</button>
                         <button id="inviteBtn" class="btn btn-secondary" style="display:none;" onclick="showInviteModal()">Invite Small Business to Apply</button>
                     </div>
 
@@ -218,11 +218,11 @@
     </div>
 
     <!-- Scripts -->
-    <script src="js/config.js?v=1774523057000"></script>
-    <script src="js/auth.js?v=1774523057000"></script>
-    <script src="js/utils/data-resilience.js?v=1774523057000"></script>
-    <script src="js/utils/modal-trap.js?v=1774523057000"></script>
-    <script src="js/components/navigation.js?v=1774523057000"></script>
+    <script src="js/config.js?v=1774549569000"></script>
+    <script src="js/auth.js?v=1774549569000"></script>
+    <script src="js/utils/data-resilience.js?v=1774549569000"></script>
+    <script src="js/utils/modal-trap.js?v=1774549569000"></script>
+    <script src="js/components/navigation.js?v=1774549569000"></script>
     <script>
         let currentOpportunity = null;
         let savedOpportunityIds = new Set();
@@ -283,7 +283,7 @@
 
                 renderDetails(currentOpportunity);
                 
-                // If Agency views their own opportunity, load recommendations
+                // If Small Business views their own opportunity, load recommendations
                 if (user && user.type === 'agency' && String(currentOpportunity.posted_by) === String(user.id)) {
                     loadRecommendedSBs(currentOpportunity.id);
                 }
@@ -432,7 +432,7 @@
                 // Redirect to messages with recipient and context
                 window.location.href = `messages.html?recipient=${primeContractorId}&ref_type=opportunity&ref_id=${currentOpportunity.id}&ref_title=${encodeURIComponent(currentOpportunity.title)}`;
             } else {
-                alert('Agency contact information is not available for this opportunity.');
+                alert('Prime Contractor contact information is not available for this opportunity.');
             }
         }
 
@@ -445,9 +445,9 @@
             if (!currentOpportunity) return;
             const primeContractorId = currentOpportunity.posted_by || currentOpportunity.postedBy;
             if (primeContractorId) {
-                window.location.href = `agency-profile.html?id=${primeContractorId}`;
+                window.location.href = `prime-contractor-profile.html?id=${primeContractorId}`;
             } else {
-                alert('Agency information not available.');
+                alert('Prime Contractor information not available.');
             }
         }
 
@@ -530,8 +530,8 @@
             }
         }
     </script>
-  <script src="js/accessibility-widget.js?v=1774523057000"></script>
-  <script src="js/pwa.js?v=1774523057000"></script>
+  <script src="js/accessibility-widget.js?v=1774549569000"></script>
+  <script src="js/pwa.js?v=1774549569000"></script>
 </body>
 
 </html>

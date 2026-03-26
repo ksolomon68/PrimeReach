@@ -94,7 +94,14 @@ router.get('/:id/capability-statement', async (req, res) => {
         const [rows] = await db.execute('SELECT capability_statement FROM users WHERE id = ?', [id]);
         if (rows.length === 0) return res.status(404).json({ error: 'Small Business not found' });
 
-        const csPath = rows[0].capability_statement;
+        let csPath = rows[0].capability_statement;
+        // Handle JSON format (saved from capability-statement.html form)
+        if (csPath && csPath.startsWith('{')) {
+            try {
+                const csData = JSON.parse(csPath);
+                csPath = csData.filePath || csData.path || null;
+            } catch { csPath = null; }
+        }
         if (!csPath || !csPath.startsWith('/uploads/')) {
             return res.status(404).json({ error: 'No capability statement on file' });
         }
@@ -120,7 +127,10 @@ router.delete('/:id/capability-statement', async (req, res) => {
         const [rows] = await db.execute('SELECT capability_statement FROM users WHERE id = ?', [id]);
         if (rows.length === 0) return res.status(404).json({ error: 'Small Business not found' });
 
-        const csPath = rows[0].capability_statement;
+        let csPath = rows[0].capability_statement;
+        if (csPath && csPath.startsWith('{')) {
+            try { csPath = JSON.parse(csPath).filePath || JSON.parse(csPath).path || null; } catch { csPath = null; }
+        }
 
         // Clear the DB record
         await db.execute('UPDATE users SET capability_statement = NULL WHERE id = ?', [id]);

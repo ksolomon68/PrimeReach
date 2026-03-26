@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <meta name="description" content="Agency Profile - View details about the contracting primeContractor.">
-    <title>Agency Profile - CaltransBizConnect</title>
+    <meta name="description" content="Prime Contractor Profile - View details about the contracting primeContractor.">
+    <title>Prime Contractor Profile - CaltransBizConnect</title>
     <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#005A8C">
@@ -14,9 +14,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="BizConnect">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-    <link rel="stylesheet" href="css/design-system.css?v=1774523057000">
-    <link rel="stylesheet" href="css/dashboard-new.css?v=1774523057000">
-    <link rel="stylesheet" href="css/dashboard-common.css?v=1774523057000">
+    <link rel="stylesheet" href="css/design-system.css?v=1774549569000">
+    <link rel="stylesheet" href="css/dashboard-new.css?v=1774549569000">
+    <link rel="stylesheet" href="css/dashboard-common.css?v=1774549569000">
     <style>
         .hero-section {
             background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
@@ -74,7 +74,7 @@
             box-shadow: var(--shadow-md);
         }
     </style>
-  <link rel="stylesheet" href="css/accessibility-widget.css?v=1774523057000">
+  <link rel="stylesheet" href="css/accessibility-widget.css?v=1774549569000">
 </head>
 
 <body class="dashboard-v2">
@@ -91,13 +91,13 @@
 
             <section class="hero-section">
                 <div class="hero-content">
-                    <h1 class="page-title" id="primeContractorName">Agency Name</h1>
+                    <h1 class="page-title" id="primeContractorName">Prime Contractor Name</h1>
                     <p id="primeContractorTagline">District Office</p>
                 </div>
             </section>
 
             <div class="profile-card">
-                <h3>About the Agency</h3>
+                <h3>About the Prime Contractor</h3>
                 <p id="primeContractorDescription" style="line-height: 1.6; color: var(--text-secondary);">
                     Loading agency information...
                 </p>
@@ -125,10 +125,10 @@
         </main>
     </div>
 
-    <script src="js/config.js?v=1774523057000"></script>
-    <script src="js/auth.js?v=1774523057000"></script>
-    <script src="js/utils/data-resilience.js?v=1774523057000"></script>
-    <script src="js/components/navigation.js?v=1774523057000"></script>
+    <script src="js/config.js?v=1774549569000"></script>
+    <script src="js/auth.js?v=1774549569000"></script>
+    <script src="js/utils/data-resilience.js?v=1774549569000"></script>
+    <script src="js/components/navigation.js?v=1774549569000"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const user = Auth.getUser();
@@ -138,14 +138,14 @@
             const primeContractorId = params.get('id');
 
             if (!primeContractorId) {
-                alert('Agency ID required');
+                alert('Small Business ID required');
                 history.back();
                 return;
             }
 
             if (user && user.type === 'agency' && String(user.id) !== String(primeContractorId)) {
-                alert('Access Denied: Agencies cannot view other Agency profiles.');
-                window.location.href = 'dashboard-agency.html';
+                alert('Access Denied: Prime Contractors cannot view other Prime Contractor profiles.');
+                window.location.href = 'dashboard-prime-contractor.html';
                 return;
             }
 
@@ -160,7 +160,7 @@
                 // Filter opportunities posted by this agency
                 const primeContractorOpps = allOpps.filter(o => o.posted_by == id || o.postedBy == id);
 
-                const orgName = primeContractor.organization_name || primeContractor.business_name || primeContractor.contact_name || 'Agency Office';
+                const orgName = primeContractor.organization_name || primeContractor.business_name || primeContractor.contact_name || 'Prime Contractor Office';
                 const districtLabel = Array.isArray(primeContractor.districts) && primeContractor.districts.length > 0
                     ? 'District ' + primeContractor.districts.join(', ')
                     : primeContractor.district ? `District ${primeContractor.district}` : 'Statewide';
@@ -201,8 +201,8 @@
             }
         }
     </script>
-  <script src="js/accessibility-widget.js?v=1774523057000"></script>
-  <script src="js/pwa.js?v=1774523057000"></script>
+  <script src="js/accessibility-widget.js?v=1774549569000"></script>
+  <script src="js/pwa.js?v=1774549569000"></script>
 </body>
 
 </html>

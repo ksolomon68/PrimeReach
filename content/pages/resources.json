@@ -4,7 +4,7 @@
   "updatedAt": "2026-03-17T00:00:00.000Z",
   "meta": {
     "title": "Resources - CaltransBizConnect",
-    "description": "Access templates, guides, and resources for Small Businesses and agencies using CaltransBizConnect."
+    "description": "Access templates, guides, and resources for Small Businesses and prime contractors using CaltransBizConnect."
   },
   "header": {
     "backgroundImage": "",
@@ -54,14 +54,14 @@
       "id": "prime-contractor-resources",
       "type": "card-grid",
       "fields": {
-        "heading": "For Agencies",
+        "heading": "For Prime Contractors",
         "cards": [
           {
             "id": "posting-guidelines",
             "title": "Opportunity Posting Guidelines",
             "body": "Best practices for creating clear, complete opportunity postings that attract qualified small businesses.",
             "buttonLabel": "View Guidelines",
-            "buttonHref": "for-agencies.html#posting-requirements"
+            "buttonHref": "for-prime-contractors.html#posting-requirements"
           },
           {
             "id": "small-business-checklist",

@@ -6,7 +6,7 @@
  *   - Navigations (HTML pages):            Network-first, fallback to cached page or offline shell
  */
 
-const CACHE_VERSION = 'v1.0.3';
+const CACHE_VERSION = 'v1.0.4';
 const STATIC_CACHE  = `caltrans-static-${CACHE_VERSION}`;
 const API_CACHE     = `caltrans-api-${CACHE_VERSION}`;
 const ALL_CACHES    = [STATIC_CACHE, API_CACHE];
@@ -22,7 +22,7 @@ const PRECACHE_ASSETS = [
   '/faq.html',
   '/contact.html',
   '/for-small-businesses.html',
-  '/for-agencies.html',
+  '/for-prime-contractors.html',
   '/offline.html',
   '/manifest.json',
   '/css/design-system.css',

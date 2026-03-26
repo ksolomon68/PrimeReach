@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>Agency Settings - CaltransBizConnect</title>
+    <title>Prime Contractor Settings - CaltransBizConnect</title>
     <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#005A8C">
@@ -13,9 +13,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="BizConnect">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-    <link rel="stylesheet" href="css/design-system.css?v=1774523057000">
-    <link rel="stylesheet" href="css/dashboard-new.css?v=1774523057000">
-    <link rel="stylesheet" href="css/dashboard-common.css?v=1774523057000">
+    <link rel="stylesheet" href="css/design-system.css?v=1774549569000">
+    <link rel="stylesheet" href="css/dashboard-new.css?v=1774549569000">
+    <link rel="stylesheet" href="css/dashboard-common.css?v=1774549569000">
     <style>
         .settings-grid {
             display: grid;
@@ -43,7 +43,7 @@
             padding-bottom: var(--space-sm);
         }
     </style>
-  <link rel="stylesheet" href="css/accessibility-widget.css?v=1774523057000">
+  <link rel="stylesheet" href="css/accessibility-widget.css?v=1774549569000">
 </head>
 
 <body class="dashboard-v2">
@@ -60,7 +60,7 @@
             <!-- Hero Section -->
             <section class="hero-section">
                 <div class="hero-content">
-                    <h1 class="page-title">⚙️ Agency Settings</h1>
+                    <h1 class="page-title">⚙️ Prime Contractor Settings</h1>
                     <p>Manage your organization's profile, preferences, and account settings.</p>
                 </div>
             </section>
@@ -152,7 +152,7 @@
 
                 <div class="form-section">
                     <div class="section-header">
-                        <h3>About Your Agency</h3>
+                        <h3>About Your Prime Contractor Organization</h3>
                     </div>
                     <div class="form-group mb-md">
                         <label for="descriptionInput">Organization Description</label>
@@ -221,10 +221,10 @@
                     </div>
 
                     <div class="footer-section">
-                        <h3>For Agencies</h3>
+                        <h3>For Prime Contractors</h3>
                         <ul>
-                            <li><a href="for-agencies.html">Getting Started</a></li>
-                            <li><a href="register-agency.html">Create Account</a></li>
+                            <li><a href="for-prime-contractors.html">Getting Started</a></li>
+                            <li><a href="register-prime-contractor.html">Create Account</a></li>
                             <li><a href="post-opportunity.html">Post Opportunity</a></li>
                             <li><a href="resources.html">Resources</a></li>
                         </ul>
@@ -251,7 +251,7 @@
 
                 <div class="footer-bottom">
                     <p>&copy; 2026 California Department of Transportation. All rights reserved.</p>
-                    <p>CaltransBizConnect - Small Business Supportive Services Program
+                    <p>CaltransBizConnect - Small Business Enterprise Supportive Services Program
                     </p>
                 </div>
             </div>
@@ -259,10 +259,10 @@
     </div>
 
     <!-- Scripts -->
-    <script src="js/config.js?v=1774523057000"></script>
-    <script src="js/auth.js?v=1774523057000"></script>
-    <script src="js/utils/data-resilience.js?v=1774523057000"></script>
-    <script src="js/components/navigation.js?v=1774523057000"></script>
+    <script src="js/config.js?v=1774549569000"></script>
+    <script src="js/auth.js?v=1774549569000"></script>
+    <script src="js/utils/data-resilience.js?v=1774549569000"></script>
+    <script src="js/components/navigation.js?v=1774549569000"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const user = JSON.parse(localStorage.getItem('caltrans_user'));
@@ -364,7 +364,7 @@
                 if (user.type === 'admin') {
                     window.location.href = 'dashboard-admin.html';
                 } else {
-                    window.location.href = 'dashboard-agency.html';
+                    window.location.href = 'dashboard-prime-contractor.html';
                 }
             });
         });
@@ -385,8 +385,8 @@
             document.getElementById('primeProgressText').textContent = pct + '%';
         }
     </script>
-  <script src="js/accessibility-widget.js?v=1774523057000"></script>
-  <script src="js/pwa.js?v=1774523057000"></script>
+  <script src="js/accessibility-widget.js?v=1774549569000"></script>
+  <script src="js/pwa.js?v=1774549569000"></script>
 </body>
 
 </html>

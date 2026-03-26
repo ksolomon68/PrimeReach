@@ -141,9 +141,9 @@
     {
       "type": "pathway-cards",
       "label": "Dual Pathway Cards",
-      "description": "Two large pathway cards side by side (Small Business and Prime Contractor). Home page only.",
+      "description": "Two large pathway cards side by side (Small Business|Prime Contractor and Prime Contractor). Home page only.",
       "fields": [
-        { "key": "smallBusinessCard", "label": "Small Business Pathway Card", "inputType": "pathway-card", "required": true },
+        { "key": "smallBusinessCard", "label": "Small Business|Prime Contractor Pathway Card", "inputType": "pathway-card", "required": true },
         { "key": "primeContractorCard", "label": "Prime Contractor Pathway Card", "inputType": "pathway-card", "required": true }
       ],
       "pathwayCardFields": [

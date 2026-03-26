@@ -156,7 +156,7 @@ router.post('/', requireRole('agency'), async (req, res) => {
             return res.status(400).json({ error: 'Invalid postedBy User ID' });
         }
         
-        const postedByName = userRows[0].business_name || userRows[0].organization_name || 'Agency';
+        const postedByName = userRows[0].business_name || userRows[0].organization_name || 'Prime Contractor';
         
         // Clean tags and NAICS
         const cleanTags = tags ? tags.filter(tag => tag && tag.trim()) : [];
@@ -276,7 +276,7 @@ router.put('/:id', requireRole(['agency', 'admin']), async (req, res) => {
         const oldStatus = existing[0].status;
         const oppTitle = title || existing[0].title;
         const senderId = existing[0].posted_by || req.user.id;
-        const senderName = existing[0].posted_by_name || req.user.organization_name || 'Agency';
+        const senderName = existing[0].posted_by_name || req.user.organization_name || 'Prime Contractor';
 
         const sql = `
             UPDATE opportunities SET
@@ -397,7 +397,7 @@ router.post('/:id/invite', requireRole('agency'), async (req, res) => {
     const { id: opportunityId } = req.params;
     const { smallBusinessId, note } = req.body;
     const senderId = req.user.id;
-    const senderBusinessName = req.user.business_name || req.user.organization_name || 'Agency';
+    const senderBusinessName = req.user.business_name || req.user.organization_name || 'Prime Contractor';
 
     if (!smallBusinessId) {
         return res.status(400).json({ error: 'Small Business ID is required' });

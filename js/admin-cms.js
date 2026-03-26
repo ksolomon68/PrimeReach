@@ -1524,7 +1524,7 @@ async function saveFAQOrder() {
 /** Open add/edit modal */
 function openFAQModal(faq) {
     const isEdit  = !!faq;
-    const catOpts = [...new Set([...faqCategories, ...faqData.map(f => f.category), 'General', 'Small Businesses', 'Agencies', 'Registration', 'Applications', 'Technical Support'])]
+    const catOpts = [...new Set([...faqCategories, ...faqData.map(f => f.category), 'General', 'Small Businesses', 'Prime Contractors', 'Registration', 'Applications', 'Technical Support'])]
         .sort()
         .map(c => `<option value="${escHtml(c)}" ${faq && faq.category === c ? 'selected' : ''}>${escHtml(c)}</option>`)
         .join('');
@@ -1743,6 +1743,14 @@ async function apiFetch(method, path, body) {
         data = await res.json();
     } catch (e) {
         throw new Error(`Server returned HTTP ${res.status} (non-JSON response)`);
+    }
+    if (res.status === 401) {
+        // Token expired or invalid — clear session and prompt re-login
+        sessionStorage.removeItem('cms_admin');
+        currentAdmin = null;
+        showToast('Session expired. Please log in again.', 'error');
+        setTimeout(() => showLoginScreen(), 1500);
+        throw new Error(data.error || 'Session expired');
     }
     if (!res.ok) throw new Error(data.error || data.message || `HTTP ${res.status}`);
     return data;

@@ -19,15 +19,15 @@ const Navigation = {
             ]
         },
         agency: {
-            title: 'Agency Portal',
+            title: 'Prime Contractor Portal',
             items: [
-                { label: 'Dashboard', href: 'dashboard-agency.html', icon: '🏠' },
+                { label: 'Dashboard', href: 'dashboard-prime-contractor.html', icon: '🏠' },
                 { label: 'Post Opportunity', href: 'post-opportunity.html', icon: '➕' },
                 { label: 'Manage Postings', href: 'manage-opportunities.html', icon: '📂' },
                 { label: 'Search Small Businesses', href: 'search-small-businesses.html', icon: '🔍' },
                 { label: 'Messages', href: 'messages.html', icon: '📬' },
-                { label: 'Analytics', href: 'agency-analytics.html', icon: '📈' },
-                { label: 'Settings', href: 'agency-settings.html', icon: '⚙️' }
+                { label: 'Analytics', href: 'prime-contractor-analytics.html', icon: '📈' },
+                { label: 'Settings', href: 'prime-contractor-settings.html', icon: '⚙️' }
             ]
         },
         admin: {
@@ -43,7 +43,7 @@ const Navigation = {
             title: 'Staff Dashboard',
             items: [
                 { label: 'Overview', href: 'dashboard-caltrans.html', icon: '🏠' },
-                { label: 'Analytics', href: 'agency-analytics.html', icon: '📈' },
+                { label: 'Analytics', href: 'prime-contractor-analytics.html', icon: '📈' },
                 { label: 'Support Services', href: 'support-services.html', icon: '🎧' },
                 { label: 'Search Small Businesses', href: 'search-small-businesses.html', icon: '🔍' }
             ]

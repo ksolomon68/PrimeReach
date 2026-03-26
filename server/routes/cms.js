@@ -117,7 +117,7 @@ router.post('/login', async (req, res) => {
             const token = jwt.sign(
                 { id: user.id, email: user.email, type: 'caltrans_admin' },
                 CMS_JWT_SECRET,
-                { expiresIn: '8h' }
+                { expiresIn: '24h' }
             );
             return res.json({ success: true, token, email: user.email, message: 'CMS login successful' });
         }
@@ -134,7 +134,7 @@ router.post('/login', async (req, res) => {
         const token = jwt.sign(
             { email, type: 'caltrans_admin' },
             CMS_JWT_SECRET,
-            { expiresIn: '8h' }
+            { expiresIn: '24h' }
         );
         res.json({ success: true, token, email, message: 'CMS login successful' });
     } catch (err) {
