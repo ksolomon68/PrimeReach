@@ -869,6 +869,28 @@ async function renderGlobalSettings(container) {
           </div>
         </div>
 
+        <!-- Announcement Banner -->
+        <div class="cms-panel">
+          <div class="cms-panel-header"><h3 class="cms-panel-title">Announcement Banner</h3></div>
+          <div class="cms-panel-body">
+            <div class="cms-alert cms-alert-info cms-mb">
+              The banner appears at the top of the homepage. Toggle it on or off, edit the message, and increment the version to re-show it for users who already dismissed it.
+            </div>
+            <div class="cms-settings-grid">
+              <div class="cms-field-group" style="grid-column:1/-1;display:flex;align-items:center;gap:.75rem;">
+                <input type="checkbox" id="ann-enabled" data-field="announcement.enabled"
+                       ${globalData.announcement?.enabled ? 'checked' : ''}
+                       style="width:18px;height:18px;">
+                <label for="ann-enabled" style="font-weight:600;">Show banner on homepage</label>
+              </div>
+              ${fieldInput('announcement.version', 'Version (increment to re-show for all users)', globalData.announcement?.version || 'v1', 'text', 20)}
+              ${fieldInput('announcement.message', 'Banner Message (HTML allowed)', globalData.announcement?.message || '', 'textarea', 500)}
+              ${fieldInput('announcement.linkText', 'Optional CTA Link Text', globalData.announcement?.linkText || '', 'text', 80)}
+              ${fieldInput('announcement.linkUrl',  'Optional CTA Link URL',  globalData.announcement?.linkUrl  || '', 'url')}
+            </div>
+          </div>
+        </div>
+
         <!-- External Portals -->
         <div class="cms-panel">
           <div class="cms-panel-header"><h3 class="cms-panel-title">External Portal URLs</h3></div>

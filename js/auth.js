@@ -294,7 +294,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 phone: document.getElementById('phone').value,
                 password: document.getElementById('password').value,
                 confirmPassword: document.getElementById('confirmPassword').value,
-                isSBE: document.getElementById('isSBE').checked,
+                isSBE: document.getElementById('isSBECertified').checked,
                 certificationNumber: document.getElementById('sbeNumber') ? document.getElementById('sbeNumber').value : null
             };
 

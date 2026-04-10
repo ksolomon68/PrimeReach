@@ -141,6 +141,29 @@
             });
         }
 
+        // Announcement banner
+        var ann = globalData.announcement;
+        var annEl = document.getElementById('site-announcement');
+        if (ann && annEl) {
+            var version   = ann.version || 'v1';
+            var dismissed = localStorage.getItem('caltrans-announcement-dismissed');
+            if (ann.enabled && dismissed !== version) {
+                annEl.style.display = 'block';
+            } else {
+                annEl.style.display = 'none';
+            }
+            var dismissBtn = document.getElementById('dismiss-announcement');
+            if (dismissBtn) {
+                // Remove any prior listener by cloning
+                var newBtn = dismissBtn.cloneNode(true);
+                dismissBtn.parentNode.replaceChild(newBtn, dismissBtn);
+                newBtn.addEventListener('click', function () {
+                    localStorage.setItem('caltrans-announcement-dismissed', version);
+                    annEl.style.display = 'none';
+                });
+            }
+        }
+
         // Contact email
         if (globalData.site && globalData.site.contactEmail) {
             document.querySelectorAll('a[href^="mailto:SBEss"]').forEach(el => {

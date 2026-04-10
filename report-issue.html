@@ -188,7 +188,7 @@
             <li><a href="https://ccop.dot.ca.gov/" target="_blank" rel="noopener noreferrer">Contracting Portal <span class="sr-only">(opens in new window)</span>&nearrow;</a>
             </li>
             <li><a href="https://dot.ca.gov/programs/construction/construction-mentor-protege-program" target="_blank"
-                rel="noopener noreferrer">Mentor Protege <span class="sr-only">(opens in new window)</span>&nearrow;</a></li>
+                rel="noopener noreferrer">Mentor-Protege <span class="sr-only">(opens in new window)</span>&nearrow;</a></li>
           </ul>
         </div>
 
@@ -208,6 +208,7 @@
       <div class="footer-bottom">
         <p>&copy; 2026 California Department of Transportation. All rights reserved.</p>
         <p>CaltransBizConnect - Small Business Enterprise Supportive Services Program</p>
+                <p><a href="terms-of-service.html">Terms of Service</a> &bull; <a href="privacy-policy.html">Privacy Policy</a> &bull; <a href="accessibility-statement.html">Accessibility</a></p>
       </div>
     </div>
   </footer>
@@ -271,7 +272,17 @@
         });
         const data = await res.json();
         if (data.success) {
-          issueForm.innerHTML = '<div style="padding:var(--space-lg);background:#e8f5e9;border:1px solid #4caf50;border-radius:var(--border-radius-md);color:#1b5e20;" role="alert"><strong>Issue reported!</strong> Thank you. Our team will review it and respond within 1 business day' + (contactEmail ? ' to ' + contactEmail : '') + '.</div>';
+          var refNum = 'BC-' + Date.now().toString(36).toUpperCase();
+          var isSevere = ['login-issue', 'upload-issue'].includes(issueType);
+          var severeNote = isSevere
+            ? '<p style="margin-top:var(--space-md);padding:var(--space-md);background:#fff3cd;border:1px solid #ffc107;border-radius:4px;color:#6d4c00;"><strong>For urgent login or account access issues:</strong> Call <a href="tel:9163241700" style="color:#6d4c00;">(916) 324-1700</a> or email <a href="mailto:smallbusinesses@dot.ca.gov" style="color:#6d4c00;">smallbusinesses@dot.ca.gov</a> directly during business hours (M–F, 8:00 AM – 5:00 PM PST).</p>'
+            : '';
+          issueForm.innerHTML = '<div style="padding:var(--space-lg);background:#e8f5e9;border:1px solid #4caf50;border-radius:var(--border-radius-md);color:#1b5e20;" role="alert">'
+            + '<strong>Issue submitted successfully.</strong>'
+            + '<p style="margin-top:var(--space-sm);margin-bottom:0;">Reference number: <strong>' + refNum + '</strong></p>'
+            + '<p style="margin-top:var(--space-xs);margin-bottom:0;">Our team will review this and respond within 1 business day' + (contactEmail ? ' to <strong>' + contactEmail + '</strong>' : '') + '. Save your reference number in case you need to follow up.</p>'
+            + severeNote
+            + '</div>';
         } else {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Submit Issue Report';

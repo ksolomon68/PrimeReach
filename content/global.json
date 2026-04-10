@@ -90,7 +90,7 @@
           { "label": "Civil Rights",     "href": "https://dot.ca.gov/programs/civil-rights",                                                   "external": true },
           { "label": "SB & Workforce Dev","href":"https://dot.ca.gov/programs/civil-rights/small-business-and-workforce-development",          "external": true },
           { "label": "Contracting Portal","href":"https://ccop.dot.ca.gov/",                                                                   "external": true },
-          { "label": "Mentor Protege",   "href": "https://dot.ca.gov/programs/construction/construction-mentor-protege-program",               "external": true }
+          { "label": "Mentor-Protege",   "href": "https://dot.ca.gov/programs/construction/construction-mentor-protege-program",               "external": true }
         ]
       },
       {
@@ -120,6 +120,13 @@
     "textNotifications":  "https://app.smartsheet.com/b/form/5a91fd621bf6473cbe2e8dd2a5b1ecdd",
     "bdpInterest":        "https://app.smartsheet.com/b/form/d10fcca77e37449abbf81c035b7945f6",
     "workforceDevelopment":"https://app.smartsheet.com/b/form/2070c1554666487584e007173d2208ed"
+  },
+  "announcement": {
+    "enabled": true,
+    "version": "v1",
+    "message": "BizConnect is currently accepting new Small Business registrations. For certification questions, contact <a href=\"mailto:smallbusinesses@dot.ca.gov\">smallbusinesses@dot.ca.gov</a>.",
+    "linkText": "",
+    "linkUrl": ""
   },
   "districtLookahead": [
     { "label": "All Districts",     "value": "" },
