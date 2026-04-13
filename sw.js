@@ -41,7 +41,7 @@ const PRECACHE_ASSETS = [
   '/assets/favicon.ico',
   '/assets/favicon-32.png',
   '/assets/favicon-16.png',
-  '/assets/caltrans-logo.png',
+  '/images/caltrans-logo.png',
   '/assets/icon-192.png',
   '/assets/icon-512.png',
   '/assets/icon-maskable.png',

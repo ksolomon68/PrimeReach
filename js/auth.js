@@ -150,12 +150,16 @@ window.logout = window.handleLogout;
 
 // Register small business
 async function registerSmallBusiness(formData) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
     try {
         const response = await fetch(`${API_URL}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...formData, type: 'small_business' })
+            body: JSON.stringify({ ...formData, type: 'small_business' }),
+            signal: controller.signal
         });
+        clearTimeout(timeout);
 
         const data = await safeParseJson(response);
 
@@ -165,9 +169,14 @@ async function registerSmallBusiness(formData) {
 
         const user = data.user || data;
         localStorage.setItem('caltrans_user', JSON.stringify(user));
+        if (data.token) localStorage.setItem('caltrans_token', data.token);
         console.log('CaltransBizConnect: Small Business registered:', user.businessName || user.email);
         return user;
     } catch (error) {
+        clearTimeout(timeout);
+        if (error.name === 'AbortError') {
+            throw new Error('Registration timed out. The server is taking too long to respond. Please try again or contact us at smallbusinesses@dot.ca.gov.');
+        }
         // Mock fallback if API is unreachable
         if (error.message.includes('Failed to fetch') || error.message.includes('Server API is not responding')) {
             console.warn('API Unreachable. Triggering Mock Fallback.');
@@ -186,12 +195,16 @@ async function registerSmallBusiness(formData) {
 
 // Register prime contractor
 async function registerPrimeContractor(formData) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
     try {
         const response = await fetch(`${API_URL}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...formData, type: 'agency' })
+            body: JSON.stringify({ ...formData, type: 'agency' }),
+            signal: controller.signal
         });
+        clearTimeout(timeout);
 
         const data = await safeParseJson(response);
 
@@ -201,9 +214,14 @@ async function registerPrimeContractor(formData) {
 
         const user = data.user || data;
         localStorage.setItem('caltrans_user', JSON.stringify(user));
+        if (data.token) localStorage.setItem('caltrans_token', data.token);
         console.log('CaltransBizConnect: Prime Contractor registered:', user.organizationName || user.email);
         return user;
     } catch (error) {
+        clearTimeout(timeout);
+        if (error.name === 'AbortError') {
+            throw new Error('Registration timed out. The server is taking too long to respond. Please try again or contact us at smallbusinesses@dot.ca.gov.');
+        }
         // Mock fallback if API is unreachable
         if (error.message.includes('Failed to fetch') || error.message.includes('Server API is not responding')) {
             console.warn('API Unreachable. Triggering Mock Fallback.');

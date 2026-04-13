@@ -197,7 +197,7 @@
     const el = document.createElement('div');
     el.id = id;
     el.setAttribute('role', id === 'pwa-update-banner' ? 'alert' : 'region');
-    el.setAttribute('aria-label', 'App install prompt');
+    el.setAttribute('aria-label', id === 'pwa-update-banner' ? 'App update available' : 'App install prompt');
     el.innerHTML = html;
     document.body.appendChild(el);
     return el;

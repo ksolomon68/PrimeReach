@@ -72,7 +72,7 @@
                     <div class="card-body">
                         <p class="mb-md"><strong>Small Business Enterprise Supportive Services</strong></p>
                         <p class="mb-sm"><strong>Phone:</strong> (916) 324-1700</p>
-                        <p class="mb-sm"><strong>Email:</strong> smallbusinesses@dot.ca.gov</p>
+                        <p class="mb-sm"><strong>Email:</strong> <a href="mailto:smallbusinesses@dot.ca.gov">smallbusinesses@dot.ca.gov</a></p>
                         <p class="mb-md"><strong>Hours:</strong> Monday - Friday, 8:00 AM - 5:00 PM PST</p>
                         <p class="mb-0 text-muted">For general inquiries about the program, certification, or technical
                             assistance.</p>
@@ -86,7 +86,7 @@
                     </div>
                     <div class="card-body">
                         <p class="mb-md"><strong>Platform Technical Support</strong></p>
-                        <p class="mb-sm"><strong>Email:</strong> smallbusinesses@dot.ca.gov</p>
+                        <p class="mb-sm"><strong>Email:</strong> <a href="mailto:smallbusinesses@dot.ca.gov">smallbusinesses@dot.ca.gov</a></p>
                         <p class="mb-md"><strong>Response Time:</strong> We aim to respond as quickly as possible. Response times may vary based on inquiry volume.</p>
                         <p class="mb-md text-muted">For issues with logging in, uploading documents, or other technical
                             problems.</p>
@@ -240,7 +240,7 @@
                         <li><a href="https://ccop.dot.ca.gov/" target="_blank" rel="noopener noreferrer">Contracting
                                 Portal &nearrow;</a></li>
                         <li><a href="https://dot.ca.gov/programs/construction/construction-mentor-protege-program"
-                                target="_blank" rel="noopener noreferrer">Mentor-Protege <span class="sr-only">(opens in new window)</span>&nearrow;</a></li>
+                                target="_blank" rel="noopener noreferrer">Mentor-Protégé <span class="sr-only">(opens in new window)</span>&nearrow;</a></li>
                     </ul>
                 </div>
 
@@ -302,7 +302,7 @@
         });
         const data = await res.json();
         if (data.success) {
-          contactForm.innerHTML = '<div style="padding:var(--space-lg);background:#e8f5e9;border:1px solid #4caf50;border-radius:var(--border-radius-md);color:#1b5e20;" role="alert"><strong>Message sent!</strong> Thank you for reaching out. We\'ll respond within 1 business day.</div>';
+          contactForm.innerHTML = '<div style="padding:var(--space-lg);background:#e8f5e9;border:1px solid #4caf50;border-radius:var(--border-radius-md);color:#1b5e20;" role="alert"><strong>Message sent!</strong> Thank you for reaching out. We\'ll get back to you as soon as we can.</div>';
         } else {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Send Message';
@@ -311,7 +311,7 @@
       } catch {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Send Message';
-        document.getElementById('message').nextElementSibling.textContent = 'Unable to send. Please email us directly at smallbusinesses@dot.ca.gov';
+        document.getElementById('message').nextElementSibling.innerHTML = 'Unable to send. Please email us directly at <a href="mailto:smallbusinesses@dot.ca.gov">smallbusinesses@dot.ca.gov</a>';
       }
     });
   </script>
