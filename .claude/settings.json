@@ -7,7 +7,11 @@
       "Bash(grep -n \"1 business day\\\\|within.*day\\\\|response time\\\\|response.*hour\\\\|respond.*within\" \"c:/Users/Keisha/Documents/caltrans/new caltrans/\"*.html -i)",
       "Bash(ls \"c:/Users/Keisha/Documents/caltrans/new caltrans/dashboards/\"*.html)",
       "Bash(ls \"c:/Users/Keisha/Documents/caltrans/new caltrans/\"**/*.html)",
-      "Bash(ls \"c:/Users/Keisha/Documents/caltrans/new caltrans/\"*.html)"
+      "Bash(ls \"c:/Users/Keisha/Documents/caltrans/new caltrans/\"*.html)",
+      "Read(//c/Users/Keisha/.claude/projects/c--Users-Keisha-Documents-PrimeReach-PrimeReach/memory/**)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\Keisha\\.claude\\projects\\c--Users-Keisha-Documents-PrimeReach-PrimeReach\\memory"
     ]
   }
 }

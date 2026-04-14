@@ -1,6 +1,6 @@
 /* ============================================================
    Admin CMS Stylesheet — PrimeReach
-   Caltrans style-guide compliant. Mobile-responsive.
+   platform style-guide compliant. Mobile-responsive.
    ============================================================ */
 
 /* ── Reset / Base ─────────────────────────────────────────── */
@@ -39,7 +39,7 @@
     --cms-shadow:        0 1px 4px rgba(0,0,0,.10);
     --cms-shadow-md:     0 2px 8px rgba(0,0,0,.12);
 
-    /* Typography (Caltrans style guide) */
+    /* Typography (platform style guide) */
     --cms-font:          Arial, Calibri, sans-serif;
     --cms-font-size:     20px;   /* 14pt body per style guide */
     --cms-font-size-sm:  17px;

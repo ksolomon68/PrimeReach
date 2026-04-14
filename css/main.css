@@ -940,7 +940,7 @@ body {
 .iframe-cropper-container iframe {
     position: absolute;
     top: -300px;
-    /* Hide Caltrans Header and Nav */
+    /* Hide platform Header and Nav */
     left: 0;
     width: 100%;
     height: 1500px;

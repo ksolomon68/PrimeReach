@@ -406,7 +406,7 @@ textarea {
     /* Logo: cap width so it doesn't push header content off-screen */
     .header-top .header-logo img,
     .header-top img[alt*="logo"],
-    .header-top img[alt*="Caltrans"] {
+    .header-top img[alt*="platform"] {
         max-width: 120px;
         height: 28px !important;
         width: auto;

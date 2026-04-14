@@ -15,7 +15,7 @@ module.exports = {
   appId:       'com.primereachgov.app',
   /** Production hostname — no protocol, no trailing slash. */
   domain:      'primereachgov.com',
-  logoPath:    'images/logo.png',
+  logoPath:    'images/logo-light.png',
   description: 'Connecting prime contractors with qualified small and disadvantaged businesses.',
 
   // ── Brand Colors ────────────────────────────────────────

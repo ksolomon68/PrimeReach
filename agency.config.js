@@ -25,7 +25,7 @@ window.AGENCY = {
   /** Production hostname — no protocol, no trailing slash. */
   domain: 'primereachgov.com',
   /** Path to the agency logo (relative to site root). */
-  logoPath: 'images/logo.png',
+  logoPath: 'images/logo-light.png',
   /** Alternate text for the logo image. */
   logoAlt: 'PrimeReach Logo',
 
