@@ -1,5 +1,5 @@
 /**
- * Master Data Lists for CaltransBizConnect
+ * Master Data Lists for PrimeReach
  * Single source of truth for filter data used across the platform
  * Ensures consistency between opportunity search filters and small business profiles
  */

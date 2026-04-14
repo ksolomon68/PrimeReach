@@ -8,18 +8,18 @@ const router = express.Router();
 // UPLOADS_DIR env var lets production point to a path outside the git repo
 // so files survive redeployments (e.g. /home/u579331817/uploads)
 const uploadsDir = process.env.UPLOADS_DIR || path.join(__dirname, '../../uploads');
-console.log('CaltransBizConnect Upload: uploads dir =', uploadsDir);
+console.log('PrimeReach Upload: uploads dir =', uploadsDir);
 if (!fs.existsSync(uploadsDir)) {
-    console.log('CaltransBizConnect Upload: Creating uploads directory...');
+    console.log('PrimeReach Upload: Creating uploads directory...');
     fs.mkdirSync(uploadsDir, { recursive: true });
 }
 try {
     const testFile = path.join(uploadsDir, '.write-test');
     fs.writeFileSync(testFile, 'ok');
     fs.unlinkSync(testFile);
-    console.log('CaltransBizConnect Upload: Directory is writable.');
+    console.log('PrimeReach Upload: Directory is writable.');
 } catch (e) {
-    console.error('CaltransBizConnect Upload: NOT writable -', e.message);
+    console.error('PrimeReach Upload: NOT writable -', e.message);
 }
 
 // Multer storage config
@@ -55,7 +55,7 @@ const upload = multer({
 router.post('/', (req, res) => {
     upload.single('file')(req, res, (err) => {
         if (err) {
-            console.error('CaltransBizConnect Upload: Multer error -', err);
+            console.error('PrimeReach Upload: Multer error -', err);
             return res.status(400).json({ error: err.message || 'Upload failed' });
         }
         if (!req.file) {

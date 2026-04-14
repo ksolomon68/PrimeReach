@@ -27,8 +27,8 @@ const faqs = [
     { category: 'For Prime Contractors', sort_order: 5, question: 'What are the quality standards for opportunity postings?', answer: '<p>All postings must include complete project information, clear requirements, realistic timelines, and accurate contact details. This ensures small businesses can make informed decisions about applying.</p>' },
 
     // Technical Questions
-    { category: 'Technical Questions', sort_order: 0, question: 'What browsers are supported?', answer: '<p>CaltransBizConnect works best on the latest versions of Chrome, Firefox, Safari, and Edge. We recommend keeping your browser updated for the best experience.</p>' },
-    { category: 'Technical Questions', sort_order: 1, question: 'Is the platform mobile-friendly?', answer: '<p>Yes, CaltransBizConnect is fully responsive and works on smartphones, tablets, and desktop computers.</p>' },
+    { category: 'Technical Questions', sort_order: 0, question: 'What browsers are supported?', answer: '<p>PrimeReach works best on the latest versions of Chrome, Firefox, Safari, and Edge. We recommend keeping your browser updated for the best experience.</p>' },
+    { category: 'Technical Questions', sort_order: 1, question: 'Is the platform mobile-friendly?', answer: '<p>Yes, PrimeReach is fully responsive and works on smartphones, tablets, and desktop computers.</p>' },
     { category: 'Technical Questions', sort_order: 2, question: 'Is my information secure?', answer: '<p>Yes, we use industry-standard security measures to protect your data. Your personal information is never shared without your consent.</p>' },
     { category: 'Technical Questions', sort_order: 3, question: 'I forgot my password. How do I reset it?', answer: '<p>Click the "Forgot Password" link on the login page and follow the instructions to reset your password via email.</p>' },
 ];

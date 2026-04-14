@@ -1,5 +1,6 @@
 const path = require('path');
 const dotenv = require('dotenv');
+const agencyConfig = require('./agency.config');
 
 // First try to load the default .env file
 dotenv.config({ path: path.join(__dirname, '../.env') });
@@ -17,7 +18,7 @@ const fs = require('fs');
 const { initDatabase, getDb } = require('./database');
 
 const VERSION = '2.1.1-mysql-ipv4-fix';
-console.log(`CaltransBizConnect: Starting server initialization (v${VERSION})...`);
+console.log(`${agencyConfig.name}: Starting server initialization (v${VERSION})...`);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -50,10 +51,10 @@ const startServer = async () => {
             next();
         });
 
-        // CORS — restrict to production domain and localhost
+        // CORS — restrict to the configured production domain and localhost.
         const allowedOrigins = [
-            'https://caltransbizconnect.org',
-            'https://www.caltransbizconnect.org',
+            'https://' + agencyConfig.domain,
+            'https://www.' + agencyConfig.domain,
             'http://localhost:3001',
             'http://127.0.0.1:3001'
         ];
@@ -117,7 +118,7 @@ const startServer = async () => {
         });
 
         // Initialize Database
-        console.log('CaltransBizConnect: Initializing database connection and schema...');
+        console.log(`${agencyConfig.name}: Initializing database connection and schema...`);
         await initDatabase();
 
         // Global development toggle to disable all caching
@@ -143,7 +144,7 @@ const startServer = async () => {
 
         // 2. Fix static asset caching
         const publicPath = path.join(__dirname, '../');
-        console.log('CaltransBizConnect: Serving static files from:', publicPath);
+        console.log(`${agencyConfig.name}: Serving static files from:`, publicPath);
         app.use(express.static(publicPath, { 
             etag: false, 
             lastModified: false, 
@@ -164,6 +165,42 @@ const startServer = async () => {
                 }
             } 
         }));
+
+        // Dynamic PWA manifest — values come from server/agency.config.js
+        // This allows the manifest (normally static JSON) to reflect the
+        // current agency's name, colors, and domain without editing manifest.json.
+        app.get('/manifest.json', (req, res) => {
+            const manifest = {
+                name:             agencyConfig.name,
+                short_name:       agencyConfig.shortName,
+                id:               agencyConfig.appId,
+                description:      agencyConfig.description,
+                start_url:        '/index.html',
+                scope:            '/',
+                display:          'standalone',
+                display_override: ['window-controls-overlay', 'standalone', 'minimal-ui'],
+                orientation:      'any',
+                background_color: agencyConfig.backgroundColor || '#ffffff',
+                theme_color:      agencyConfig.themeColor,
+                lang:             'en-US',
+                categories:       ['business', 'government', 'productivity'],
+                icons: [
+                    { src: 'assets/icon-192.png',    sizes: '192x192', type: 'image/png', purpose: 'any' },
+                    { src: 'assets/icon-512.png',    sizes: '512x512', type: 'image/png', purpose: 'any' },
+                    { src: 'assets/icon-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+                ],
+                shortcuts: [
+                    { name: 'Search Opportunities', short_name: 'Opportunities', url: '/search-opportunities.html', description: 'Browse available contracting opportunities', icons: [{ src: 'assets/icon-192.png', sizes: '192x192' }] },
+                    { name: 'My Dashboard',          short_name: 'Dashboard',     url: '/login.html',                description: 'Access your personalized dashboard',    icons: [{ src: 'assets/icon-192.png', sizes: '192x192' }] },
+                    { name: 'Resources',              short_name: 'Resources',     url: '/resources.html',            description: 'Training and certification resources',   icons: [{ src: 'assets/icon-192.png', sizes: '192x192' }] }
+                ],
+                screenshots:                  [],
+                prefer_related_applications: false
+            };
+            res.setHeader('Content-Type', 'application/manifest+json');
+            res.setHeader('Cache-Control', 'no-cache');
+            res.json(manifest);
+        });
 
         // Routes
         app.use('/api/auth', authLimiter, require('./routes/auth'));
@@ -214,20 +251,20 @@ const startServer = async () => {
             if (fs.existsSync(indexPath)) {
                 res.sendFile(indexPath);
             } else {
-                res.status(404).send('CaltransBizConnect: index.html not found');
+                res.status(404).send(`${agencyConfig.name}: index.html not found`);
             }
         });
 
         // Listen logic for Phusion Passenger or standalone
         if (process.env.PHUSION_PASSENGER || process.env.PASSENGER_NODE_CONTROL_REPO) {
-            console.log('CaltransBizConnect: Listening on Phusion Passenger...');
+            console.log(`${agencyConfig.name}: Listening on Phusion Passenger...`);
             app.listen('passenger');
         } else {
-            app.listen(PORT, () => console.log(`CaltransBizConnect: Running on http://localhost:${PORT}`));
+            app.listen(PORT, () => console.log(`${agencyConfig.name}: Running on http://localhost:${PORT}`));
         }
 
     } catch (err) {
-        console.error('CaltransBizConnect CRITICAL STARTUP ERROR:', err);
+        console.error(`${agencyConfig.name} CRITICAL STARTUP ERROR:`, err);
     }
 };
 

@@ -1,5 +1,5 @@
 /**
- * Admin CMS JavaScript — CaltransBizConnect
+ * Admin CMS JavaScript — PrimeReach
  *
  * Provides the full single-page admin interface for:
  *  • Editing page content (sections, fields, images)
@@ -49,7 +49,7 @@ function showLoginScreen() {
     document.getElementById('cms-app').innerHTML = `
     <div class="cms-login-screen" role="main">
       <div class="cms-login-card">
-        <img src="images/caltrans-logo.png" alt="CaltransBizConnect Logo">
+        <img src="images/logo.png" alt="PrimeReach Logo">
         <h1>CMS Admin</h1>
         <p>Sign in with your admin account to manage site content.</p>
         <div id="login-error" class="cms-alert cms-alert-error cms-hidden" role="alert"></div>
@@ -112,7 +112,7 @@ async function showShell() {
       <!-- Header -->
       <header class="cms-header" role="banner">
         <a href="index.html" class="cms-header-brand" target="_blank" rel="noopener">
-          <img src="images/caltrans-logo.png" alt="CaltransBizConnect">
+          <img src="images/logo.png" alt="PrimeReach">
           <span>CMS Admin</span>
         </a>
         <div class="cms-header-actions">

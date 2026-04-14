@@ -1,7 +1,15 @@
 /**
- * CaltransBizConnect - Main JavaScript
- * Handles navigation, accessibility enhancements, and common UI interactions
+ * Platform — Main JavaScript
+ * Handles navigation, accessibility enhancements, and common UI interactions.
+ *
+ * Agency-specific values come from window.AGENCY (agency.config.js).
+ * Do NOT hard-code brand names, emails, or storage keys here.
  */
+
+// Read agency config values once so the rest of this module is generic.
+const _agency = window.AGENCY || {};
+const _mainStorageKey = ((_agency.storagePrefix) || 'app') + '_user';
+const _mainSupportEmail = _agency.supportEmail || 'support@example.gov';
 
 // Mobile Navigation Toggle
 document.addEventListener('DOMContentLoaded', function () {
@@ -82,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })
           .then(response => {
             if (response.ok) {
-              showSuccessMessage('Thank you for your message. It has been sent to SBEss@dot.ca.gov. We will get back to you soon.', contactForm.parentElement);
+              showSuccessMessage('Thank you for your message. It has been sent to ' + _mainSupportEmail + '. We will get back to you soon.', contactForm.parentElement);
               contactForm.reset();
               window.scrollTo({ top: 0, behavior: 'smooth' });
             } else {
@@ -117,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })
           .then(response => {
             if (response.ok) {
-              showSuccessMessage('Your issue report has been sent to SBEss@dot.ca.gov. Our technical team will review it.', issueForm.parentElement);
+              showSuccessMessage('Your issue report has been sent to ' + _mainSupportEmail + '. Our technical team will review it.', issueForm.parentElement);
               issueForm.reset();
               window.scrollTo({ top: 0, behavior: 'smooth' });
             } else {
@@ -140,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function () {
         logout();
       } else {
         // Fallback if auth.js is not loaded
-        localStorage.removeItem('caltrans_user');
+        localStorage.removeItem(_mainStorageKey);
         window.location.href = 'index.html';
       }
     });

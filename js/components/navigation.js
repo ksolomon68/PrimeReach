@@ -1,7 +1,19 @@
 /**
- * CaltransBizConnect Navigation Component (Refactored)
+ * Platform Navigation Component
  * Dynamically renders sidebars and headers based on user roles.
+ *
+ * Agency-specific values come from window.AGENCY (agency.config.js).
+ * Do NOT hard-code brand names, logos, or storage keys here.
  */
+
+// Resolve agency config values once at module load.
+const _navAgency    = window.AGENCY || {};
+const _navUserKey   = ((_navAgency.storagePrefix) || 'app') + '_user';
+const _navTokenKey  = ((_navAgency.storagePrefix) || 'app') + '_token';
+const _navLogoPath  = _navAgency.logoPath  || 'assets/logo.png';
+const _navLogoAlt   = _navAgency.logoAlt   || 'Platform Logo';
+const _navAppName   = _navAgency.name      || 'Platform';
+const _navStaffDash = 'dashboard-caltrans.html'; // configurable: update if the staff dashboard page is renamed
 
 const Navigation = {
     // Role configurations — keys must match Navigation.init() call values
@@ -42,20 +54,22 @@ const Navigation = {
         staff: {
             title: 'Staff Dashboard',
             items: [
-                { label: 'Overview', href: 'dashboard-caltrans.html', icon: '🏠' },
-                { label: 'Analytics', href: 'prime-contractor-analytics.html', icon: '📈' },
-                { label: 'Support Services', href: 'support-services.html', icon: '🎧' },
-                { label: 'Search Small Businesses', href: 'search-small-businesses.html', icon: '🔍' }
+                { label: 'Overview', href: _navStaffDash, icon: '\uD83C\uDFE0' },
+                { label: 'Analytics', href: 'prime-contractor-analytics.html', icon: '\uD83D\uDCC8' },
+                { label: 'Support Services', href: 'support-services.html', icon: '\uD83C\uDFA7' },
+                { label: 'Search Small Businesses', href: 'search-small-businesses.html', icon: '\uD83D\uDD0D' }
             ]
         }
     },
 
-    // Map legacy DB role values to config keys
+    // Map legacy DB role values to generic config keys.
+    // 'caltrans_admin' is a legacy role name kept for backward compatibility with
+    // existing database records — update both sides if you rename the role in the DB.
     _normalizeRole(role) {
         const map = {
-            'vendor': 'small_business',
-            'prime_contractor': 'agency',
-            'caltrans_admin': 'staff'
+            'vendor':          'small_business',
+            'prime_contractor':'agency',
+            'caltrans_admin':  'staff'  // legacy role name — keep in sync with DB
         };
         return map[role] || role;
     },
@@ -67,7 +81,7 @@ const Navigation = {
     init(role) {
         // Fallback to localStorage if no role provided
         if (!role) {
-            const user = JSON.parse(localStorage.getItem('caltrans_user'));
+            const user = JSON.parse(localStorage.getItem(_navUserKey));
             role = user ? user.type : 'small_business';
         }
 
@@ -124,7 +138,7 @@ const Navigation = {
                 <a href="index.html" class="sidebar-footer-link">
                     <span style="font-size: 1.25rem;">🌐</span> Back to Public Site
                 </a>
-                <button onclick="if(typeof logout === 'function') { logout() } else { localStorage.removeItem('caltrans_user'); window.location.href='index.html'; }"
+                <button onclick="if(typeof logout === 'function') { logout() } else { localStorage.removeItem('${_navUserKey}'); window.location.href='index.html'; }"
                     class="sidebar-footer-link sidebar-signout-btn">
                     <span style="font-size: 1.25rem;">🚪</span> Sign Out
                 </button>
@@ -148,7 +162,7 @@ const Navigation = {
         const header = document.getElementById('header-top') || document.querySelector('.header-top');
         if (!header) return;
 
-        const user = JSON.parse(localStorage.getItem('caltrans_user')) || { name: 'Portal User' };
+        const user = JSON.parse(localStorage.getItem(_navUserKey)) || { name: 'Portal User' };
         const userName = user.business_name || user.organization_name || user.contact_name || user.name || 'User';
         const config = this.config[role] || this.config['small_business'];
 
@@ -162,9 +176,9 @@ const Navigation = {
                     </svg>
                 </button>
                 <div class="header-logo" style="display: flex; align-items: center;">
-                    <a href="index.html" style="text-decoration: none; display: flex; align-items: center;" aria-label="CaltransBizConnect Home">
-                        <img src="assets/caltrans-logo.png" alt="Caltrans logo" style="height: 32px; width: auto; display: block;">
-                        <span style="font-weight: 700; color: var(--color-primary); font-size: 1.1rem; letter-spacing: -0.01em; margin-left: 0.5rem; border-left: 1px solid var(--color-border); padding-left: 0.5rem;">BizConnect</span>
+                    <a href="index.html" style="text-decoration: none; display: flex; align-items: center;" aria-label="${_navAppName} Home">
+                        <img src="${_navLogoPath}" alt="${_navLogoAlt}" style="height: 32px; width: auto; display: block;">
+                        <span style="font-weight: 700; color: var(--color-primary); font-size: 1.1rem; letter-spacing: -0.01em; margin-left: 0.5rem; border-left: 1px solid var(--color-border); padding-left: 0.5rem;">${_navAppName}</span>
                     </a>
                 </div>
                 <span class="header-portal-title" aria-hidden="true" style="font-size: 0.85rem; color: var(--color-text-secondary); margin-left: 0.5rem;">${config.title}</span>
@@ -190,7 +204,7 @@ const Navigation = {
                 <div class="header-avatar">
                     ${userName.charAt(0).toUpperCase()}
                 </div>
-                <button class="mobile-signout-btn" onclick="if(typeof logout === 'function') { logout() } else { localStorage.removeItem('caltrans_user'); window.location.href='index.html'; }" aria-label="Sign Out" title="Sign Out">
+                <button class="mobile-signout-btn" onclick="if(typeof logout === 'function') { logout() } else { localStorage.removeItem('${_navUserKey}'); window.location.href='index.html'; }" aria-label="Sign Out" title="Sign Out">
                     🚪
                 </button>
             </div>
@@ -258,7 +272,7 @@ const Navigation = {
     },
 
     initNotifications() {
-        const user = JSON.parse(localStorage.getItem('caltrans_user'));
+        const user = JSON.parse(localStorage.getItem(_navUserKey));
         if (!user) return;
         
         const bell = document.getElementById('notification-bell');
@@ -298,7 +312,7 @@ const Navigation = {
     async fetchNotifications(userId) {
         try {
             const url = window.APP_CONFIG ? window.APP_CONFIG.API_URL : '/api';
-            const token = localStorage.getItem('caltrans_token');
+            const token = localStorage.getItem(_navTokenKey);
             const res = await fetch(`${url}/notifications/user/${userId}`, {
                 headers: { 
                     'x-user-id': userId,
@@ -350,7 +364,7 @@ const Navigation = {
     async markNotificationRead(id, messageId, userId) {
         try {
             const url = window.APP_CONFIG ? window.APP_CONFIG.API_URL : '/api';
-            const token = localStorage.getItem('caltrans_token');
+            const token = localStorage.getItem(_navTokenKey);
             await fetch(`${url}/notifications/${id}/read`, {
                 method: 'POST',
                 headers: { 
@@ -368,7 +382,7 @@ const Navigation = {
 
 // Global init trigger — fires if page doesn't call Navigation.init() explicitly
 document.addEventListener('DOMContentLoaded', () => {
-    const user = JSON.parse(localStorage.getItem('caltrans_user'));
+    const user = JSON.parse(localStorage.getItem(_navUserKey));
     if (user && user.type && !window._navInitialized) {
         Navigation.init(user.type);
     }

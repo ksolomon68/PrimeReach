@@ -3,12 +3,12 @@
   "isSystem": true,
   "updatedAt": "2026-03-17T00:00:00.000Z",
   "meta": {
-    "title": "Resources - CaltransBizConnect",
-    "description": "Access templates, guides, and resources for Small Businesses and prime contractors using CaltransBizConnect."
+    "title": "Resources - PrimeReach",
+    "description": "Access templates, guides, and resources for Small Businesses and prime contractors using PrimeReach."
   },
   "header": {
     "backgroundImage": "",
-    "logoImage": "images/caltrans-logo.png",
+    "logoImage": "images/logo.png",
     "logoAlt": "Caltrans"
   },
   "sections": [

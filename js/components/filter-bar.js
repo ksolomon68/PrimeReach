@@ -11,7 +11,7 @@ let categories = [];
 // Load data on page load
 document.addEventListener('DOMContentLoaded', async function () {
     try {
-        console.log('CaltransBizConnect: Starting opportunities data load');
+        console.log('PrimeReach: Starting opportunities data load');
 
         // Use DataService if available, otherwise fallback to native fetch
         const fetcher = (window.DataService && typeof window.DataService.fetch === 'function')
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         // Load districts and categories in parallel
         // Use native fetch — these are static JSON files, not API routes
-        console.log('CaltransBizConnect: Loading filters...');
+        console.log('PrimeReach: Loading filters...');
         const [districtsData, categoriesData] = await Promise.all([
             fetch('/data/districts.json').then(r => r.ok ? r.json() : { districts: [] }).catch(err => {
                 console.error('Failed to load districts.json:', err);
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         categories = categoriesData.categories || [];
 
         // Load opportunities from backend API
-        console.log('CaltransBizConnect: Loading opportunities...');
+        console.log('PrimeReach: Loading opportunities...');
         const allData = await fetcher('/opportunities');
 
         if (!Array.isArray(allData)) {
@@ -78,10 +78,10 @@ document.addEventListener('DOMContentLoaded', async function () {
         // Set up event listeners
         setupEventListeners();
 
-        console.log(`CaltransBizConnect: Loaded ${allOpportunities.length} opportunities successfully`);
+        console.log(`PrimeReach: Loaded ${allOpportunities.length} opportunities successfully`);
 
     } catch (error) {
-        console.error('CaltransBizConnect: Fatal error loading opportunities page data:', error);
+        console.error('PrimeReach: Fatal error loading opportunities page data:', error);
         const countElement = document.getElementById('resultsCount');
         if (countElement) {
             countElement.innerHTML = `<span class="text-error">Error loading opportunities. Please refresh the page.</span><br><small class="text-muted">Details: ${error.message}</small>`;

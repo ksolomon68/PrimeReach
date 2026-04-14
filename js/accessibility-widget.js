@@ -1,5 +1,5 @@
 /**
- * CaltransBizConnect Accessibility Widget v3.0
+ * PrimeReach Accessibility Widget v3.0
  * Design: EVOBRAND Concepts | evobrand.net
  * WCAG 2.1 AA/AAA | Keyboard: Alt+A (open/close), Escape (close)
  */

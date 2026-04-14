@@ -1,9 +1,19 @@
 /**
  * Authentication Module
- * Handles login, registration, and session management (client-side demo)
+ * Handles login, registration, and session management.
+ *
+ * Agency-specific values come from window.AGENCY (agency.config.js).
+ * Do NOT hard-code brand names, storage prefixes, or emails here.
  */
 
-console.log('CaltransBizConnect: Auth module initialized.');
+// Derive storage key names once from the agency config.
+const _prefix = (window.AGENCY && window.AGENCY.storagePrefix) || 'app';
+const USER_KEY  = _prefix + '_user';
+const TOKEN_KEY = _prefix + '_token';
+const _appName  = (window.AGENCY && window.AGENCY.name) || 'Platform';
+const _supportEmail = (window.AGENCY && window.AGENCY.supportEmail) || 'support@example.gov';
+
+console.log(_appName + ': Auth module initialized.');
 
 // Helper to check if localStorage is available
 function isStorageAvailable() {
@@ -13,7 +23,7 @@ function isStorageAvailable() {
         localStorage.removeItem(test);
         return true;
     } catch (e) {
-        console.error('CaltransBizConnect: Local storage is not available. Persistence features will be disabled.', e);
+        console.error(_appName + ': Local storage is not available. Persistence features will be disabled.', e);
         return false;
     }
 }
@@ -28,12 +38,12 @@ const API_URL = window.APP_CONFIG ? window.APP_CONFIG.API_URL : '/api';
 
 // Check if user is logged in
 function isLoggedIn() {
-    return localStorage.getItem('caltrans_user') !== null;
+    return localStorage.getItem(USER_KEY) !== null;
 }
 
 // Get current user
 function getCurrentUser() {
-    const userJson = localStorage.getItem('caltrans_user');
+    const userJson = localStorage.getItem(USER_KEY);
     return userJson ? JSON.parse(userJson) : null;
 }
 
@@ -73,10 +83,10 @@ async function safeParseJson(response) {
 
 // Login function
 async function login(email, password) {
-    console.log('CaltransBizConnect: Attempting login for:', email);
+    console.log(_appName + ': Attempting login for:', email);
     const finalUrl = `${API_URL}/auth/login`;
     try {
-        console.log('CaltransBizConnect: Fetching URL:', finalUrl);
+        console.log(_appName + ': Fetching URL:', finalUrl);
 
         const response = await fetch(finalUrl, {
             method: 'POST',
@@ -97,15 +107,15 @@ async function login(email, password) {
         }
 
         const userData = data.user || data; // Handle both nested and flat for safety
-        localStorage.setItem('caltrans_user', JSON.stringify(userData));
+        localStorage.setItem(USER_KEY, JSON.stringify(userData));
         // Store JWT token for authenticated API calls
         if (data.token) {
-            localStorage.setItem('caltrans_token', data.token);
+            localStorage.setItem(TOKEN_KEY, data.token);
         }
-        console.log('CaltransBizConnect: User logged in:', userData.email);
+        console.log(_appName + ': User logged in:', userData.email);
         return userData;
     } catch (error) {
-        console.error('CaltransBizConnect Login error detail:', error);
+        console.error(_appName + ' Login error detail:', error);
 
         // Handle specific network errors
         if (error instanceof TypeError && (error.message.includes('fetch') || error.message.includes('NetworkError'))) {
@@ -130,17 +140,17 @@ window.handleLogout = async function() {
             credentials: 'include' // Include cookies if using session auth
         });
     } catch (error) {
-        console.warn('CaltransBizConnect: Logout API call failed (continuing anyway):', error);
+        console.warn(_appName + ': Logout API call failed (continuing anyway):', error);
     }
 
     // Clear all client-side storage
-    localStorage.removeItem('caltrans_user');
-    localStorage.removeItem('caltrans_token');
+    localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem('userId');
     localStorage.removeItem('userType');
     sessionStorage.clear();
 
-    console.log('CaltransBizConnect: User session cleared');
+    console.log(_appName + ': User session cleared');
     // Redirect to login page
     window.location.href = 'login.html';
 }
@@ -168,14 +178,14 @@ async function registerSmallBusiness(formData) {
         }
 
         const user = data.user || data;
-        localStorage.setItem('caltrans_user', JSON.stringify(user));
-        if (data.token) localStorage.setItem('caltrans_token', data.token);
-        console.log('CaltransBizConnect: Small Business registered:', user.businessName || user.email);
+        localStorage.setItem(USER_KEY, JSON.stringify(user));
+        if (data.token) localStorage.setItem(TOKEN_KEY, data.token);
+        console.log(_appName + ': Small Business registered:', user.businessName || user.email);
         return user;
     } catch (error) {
         clearTimeout(timeout);
         if (error.name === 'AbortError') {
-            throw new Error('Registration timed out. The server is taking too long to respond. Please try again or contact us at smallbusinesses@dot.ca.gov.');
+            throw new Error('Registration timed out. The server is taking too long to respond. Please try again or contact us at ' + _supportEmail + '.');
         }
         // Mock fallback if API is unreachable
         if (error.message.includes('Failed to fetch') || error.message.includes('Server API is not responding')) {
@@ -213,14 +223,14 @@ async function registerPrimeContractor(formData) {
         }
 
         const user = data.user || data;
-        localStorage.setItem('caltrans_user', JSON.stringify(user));
-        if (data.token) localStorage.setItem('caltrans_token', data.token);
-        console.log('CaltransBizConnect: Prime Contractor registered:', user.organizationName || user.email);
+        localStorage.setItem(USER_KEY, JSON.stringify(user));
+        if (data.token) localStorage.setItem(TOKEN_KEY, data.token);
+        console.log(_appName + ': Prime Contractor registered:', user.organizationName || user.email);
         return user;
     } catch (error) {
         clearTimeout(timeout);
         if (error.name === 'AbortError') {
-            throw new Error('Registration timed out. The server is taking too long to respond. Please try again or contact us at smallbusinesses@dot.ca.gov.');
+            throw new Error('Registration timed out. The server is taking too long to respond. Please try again or contact us at ' + _supportEmail + '.');
         }
         // Mock fallback if API is unreachable
         if (error.message.includes('Failed to fetch') || error.message.includes('Server API is not responding')) {
@@ -431,7 +441,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // If on login page and already logged in, redirect
     if (window.location.pathname.endsWith('login.html') && isLoggedIn()) {
-        console.log('CaltransBizConnect: Already logged in, redirecting to dashboard.');
+        console.log(_appName + ': Already logged in, redirecting to dashboard.');
         redirectToDashboard(getCurrentUser());
     }
 
@@ -447,7 +457,7 @@ document.addEventListener('DOMContentLoaded', function () {
 window.Auth = {
     isLoggedIn,
     getUser: getCurrentUser,
-    getToken: () => localStorage.getItem('caltrans_token'),
+    getToken: () => localStorage.getItem(TOKEN_KEY),
     login,
     logout: window.logout,
     registerSmallBusiness,

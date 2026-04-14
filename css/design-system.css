@@ -1,11 +1,15 @@
 /**
- * CaltransBizConnect Design System
- * 
- * Implements Caltrans editorial and accessibility standards:
- * - Sans serif typography (Arial, Calibri) at 11-14pt
+ * Platform Design System
+ *
+ * Implements government accessibility standards:
+ * - Sans-serif typography (Arial, Calibri) at 11-14pt
  * - High contrast ratios for WCAG 2.1 AA compliance
  * - Accessible color system
  * - Consistent spacing and layout tokens
+ *
+ * NOTE: Brand colors are injected as overrides at runtime by agency.config.js.
+ * The hex values below are defaults only and should NOT be changed here.
+ * Edit window.AGENCY.colors in agency.config.js to rebrand.
  */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@600;700;800&display=swap');
@@ -45,16 +49,18 @@
   --line-height-normal: 1.5;
   --line-height-relaxed: 1.75;
 
-  /* Colors - Caltrans Brand */
-  --color-primary: #005A8C;
-  /* Caltrans Blue */
-  --color-primary-dark: #003D5C;
-  --color-primary-light: #0077B3;
+  /* Colors — Brand Palette
+   * Default values — overridden at runtime by agency.config.js.
+   * Do NOT hard-code agency colors here. Use CSS custom properties below
+   * and update window.AGENCY.colors in agency.config.js instead.
+   */
+  --color-primary: #0A1628;       /* Deep navy — overridden at runtime by agency.config.js */
+  --color-primary-dark: #060e1a;
+  --color-primary-light: #00B4D8; /* Electric cyan accent */
 
-  --color-secondary: #FFCC00;
-  /* Caltrans Gold (accent) */
-  --color-secondary-dark: #ccaa00;
-  --color-secondary-light: #ffdd44;
+  --color-secondary: #C9A84C;     /* Gold — overridden at runtime by agency.config.js */
+  --color-secondary-dark: #a88838;
+  --color-secondary-light: #d4b86a;
 
   --color-success: #2E7D32;
   --color-success-light: #E8F5E9;

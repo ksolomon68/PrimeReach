@@ -3,12 +3,12 @@
   "isSystem": true,
   "updatedAt": "2026-03-26T00:00:00.000Z",
   "meta": {
-    "title": "For Prime Contractors - CaltransBizConnect",
+    "title": "For Prime Contractors - PrimeReach",
     "description": "Prime Contractors: Post opportunities, find qualified Small Businesses, and manage your contracting needs."
   },
   "header": {
     "backgroundImage": "",
-    "logoImage": "images/caltrans-logo.png",
+    "logoImage": "images/logo.png",
     "logoAlt": "Caltrans"
   },
   "sections": [
@@ -17,7 +17,7 @@
       "type": "hero-inner",
       "fields": {
         "title": "For Prime Contractors",
-        "subtitle": "Find qualified Small Businesses, post structured opportunities, and streamline your contractor outreach with CaltransBizConnect.",
+        "subtitle": "Find qualified Small Businesses, post structured opportunities, and streamline your contractor outreach with PrimeReach.",
         "primaryButton": {
           "label": "Create Prime Contractor Account",
           "href": "register-prime-contractor.html"
@@ -32,7 +32,7 @@
       "id": "how-we-help",
       "type": "card-grid",
       "fields": {
-        "heading": "How CaltransBizConnect Helps Prime Contractors",
+        "heading": "How PrimeReach Helps Prime Contractors",
         "cards": [
           {
             "id": "post-opportunities",

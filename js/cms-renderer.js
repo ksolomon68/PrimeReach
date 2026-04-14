@@ -1,5 +1,5 @@
 /**
- * CMS Renderer — CaltransBizConnect
+ * CMS Renderer — PrimeReach
  *
  * Fetches page content and global settings from /api/cms and hydrates
  * data-cms-field attributes in the DOM. Must be included after all other

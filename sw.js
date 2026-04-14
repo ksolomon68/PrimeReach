@@ -1,14 +1,22 @@
 /**
- * CaltransBizConnect Service Worker v1.0.0
+ * Platform Service Worker
  * Strategy:
  *   - Static assets (CSS/JS/images/HTML):  Cache-first, fallback to network
  *   - API calls (/api/*):                  Network-first, fallback to cache
  *   - Navigations (HTML pages):            Network-first, fallback to cached page or offline shell
+ *
+ * REBRANDING: update AGENCY_STORAGE_PREFIX and AGENCY_APP_NAME below.
+ * These are the only agency-specific values in this file.
  */
 
+// ── Agency config (keep in sync with agency.config.js) ───────────────────────
+const AGENCY_STORAGE_PREFIX = 'primereach';   // storagePrefix value from agency.config.js
+const AGENCY_APP_NAME       = 'PrimeReach'; // name value from agency.config.js
+const AGENCY_LOGO_PATH      = '/images/logo.png'; // logoPath from agency.config.js
+
 const CACHE_VERSION = 'v1.0.6';
-const STATIC_CACHE  = `caltrans-static-${CACHE_VERSION}`;
-const API_CACHE     = `caltrans-api-${CACHE_VERSION}`;
+const STATIC_CACHE  = `${AGENCY_STORAGE_PREFIX}-static-${CACHE_VERSION}`;
+const API_CACHE     = `${AGENCY_STORAGE_PREFIX}-api-${CACHE_VERSION}`;
 const ALL_CACHES    = [STATIC_CACHE, API_CACHE];
 
 // Core static assets to pre-cache on install
@@ -41,7 +49,7 @@ const PRECACHE_ASSETS = [
   '/assets/favicon.ico',
   '/assets/favicon-32.png',
   '/assets/favicon-16.png',
-  '/images/caltrans-logo.png',
+  AGENCY_LOGO_PATH,
   '/assets/icon-192.png',
   '/assets/icon-512.png',
   '/assets/icon-maskable.png',
@@ -151,11 +159,11 @@ self.addEventListener('push', event => {
   if (!event.data) return;
   const data = event.data.json();
   event.waitUntil(
-    self.registration.showNotification(data.title || 'CaltransBizConnect', {
+    self.registration.showNotification(data.title || AGENCY_APP_NAME, {
       body: data.body || 'You have a new notification.',
       icon: '/assets/icon-192.png',
       badge: '/assets/icon-192.png',
-      tag: data.tag || 'caltrans-notification',
+      tag: data.tag || AGENCY_STORAGE_PREFIX + '-notification',
       data: { url: data.url || '/' }
     })
   );

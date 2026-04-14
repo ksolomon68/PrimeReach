@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 const content = `/**
- * CaltransBizConnect - Database Module (MySQL via mysql2)
+ * PrimeReach - Database Module (MySQL via mysql2)
  * Replaces better-sqlite3. Uses mysql2 connection pool for async/await.
  */
 
@@ -25,8 +25,8 @@ function getDb() {
 }
 
 async function initDatabase() {
-    console.log('CaltransBizConnect DB: Connecting to MySQL...');
-    console.log('CaltransBizConnect DB: host=' + process.env.DB_HOST + ' user=' + process.env.DB_USER + ' db=' + process.env.DB_NAME);
+    console.log('PrimeReach DB: Connecting to MySQL...');
+    console.log('PrimeReach DB: host=' + process.env.DB_HOST + ' user=' + process.env.DB_USER + ' db=' + process.env.DB_NAME);
 
     pool = mysql.createPool({
         host:               process.env.DB_HOST     || 'localhost',
@@ -43,7 +43,7 @@ async function initDatabase() {
     const conn = await pool.getConnection();
     await conn.ping();
     conn.release();
-    console.log('CaltransBizConnect DB: MySQL connection verified successfully.');
+    console.log('PrimeReach DB: MySQL connection verified successfully.');
 
     await pool.query('SET FOREIGN_KEY_CHECKS = 0');
 
@@ -141,7 +141,7 @@ async function initDatabase() {
         ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
 
     await pool.query('SET FOREIGN_KEY_CHECKS = 1');
-    console.log('CaltransBizConnect DB: All tables verified/created.');
+    console.log('PrimeReach DB: All tables verified/created.');
 }
 
 // Proxy allows \`const { db } = require('../database')\` to work after initDatabase()

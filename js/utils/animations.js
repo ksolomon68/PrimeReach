@@ -1,5 +1,5 @@
 /**
- * CaltransBizConnect Scroll Animation Utility
+ * PrimeReach Scroll Animation Utility
  * Uses Intersection Observer to trigger reveal animations
  */
 

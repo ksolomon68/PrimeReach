@@ -3,13 +3,13 @@
   "isSystem": true,
   "updatedAt": "2026-03-17T00:00:00.000Z",
   "meta": {
-    "title": "CaltransBizConnect - Connecting Businesses with Opportunities",
-    "description": "CaltransBizConnect connects Small Businesses with contracting opportunities and Prime Contractors with qualified partners. Your central hub for Caltrans business development."
+    "title": "PrimeReach - Connecting Businesses with Opportunities",
+    "description": "PrimeReach connects Small Businesses with contracting opportunities and Prime Contractors with qualified partners. Your central hub for Caltrans business development."
   },
   "header": {
     "backgroundImage": "",
-    "logoImage": "images/caltrans-logo.png",
-    "logoAlt": "CaltransBizConnect Logo"
+    "logoImage": "images/logo.png",
+    "logoAlt": "PrimeReach Logo"
   },
   "sections": [
     {
@@ -48,7 +48,7 @@
       "id": "value-tiles",
       "type": "tiles",
       "fields": {
-        "heading": "Why Choose CaltransBizConnect?",
+        "heading": "Why Choose PrimeReach?",
         "tiles": [
           {
             "id": "bid-readiness",
@@ -100,7 +100,7 @@
         "columns": [
           {
             "heading": "New to the Platform?",
-            "text": "Learn how CaltransBizConnect works and what you need to get started.",
+            "text": "Learn how PrimeReach works and what you need to get started.",
             "buttonLabel": "How It Works",
             "buttonHref": "how-it-works.html"
           },

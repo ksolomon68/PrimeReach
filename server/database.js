@@ -11,7 +11,7 @@ if (isLive) {
     dotenv.config({ path: path.join(__dirname, '../.env.production'), override: true });
 }
 
-console.log('CaltransBizConnect DB: Initializing MySQL Connection Pool...');
+console.log('PrimeReach DB: Initializing MySQL Connection Pool...');
 
 let pool;
 
@@ -30,9 +30,9 @@ function getDb() {
                 enableKeepAlive: true,
                 keepAliveInitialDelay: 10000
             });
-            console.log('CaltransBizConnect DB: MySQL Pool Created.');
+            console.log('PrimeReach DB: MySQL Pool Created.');
         } catch (err) {
-            console.error('CaltransBizConnect DB Error: Failed to create pool:', err.message);
+            console.error('PrimeReach DB Error: Failed to create pool:', err.message);
             throw err;
         }
     }
@@ -40,16 +40,16 @@ function getDb() {
 }
 
 async function initDatabase() {
-    console.log('CaltransBizConnect DB: Running initDatabase()...');
+    console.log('PrimeReach DB: Running initDatabase()...');
     const db = getDb();
 
     try {
-        console.log('CaltransBizConnect DB: Verifying connection...');
+        console.log('PrimeReach DB: Verifying connection...');
         await db.execute('SELECT 1');
-        console.log('CaltransBizConnect DB: Connection verified.');
+        console.log('PrimeReach DB: Connection verified.');
 
         // 1. Users Table
-        console.log('CaltransBizConnect DB: Ensuring "users" table exists...');
+        console.log('PrimeReach DB: Ensuring "users" table exists...');
         await db.execute(`
             CREATE TABLE IF NOT EXISTS users (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -80,7 +80,7 @@ async function initDatabase() {
         `);
 
         // 2. Opportunities Table
-        console.log('CaltransBizConnect DB: Ensuring "opportunities" table exists...');
+        console.log('PrimeReach DB: Ensuring "opportunities" table exists...');
         await db.execute(`
             CREATE TABLE IF NOT EXISTS opportunities (
                 id VARCHAR(100) PRIMARY KEY,
@@ -109,7 +109,7 @@ async function initDatabase() {
         `);
 
         // 3. Applications Table
-        console.log('CaltransBizConnect DB: Ensuring "applications" table exists...');
+        console.log('PrimeReach DB: Ensuring "applications" table exists...');
         await db.execute(`
             CREATE TABLE IF NOT EXISTS applications (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -128,7 +128,7 @@ async function initDatabase() {
         `);
 
         // 4. Saved Opportunities Table
-        console.log('CaltransBizConnect DB: Ensuring "saved_opportunities" table exists...');
+        console.log('PrimeReach DB: Ensuring "saved_opportunities" table exists...');
         await db.execute(`
             CREATE TABLE IF NOT EXISTS saved_opportunities (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -144,7 +144,7 @@ async function initDatabase() {
         `);
 
         // 5. Messages Table
-        console.log('CaltransBizConnect DB: Ensuring "messages" table exists...');
+        console.log('PrimeReach DB: Ensuring "messages" table exists...');
         await db.execute(`
             CREATE TABLE IF NOT EXISTS messages (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -167,7 +167,7 @@ async function initDatabase() {
         `);
 
         // 6. Districts Table
-        console.log('CaltransBizConnect DB: Ensuring "districts" table exists...');
+        console.log('PrimeReach DB: Ensuring "districts" table exists...');
         await db.execute(`
             CREATE TABLE IF NOT EXISTS districts (
                 id VARCHAR(50) PRIMARY KEY,
@@ -177,7 +177,7 @@ async function initDatabase() {
         `);
 
         // 7. Work Categories Table
-        console.log('CaltransBizConnect DB: Ensuring "work_categories" table exists...');
+        console.log('PrimeReach DB: Ensuring "work_categories" table exists...');
         await db.execute(`
             CREATE TABLE IF NOT EXISTS work_categories (
                 id VARCHAR(100) PRIMARY KEY,
@@ -186,7 +186,7 @@ async function initDatabase() {
         `);
 
         // 8. Notifications Table
-        console.log('CaltransBizConnect DB: Ensuring "notifications" table exists...');
+        console.log('PrimeReach DB: Ensuring "notifications" table exists...');
         await db.execute(`
             CREATE TABLE IF NOT EXISTS notifications (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -201,7 +201,7 @@ async function initDatabase() {
         `);
 
         // 9. CMS FAQs Table
-        console.log('CaltransBizConnect DB: Ensuring "cms_faqs" table exists...');
+        console.log('PrimeReach DB: Ensuring "cms_faqs" table exists...');
         await db.execute(`
             CREATE TABLE IF NOT EXISTS cms_faqs (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -221,7 +221,7 @@ async function initDatabase() {
         // Seed default FAQs if the table is empty
         const [[{ faqCount }]] = await db.execute('SELECT COUNT(*) AS faqCount FROM cms_faqs');
         if (faqCount === 0) {
-            console.log('CaltransBizConnect DB: Seeding default FAQs...');
+            console.log('PrimeReach DB: Seeding default FAQs...');
             const defaultFaqs = [
                 ['General Questions', 0, 'Do I need to be Small Business certified to use the platform?', '<p>No, you don\'t need Small Business certification to create an account and browse opportunities. However, some opportunities may require Small Business certification. Check the requirements for each opportunity listing.</p><p><strong>How do I get Small Business certified?</strong> Visit our <a href="eligibility.html">Eligibility page</a> to learn about the Small Business certification process, requirements, and how to apply.</p>'],
                 ['General Questions', 1, 'What is a capability statement?', '<p>A capability statement is a one-page document that showcases your business qualifications, past performance, and capabilities. It\'s like a resume for your business.</p><p>You can download our template from the <a href="resources.html">Resources page</a>. Capability statements must be uploaded as PDF files with a maximum size of 10MB.</p>'],
@@ -237,8 +237,8 @@ async function initDatabase() {
                 ['For Prime Contractors', 3, 'Can I edit an opportunity after it\'s posted?', '<p>Yes, you can edit your posted opportunities through your prime contractor dashboard. Updates will be reflected immediately on the platform.</p>'],
                 ['For Prime Contractors', 4, 'How do I search for qualified small businesses?', '<p>Use the small business search feature in your dashboard to filter by work category, district, and certification status. You can review small business profiles and capability statements to find qualified partners.</p>'],
                 ['For Prime Contractors', 5, 'What are the quality standards for opportunity postings?', '<p>All postings must include complete project information, clear requirements, realistic timelines, and accurate contact details. This ensures small businesses can make informed decisions about applying.</p>'],
-                ['Technical Questions', 0, 'What browsers are supported?', '<p>CaltransBizConnect works best on the latest versions of Chrome, Firefox, Safari, and Edge. We recommend keeping your browser updated for the best experience.</p>'],
-                ['Technical Questions', 1, 'Is the platform mobile-friendly?', '<p>Yes, CaltransBizConnect is fully responsive and works on smartphones, tablets, and desktop computers.</p>'],
+                ['Technical Questions', 0, 'What browsers are supported?', '<p>PrimeReach works best on the latest versions of Chrome, Firefox, Safari, and Edge. We recommend keeping your browser updated for the best experience.</p>'],
+                ['Technical Questions', 1, 'Is the platform mobile-friendly?', '<p>Yes, PrimeReach is fully responsive and works on smartphones, tablets, and desktop computers.</p>'],
                 ['Technical Questions', 2, 'Is my information secure?', '<p>Yes, we use industry-standard security measures to protect your data. Your personal information is never shared without your consent.</p>'],
                 ['Technical Questions', 3, 'I forgot my password. How do I reset it?', '<p>Click the "Forgot Password" link on the login page and follow the instructions to reset your password via email.</p>'],
             ];
@@ -248,11 +248,11 @@ async function initDatabase() {
                     [category, sort_order, question, answer]
                 );
             }
-            console.log(`CaltransBizConnect DB: Seeded ${defaultFaqs.length} default FAQs.`);
+            console.log(`PrimeReach DB: Seeded ${defaultFaqs.length} default FAQs.`);
         }
 
         // Terminlogy Migrations for existing live databases
-        console.log('CaltransBizConnect DB: Running terminology data migrations...');
+        console.log('PrimeReach DB: Running terminology data migrations...');
         try {
             // Update user types
             await db.execute("UPDATE users SET type = 'small_business' WHERE type = 'vendor' OR type = 'small business'");
@@ -273,11 +273,11 @@ async function initDatabase() {
                 await db.execute("ALTER TABLE saved_opportunities CHANGE vendor_id small_business_id INT NOT NULL");
             }
         } catch (migErr) {
-            console.warn('CaltransBizConnect DB: Terminology migration warning:', migErr.message);
+            console.warn('PrimeReach DB: Terminology migration warning:', migErr.message);
         }
 
         // Safe migrations — add columns that may be missing from existing tables
-        console.log('CaltransBizConnect DB: Running safe column migrations...');
+        console.log('PrimeReach DB: Running safe column migrations...');
         const migrations = [
             `ALTER TABLE users ADD COLUMN IF NOT EXISTS capability_statement TEXT`,
             `ALTER TABLE users ADD COLUMN IF NOT EXISTS website VARCHAR(255)`,
@@ -300,7 +300,7 @@ async function initDatabase() {
         for (const sql of migrations) {
             await db.execute(sql).catch(() => {}); // Ignore if column already exists
         }
-        console.log('CaltransBizConnect DB: Migrations complete.');
+        console.log('PrimeReach DB: Migrations complete.');
 
         // Password Reset Tokens Table
         await db.execute(`
@@ -318,7 +318,7 @@ async function initDatabase() {
             )
         `);
 
-        console.log('CaltransBizConnect DB: All MySQL tables initialized successfully.');
+        console.log('PrimeReach DB: All MySQL tables initialized successfully.');
 
         // Cleanup expired tokens every hour
         setInterval(async () => {
@@ -328,14 +328,14 @@ async function initDatabase() {
                     'DELETE FROM password_reset_tokens WHERE expires_at < NOW() OR used = TRUE'
                 );
                 if (result.affectedRows > 0) {
-                    console.log(`CaltransBizConnect DB: Cleaned up ${result.affectedRows} expired/used reset tokens.`);
+                    console.log(`PrimeReach DB: Cleaned up ${result.affectedRows} expired/used reset tokens.`);
                 }
             } catch (e) {
-                console.error('CaltransBizConnect DB: Token cleanup error:', e.message);
+                console.error('PrimeReach DB: Token cleanup error:', e.message);
             }
         }, 60 * 60 * 1000);
     } catch (err) {
-        console.error('CaltransBizConnect DB CRITICAL ERROR: Database initialization failed.');
+        console.error('PrimeReach DB CRITICAL ERROR: Database initialization failed.');
         console.error(err);
         // Do not rethrow here to prevent server crash during startup, 
         // but health check will reflect the error.

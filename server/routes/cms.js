@@ -347,7 +347,7 @@ router.post('/pages', requireAdmin, (req, res) => {
         },
         header: {
             backgroundImage: '',
-            logoImage:       'images/caltrans-logo.png',
+            logoImage:       'images/logo.png',
             logoAlt:         'Caltrans'
         },
         sections:  sections || [],

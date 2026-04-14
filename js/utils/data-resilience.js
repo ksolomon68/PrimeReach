@@ -27,13 +27,13 @@ const DataService = {
             }
             return await response.json();
         } catch (error) {
-            console.error(`CaltransBizConnect: Fetch failed for ${endpoint}:`, error);
+            console.error(`PrimeReach: Fetch failed for ${endpoint}:`, error);
 
             const isGet = !options.method || options.method.toUpperCase() === 'GET';
             const useMock = (window.APP_CONFIG && window.APP_CONFIG.FEATURES) ? window.APP_CONFIG.FEATURES.USE_MOCK_FALLBACK : true;
 
             if (useMock && isGet) {
-                console.info(`CaltransBizConnect: Returning mock fallback for ${endpoint}`);
+                console.info(`PrimeReach: Returning mock fallback for ${endpoint}`);
                 return DataService.getMockData(endpoint);
             }
             throw error;

@@ -1,18 +1,34 @@
 /**
- * CaltransBizConnect Application Configuration
+ * Application Runtime Configuration
+ *
+ * Agency-specific values (domain, name, colors) live in agency.config.js.
+ * This file only derives runtime settings (API base URL, environment) from
+ * window.AGENCY so that core code remains agency-agnostic.
+ *
+ * Load order in HTML:  agency.config.js  →  config.js  →  auth.js  →  …
  */
-const isProduction = window.location.hostname === 'caltransbizconnect.org' ||
-    window.location.hostname === 'www.caltransbizconnect.org' ||
-    (window.location.protocol === 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1');
 
-// Prefer relative path if on the same origin (works for both local and production if served by Node)
-const baseApiUrl = isProduction ? 'https://caltransbizconnect.org/api' : '/api';
+(function () {
+  const agency = window.AGENCY || {};
+  const prodDomain = agency.domain || 'example.gov';
 
-window.APP_CONFIG = {
-    API_URL: baseApiUrl,
+  const isProduction =
+    window.location.hostname === prodDomain ||
+    window.location.hostname === 'www.' + prodDomain ||
+    (window.location.protocol === 'https:' &&
+      window.location.hostname !== 'localhost' &&
+      window.location.hostname !== '127.0.0.1');
+
+  // Prefer relative path if served by the same Node process (works both locally
+  // and in production without hard-coding the domain).
+  const baseApiUrl = isProduction ? 'https://' + prodDomain + '/api' : '/api';
+
+  window.APP_CONFIG = {
+    API_URL:     baseApiUrl,
     ENVIRONMENT: isProduction ? 'production' : 'development',
-    VERSION: '2.0.9',
+    VERSION:     '2.0.9',
     FEATURES: {
-        USE_MOCK_FALLBACK: false
+      USE_MOCK_FALLBACK: false
     }
-};
+  };
+}());

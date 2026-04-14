@@ -1,5 +1,5 @@
 /* ============================================================
-   Admin CMS Stylesheet — CaltransBizConnect
+   Admin CMS Stylesheet — PrimeReach
    Caltrans style-guide compliant. Mobile-responsive.
    ============================================================ */
 
@@ -8,9 +8,9 @@
 
 :root {
     /* Brand */
-    --cms-primary:       #005A8C;
+    --cms-primary:       #0A1628;
     --cms-primary-dark:  #003F63;
-    --cms-accent:        #FFCC00;
+    --cms-accent:        #C9A84C;
     --cms-accent-text:   #000000;
 
     /* Neutrals */

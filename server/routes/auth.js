@@ -34,7 +34,7 @@ router.post('/register', async (req, res) => {
         });
     }
 
-    console.log(`CaltransBizConnect Auth: Registration attempt for ${email} (${type})`);
+    console.log(`PrimeReach Auth: Registration attempt for ${email} (${type})`);
 
     try {
         const password_hash = await bcrypt.hash(password, 10);
@@ -60,13 +60,13 @@ router.post('/register', async (req, res) => {
             profileData.website || null
         ]);
 
-        console.log(`CaltransBizConnect Auth: Registration successful for ${email}, ID: ${result.insertId}`);
+        console.log(`PrimeReach Auth: Registration successful for ${email}, ID: ${result.insertId}`);
 
         // Send welcome email (non-blocking)
         const userName = profileData.contactName || profileData.contact_name || profileData.businessName || profileData.business_name || 'there';
         const { html: welcomeHtml, text: welcomeText } = getWelcomeEmail(userName, type);
-        sendEmail({ to: email, subject: 'Welcome to CaltransBizConnect!', html: welcomeHtml, text: welcomeText })
-            .catch(err => console.error('CaltransBizConnect Auth: Welcome email failed:', err.message));
+        sendEmail({ to: email, subject: 'Welcome to PrimeReach!', html: welcomeHtml, text: welcomeText })
+            .catch(err => console.error('PrimeReach Auth: Welcome email failed:', err.message));
         const [rows] = await db.execute('SELECT * FROM users WHERE id = ?', [result.insertId]);
         const newUser = rows[0];
         const { password_hash: _, ...userWithoutPassword } = newUser;
@@ -84,7 +84,7 @@ router.post('/register', async (req, res) => {
             user: userWithoutPassword
         });
     } catch (error) {
-        console.error(`CaltransBizConnect Auth Error during registration for ${email}:`, error);
+        console.error(`PrimeReach Auth Error during registration for ${email}:`, error);
         if (error.code === 'ER_DUP_ENTRY' || (error.message && error.message.includes('UNIQUE constraint failed'))) {
             return res.status(409).json({
                 success: false,
@@ -111,7 +111,7 @@ router.post('/login', async (req, res) => {
         });
     }
 
-    console.log(`CaltransBizConnect Auth: Login attempt for ${email}`);
+    console.log(`PrimeReach Auth: Login attempt for ${email}`);
 
     try {
         const [rows] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
@@ -119,14 +119,14 @@ router.post('/login', async (req, res) => {
         const match = user ? await bcrypt.compare(password, user.password_hash) : false;
 
         if (!user || !match) {
-            console.warn(`CaltransBizConnect Auth Fail: [${email}] userFound=${!!user}, passwordMatch=${match}`);
+            console.warn(`PrimeReach Auth Fail: [${email}] userFound=${!!user}, passwordMatch=${match}`);
             return res.status(401).json({
                 success: false,
                 message: 'Invalid email or password'
             });
         }
 
-        console.log(`CaltransBizConnect Auth: Login successful for ${email}`);
+        console.log(`PrimeReach Auth: Login successful for ${email}`);
         const { password_hash, ...userWithoutPassword } = user;
 
         const token = jwt.sign(
@@ -142,7 +142,7 @@ router.post('/login', async (req, res) => {
             user: userWithoutPassword
         });
     } catch (error) {
-        console.error(`CaltransBizConnect Auth Error during login for ${email}:`, error);
+        console.error(`PrimeReach Auth Error during login for ${email}:`, error);
         res.status(500).json({
             success: false,
             message: 'Server error during login',
@@ -220,7 +220,7 @@ router.post('/logout', (req, res) => {
     try {
         // In a session-based auth system, we would clear server-side sessions here
         // For now, client-side clears localStorage
-        console.log('CaltransBizConnect Auth: User logged out');
+        console.log('PrimeReach Auth: User logged out');
         res.json({ success: true, message: 'Logged out successfully' });
     } catch (error) {
         console.error('Logout error:', error);

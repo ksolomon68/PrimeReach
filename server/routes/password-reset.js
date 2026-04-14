@@ -7,7 +7,7 @@ const { db } = require('../database');
 const { sendEmail, getPasswordResetEmail } = require('../config/email');
 
 const router = express.Router();
-const APP_URL = process.env.APP_URL || 'https://caltransbizconnect.org';
+const APP_URL = process.env.APP_URL || 'https://primereachgov.com';
 
 function hashToken(token) {
     return crypto.createHash('sha256').update(token).digest('hex');
@@ -49,12 +49,12 @@ router.post('/request-reset', async (req, res) => {
 
             await sendEmail({
                 to: email,
-                subject: 'Reset Your CaltransBizConnect Password',
+                subject: 'Reset Your PrimeReach Password',
                 html,
                 text
             });
 
-            console.log(`CaltransBizConnect: Password reset requested for ${email}`);
+            console.log(`PrimeReach: Password reset requested for ${email}`);
         }
 
         res.json({ success: true, message: successMessage });
@@ -133,7 +133,7 @@ router.post('/reset-password', async (req, res) => {
         await db.execute('UPDATE users SET password_hash = ? WHERE id = ?', [password_hash, record.user_id]);
         await db.execute('UPDATE password_reset_tokens SET used = TRUE WHERE id = ?', [record.id]);
 
-        console.log(`CaltransBizConnect: Password reset completed for user ${record.user_id}`);
+        console.log(`PrimeReach: Password reset completed for user ${record.user_id}`);
         res.json({ success: true, message: 'Password updated successfully. You can now log in.' });
     } catch (err) {
         console.error('Password reset error:', err);

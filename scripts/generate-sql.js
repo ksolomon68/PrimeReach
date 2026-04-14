@@ -13,7 +13,7 @@ async function generateSQL() {
     }
 
     const data = JSON.parse(fs.readFileSync(dataExportPath, 'utf-8'));
-    let sql = `-- CaltransBizConnect MySQL Dump\n-- Generated on ${new Date().toISOString()}\n\n`;
+    let sql = `-- PrimeReach MySQL Dump\n-- Generated on ${new Date().toISOString()}\n\n`;
 
     sql += `SET FOREIGN_KEY_CHECKS=0;\n\n`;
 

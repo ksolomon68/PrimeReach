@@ -4,11 +4,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@600;700;800&display=swap');
 
 :root {
-  --color-primary: #005A8C;
-  --color-primary-dark: #003D5C;
-  --color-primary-light: #0077B3;
-  --color-secondary: #FFCC00;
-  --color-secondary-dark: #ccaa00;
+  --color-primary: #0A1628;
+  --color-primary-dark: #060e1a;
+  --color-primary-light: #00B4D8;
+  --color-secondary: #C9A84C;
+  --color-secondary-dark: #a88838;
   --color-bg-primary: #FFFFFF;
   --color-bg-secondary: #F5F5F5;
   --color-text-primary: #000000;

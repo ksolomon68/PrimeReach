@@ -3,12 +3,12 @@
   "isSystem": true,
   "updatedAt": "2026-03-17T00:00:00.000Z",
   "meta": {
-    "title": "For Small Businesses - CaltransBizConnect",
+    "title": "For Small Businesses - PrimeReach",
     "description": "Small Businesses: Find contracting opportunities, upload your capability statement, and connect with Caltrans agencies."
   },
   "header": {
     "backgroundImage": "",
-    "logoImage": "images/caltrans-logo.png",
+    "logoImage": "images/logo.png",
     "logoAlt": "Caltrans"
   },
   "sections": [
@@ -26,7 +26,7 @@
       "id": "how-we-help",
       "type": "card-grid",
       "fields": {
-        "heading": "How CaltransBizConnect Helps You Succeed",
+        "heading": "How PrimeReach Helps You Succeed",
         "cards": [
           {
             "id": "find-opportunities",
