@@ -318,6 +318,119 @@ async function initDatabase() {
             )
         `);
 
+        // Workers Table (Portal 2 — Labor)
+        console.log('PrimeReach DB: Ensuring "workers" table exists...');
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS workers (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                full_name VARCHAR(100) NOT NULL,
+                email VARCHAR(100) UNIQUE NOT NULL,
+                phone VARCHAR(30),
+                trade_category VARCHAR(50),
+                skills JSON,
+                certifications JSON,
+                years_experience INT,
+                sam_registered TINYINT(1) DEFAULT 0,
+                business_entity VARCHAR(30),
+                city VARCHAR(80),
+                state VARCHAR(2),
+                zip VARCHAR(10),
+                travel_willingness ENUM('local','100mi','regional','national') DEFAULT 'local',
+                resume_path VARCHAR(255),
+                profile_complete TINYINT(1) DEFAULT 0,
+                status VARCHAR(20) DEFAULT 'active',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        `);
+
+        // NAICS Codes Table with seed data
+        console.log('PrimeReach DB: Ensuring "naics_codes" table exists...');
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS naics_codes (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                code VARCHAR(10) NOT NULL,
+                description VARCHAR(255) NOT NULL,
+                trade_category VARCHAR(50),
+                portal ENUM('business','labor','both') DEFAULT 'labor',
+                avg_contract_size VARCHAR(50),
+                set_aside_eligible TINYINT(1) DEFAULT 1,
+                INDEX idx_trade (trade_category),
+                INDEX idx_code (code)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        `);
+
+        // Seed NAICS codes if the table is empty
+        const [[{ naicsCount }]] = await db.execute('SELECT COUNT(*) AS naicsCount FROM naics_codes');
+        if (naicsCount === 0) {
+            console.log('PrimeReach DB: Seeding NAICS codes...');
+            const naicsSeed = [
+                ['484110','General Freight Trucking, Local','cdl-trucking','labor','$50K–$500K',1],
+                ['484121','General Freight Trucking, Long-Distance, TL','cdl-trucking','labor','$100K–$2M',1],
+                ['484122','General Freight Trucking, Long-Distance, LTL','cdl-trucking','labor','$100K–$2M',1],
+                ['488490','Other Support Activities for Road Transportation','cdl-trucking','labor','$25K–$250K',1],
+                ['238110','Poured Concrete Foundation and Structure Contractors','concrete-cement','labor','$500K–$5M',1],
+                ['238190','Other Foundation, Structure, and Building Exterior Contractors','concrete-cement','labor','$250K–$2M',1],
+                ['237310','Highway, Street, and Bridge Construction','concrete-cement','labor','$1M–$50M',1],
+                ['236220','Commercial and Institutional Building Construction','construction','labor','$1M–$100M',1],
+                ['237110','Water and Sewer Line and Related Structures Construction','construction','labor','$500K–$20M',1],
+                ['238900','Other Specialty Trade Contractors','construction','labor','$100K–$5M',1],
+                ['237130','Power and Communication Line and Related Structures Construction','fiber-broadband','labor','$500K–$50M',1],
+                ['517311','Wired Telecommunications Carriers','fiber-broadband','labor','$1M–$100M',1],
+                ['238210','Electrical Contractors and Other Wiring Installation Contractors','cell-site-tech','labor','$250K–$10M',1],
+                ['517410','Satellite Telecommunications','structured-cabling','labor','$500K–$20M',1],
+                ['541512','Computer Systems Design Services','cloud-network-infra','labor','$500K–$50M',1],
+                ['517210','Wireless Telecommunications Carriers','cloud-network-infra','labor','$1M–$100M',1],
+                ['332312','Fabricated Structural Metal Manufacturing','welding-fabrication','labor','$250K–$5M',1],
+                ['332313','Plate Work Manufacturing','welding-fabrication','labor','$100K–$2M',1],
+                ['811310','Commercial and Industrial Machinery and Equipment Repair and Maintenance','welding-fabrication','labor','$50K–$1M',1],
+                ['238220','Plumbing, Heating, and Air-Conditioning Contractors','plumbing-hvac','labor','$250K–$5M',1],
+                ['561730','Landscaping Services','landscaping','labor','$25K–$500K',1],
+                ['541511','Custom Computer Programming Services','it-support','labor','$100K–$5M',1],
+                ['811212','Computer and Office Machine Repair and Maintenance','it-support','labor','$25K–$500K',1],
+                ['561110','Office Administrative Services','admin-clerical','labor','$25K–$500K',1],
+                ['561320','Temporary Help Services','admin-clerical','labor','$100K–$2M',1],
+            ];
+            for (const [code, description, trade_category, portal, avg_contract_size, set_aside_eligible] of naicsSeed) {
+                await db.execute(
+                    'INSERT INTO naics_codes (code, description, trade_category, portal, avg_contract_size, set_aside_eligible) VALUES (?,?,?,?,?,?)',
+                    [code, description, trade_category, portal, avg_contract_size, set_aside_eligible]
+                ).catch(() => {});
+            }
+            console.log(`PrimeReach DB: Seeded ${naicsSeed.length} NAICS codes.`);
+        }
+
+        // Checklist Progress Table
+        console.log('PrimeReach DB: Ensuring "checklist_progress" table exists...');
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS checklist_progress (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_type ENUM('business','worker') NOT NULL,
+                user_id INT NOT NULL,
+                track VARCHAR(20) NOT NULL,
+                item_key VARCHAR(80) NOT NULL,
+                completed TINYINT(1) DEFAULT 0,
+                completed_at TIMESTAMP NULL,
+                UNIQUE KEY uq_progress (user_type, user_id, track, item_key),
+                INDEX idx_user (user_type, user_id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        `);
+
+        // Labor Connections Table
+        console.log('PrimeReach DB: Ensuring "labor_connections" table exists...');
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS labor_connections (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                prime_id INT,
+                worker_id INT NOT NULL,
+                message TEXT,
+                status ENUM('pending','accepted','declined') DEFAULT 'pending',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_prime (prime_id),
+                INDEX idx_worker (worker_id),
+                FOREIGN KEY (worker_id) REFERENCES workers(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        `);
+
         console.log('PrimeReach DB: All MySQL tables initialized successfully.');
 
         // Cleanup expired tokens every hour

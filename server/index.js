@@ -213,6 +213,7 @@ const startServer = async () => {
         app.use('/api/admin', require('./routes/admin'));
         app.use('/api/upload-cs', require('./routes/upload'));
         app.use('/api/small-businesses', require('./routes/small-businesses'));
+        app.use('/api/workers', require('./routes/workers'));
         app.use('/api/cms', require('./routes/cms'));
         app.use('/api/filters', require('./routes/filters'));
         app.use('/api/password-reset', require('./routes/password-reset'));
@@ -243,6 +244,11 @@ const startServer = async () => {
                 uploads: uploadsWritable ? 'ok' : 'error'
             });
         });
+
+        // Portal route shortcuts
+        app.get('/labor', (req, res) => res.redirect('/labor.html'));
+        app.get('/business', (req, res) => res.redirect('/register-small-business.html'));
+        app.get('/prime', (req, res) => res.redirect('/register-prime-contractor.html'));
 
         // Explicit Root Route for HTML
         app.get('*', (req, res, next) => {
