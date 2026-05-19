@@ -15,7 +15,13 @@
       "Bash(curl -s http://localhost:3002/admin-cms.html)",
       "Bash(node server/index.js)",
       "Bash(npm install:*)",
-      "Bash(node -e ':*)"
+      "Bash(node -e ':*)",
+      "mcp__3650e07a-3758-4d14-9a61-0eda635045ec__get_publishable_keys",
+      "mcp__3650e07a-3758-4d14-9a61-0eda635045ec__list_tables",
+      "mcp__3650e07a-3758-4d14-9a61-0eda635045ec__list_migrations",
+      "mcp__3650e07a-3758-4d14-9a61-0eda635045ec__apply_migration",
+      "mcp__3650e07a-3758-4d14-9a61-0eda635045ec__execute_sql",
+      "mcp__3650e07a-3758-4d14-9a61-0eda635045ec__deploy_edge_function"
     ]
   }
 }
