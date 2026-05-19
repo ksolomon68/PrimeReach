@@ -28,23 +28,6 @@
 html{scroll-behavior:smooth}
 body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--off-white);min-height:100vh}
 
-/* ── AUTH GATE ── */
-#authGate{position:fixed;inset:0;background:var(--navy);z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px}
-#authGate.hidden{display:none}
-.auth-box{background:var(--navy-mid);border:1px solid var(--card-border);border-radius:16px;padding:52px 48px;max-width:420px;width:100%;text-align:center}
-.auth-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;margin-bottom:8px}
-.auth-logo span{color:var(--teal)}
-.auth-eyebrow{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:28px}
-.auth-title{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;margin-bottom:8px}
-.auth-sub{font-size:14px;color:var(--muted);margin-bottom:32px;line-height:1.6}
-.auth-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;color:var(--off-white);font-family:'DM Sans',sans-serif;font-size:15px;margin-bottom:16px;transition:border-color 0.2s}
-.auth-input:focus{outline:none;border-color:var(--teal)}
-.auth-btn{width:100%;background:var(--teal);color:var(--navy);padding:15px;border-radius:8px;font-family:'Syne',sans-serif;font-weight:800;font-size:16px;border:none;cursor:pointer;transition:background 0.2s}
-.auth-btn:hover{background:#00bfa0}
-.auth-btn:disabled{opacity:.5;cursor:not-allowed}
-.auth-msg{margin-top:16px;font-size:13px;color:var(--teal);min-height:20px}
-.auth-msg.err{color:var(--red)}
-
 /* ── TOP BAR ── */
 .topbar{background:rgba(10,22,40,0.95);backdrop-filter:blur(14px);border-bottom:1px solid var(--card-border);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
 .topbar-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px}
@@ -190,19 +173,6 @@ main{max-width:1280px;margin:0 auto;padding:32px 24px}
 </head>
 <body>
 
-<!-- AUTH GATE -->
-<div id="authGate">
-  <div class="auth-box">
-    <div class="auth-logo">Prime<span>Reach</span></div>
-    <div class="auth-eyebrow">Owner Admin — EVOBRAND Concepts</div>
-    <h2 class="auth-title">License Dashboard</h2>
-    <p class="auth-sub">Enter your email to receive a secure magic link. Access is restricted to authorized administrators.</p>
-    <input type="email" class="auth-input" id="authEmail" placeholder="ks@evobrand.net" value="ks@evobrand.net">
-    <button class="auth-btn" id="authBtn" onclick="sendMagicLink()">Send Login Link</button>
-    <p class="auth-msg" id="authMsg"></p>
-  </div>
-</div>
-
 <!-- TOP BAR -->
 <div class="topbar">
   <div class="topbar-logo">Prime<span>Reach</span> &nbsp;<span style="color:var(--muted);font-size:14px;font-weight:400">License Admin</span></div>
@@ -212,7 +182,7 @@ main{max-width:1280px;margin:0 auto;padding:32px 24px}
       View Licensing Page
     </a>
     <span class="admin-badge">EVOBRAND OWNER</span>
-    <button class="logout-btn" onclick="logout()">Sign Out</button>
+    <button class="logout-btn" onclick="logout()" title="Sign out">Sign Out</button>
   </div>
 </div>
 
@@ -494,56 +464,18 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
 let caltransLicense = null;
 let activeRequestData = null;
 
-// ── AUTH ──
-async function init() {
-  const { data: { session } } = await sb.auth.getSession();
-  if (session && session.user?.email === ADMIN_EMAIL) {
-    showDashboard();
-    loadAll();
-  }
-  // Listen for auth state changes (magic link callback)
-  sb.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_IN' && session?.user?.email === ADMIN_EMAIL) {
-      showDashboard();
-      loadAll();
-    } else if (event === 'SIGNED_IN' && session?.user?.email !== ADMIN_EMAIL) {
-      sb.auth.signOut();
-      document.getElementById('authMsg').className = 'auth-msg err';
-      document.getElementById('authMsg').textContent = 'Access denied. Authorized users only.';
-    }
+// ── AUTH — handled by Apache .htaccess Basic Auth ──
+function init() {
+  loadAll();
+}
+
+function logout() {
+  // Force the browser to drop the Basic Auth credentials
+  fetch(window.location.href, {
+    headers: { Authorization: 'Basic ' + btoa('logout:logout') }
+  }).catch(() => {}).finally(() => {
+    window.location.reload();
   });
-}
-
-function showDashboard() {
-  document.getElementById('authGate').classList.add('hidden');
-}
-
-async function sendMagicLink() {
-  const email = document.getElementById('authEmail').value.trim();
-  const btn = document.getElementById('authBtn');
-  const msg = document.getElementById('authMsg');
-  if (!email) return;
-  btn.disabled = true;
-  btn.textContent = 'Sending...';
-  const { error } = await sb.auth.signInWithOtp({
-    email,
-    options: { emailRedirectTo: 'https://primereachgov.com/admin/licenses.html' }
-  });
-  if (error) {
-    msg.className = 'auth-msg err';
-    msg.textContent = 'Error: ' + error.message;
-    btn.disabled = false;
-    btn.textContent = 'Send Login Link';
-  } else {
-    msg.className = 'auth-msg';
-    msg.textContent = 'Magic link sent! Check your inbox.';
-    btn.textContent = 'Link Sent ✓';
-  }
-}
-
-async function logout() {
-  await sb.auth.signOut();
-  window.location.reload();
 }
 
 // ── DATA LOADING ──
