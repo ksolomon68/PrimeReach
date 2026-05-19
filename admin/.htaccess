@@ -1,4 +1,4 @@
 AuthType Basic
 AuthName "PrimeReach License Admin"
-AuthUserFile /home/u579331817/.htpasswd-primereach-admin
+AuthUserFile /home/u579331817/public_html/admin/.htpasswd-primereach-admin
 Require valid-user
