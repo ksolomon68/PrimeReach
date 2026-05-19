@@ -410,63 +410,52 @@ main{max-width:1280px;margin:0 auto;padding:32px 24px}
 <!-- NEW LICENSE MODAL -->
 <div class="modal-overlay" id="newLicenseModal">
   <div class="modal">
-    <h3>Create New License</h3>
-    <div class="modal-grid">
+    <h3>New License</h3>
+    <div style="display:flex;flex-direction:column;gap:14px">
       <div class="modal-group">
         <label class="modal-label">Agency Name *</label>
-        <input type="text" class="modal-input" id="nl_agency" required>
-      </div>
-      <div class="modal-group">
-        <label class="modal-label">Department</label>
-        <input type="text" class="modal-input" id="nl_dept">
-      </div>
-      <div class="modal-group">
-        <label class="modal-label">Holder Org *</label>
-        <input type="text" class="modal-input" id="nl_holderOrg" required>
-      </div>
-      <div class="modal-group">
-        <label class="modal-label">Holder Contact *</label>
-        <input type="text" class="modal-input" id="nl_holderContact" required>
+        <input type="text" class="modal-input" id="nl_agency" placeholder="e.g. California DOT">
       </div>
       <div class="modal-group">
         <label class="modal-label">Holder Email *</label>
-        <input type="email" class="modal-input" id="nl_holderEmail" required>
+        <input type="email" class="modal-input" id="nl_holderEmail" placeholder="contact@agency.gov">
+      </div>
+      <div class="modal-group">
+        <label class="modal-label">Phone</label>
+        <input type="tel" class="modal-input" id="nl_holderPhone" placeholder="(000) 000-0000">
       </div>
       <div class="modal-group">
         <label class="modal-label">Domain</label>
         <input type="text" class="modal-input" id="nl_domain" placeholder="agency.gov">
       </div>
-      <div class="modal-group">
-        <label class="modal-label">Tier *</label>
-        <select class="modal-select" id="nl_tier">
-          <option value="starter">Starter</option>
-          <option value="professional" selected>Professional</option>
-          <option value="enterprise">Enterprise</option>
-        </select>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="modal-group">
+          <label class="modal-label">Tier</label>
+          <select class="modal-select" id="nl_tier">
+            <option value="starter">Starter</option>
+            <option value="professional" selected>Professional</option>
+            <option value="enterprise">Enterprise</option>
+          </select>
+        </div>
+        <div class="modal-group">
+          <label class="modal-label">Billing</label>
+          <select class="modal-select" id="nl_billing">
+            <option value="monthly">Monthly</option>
+            <option value="annual">Annual</option>
+          </select>
+        </div>
       </div>
       <div class="modal-group">
-        <label class="modal-label">Billing</label>
-        <select class="modal-select" id="nl_billing">
-          <option value="monthly">Monthly</option>
-          <option value="annual">Annual</option>
-        </select>
-      </div>
-      <div class="modal-group">
-        <label class="modal-label">Monthly Rate ($)</label>
-        <input type="number" class="modal-input" id="nl_monthly" placeholder="9500">
-      </div>
-      <div class="modal-group">
-        <label class="modal-label">Annual Rate ($)</label>
-        <input type="number" class="modal-input" id="nl_annual" placeholder="95000">
-      </div>
-      <div class="modal-group full">
         <label class="modal-label">Notes</label>
-        <textarea class="modal-textarea" id="nl_notes"></textarea>
+        <textarea class="modal-textarea" id="nl_notes" placeholder="Internal notes..."></textarea>
       </div>
     </div>
     <div class="modal-actions">
       <button class="modal-btn cancel" onclick="closeModal('newLicenseModal')">Cancel</button>
       <button class="modal-btn primary" onclick="createLicense()">Create License</button>
+    </div>
+  </div>
+</div>
     </div>
   </div>
 </div>
@@ -519,19 +508,22 @@ function init() {
   }
 }
 
+// ── RPC HELPER ──
+async function adm(op, payload = {}) {
+  const { data, error } = await sb.rpc('license_admin', { op, payload });
+  if (error) throw error;
+  return data;
+}
+
 // ── DATA LOADING ──
 async function loadAll() {
   await Promise.all([loadLicenses(), loadRequests(), loadTransfers()]);
 }
 
 async function loadLicenses() {
-  const { data, error } = await sb
-    .from('licenses')
-    .select('*')
-    .order('created_at', { ascending: false });
-  if (error) { console.error(error); return; }
+  let data;
+  try { data = await adm('get_licenses'); } catch(e) { console.error(e); return; }
 
-  // Stats
   const active = data.filter(l => l.status === 'active').length;
   const mrr = data
     .filter(l => l.status === 'active' && l.monthly_rate)
@@ -541,7 +533,6 @@ async function loadLicenses() {
   document.getElementById('statMRR').textContent = '$' + Math.round(mrr).toLocaleString();
   document.getElementById('licenseCount').textContent = data.length;
 
-  // Caltrans card
   caltransLicense = data.find(l => l.is_owner_held && l.holder_domain === 'caltransbizconnect.org')
     || data.find(l => l.is_owner_held);
 
@@ -559,7 +550,6 @@ async function loadLicenses() {
     document.getElementById('caltransNotes').innerHTML = '<strong>Notes:</strong> ' + (c.notes || 'None');
   }
 
-  // Table
   const tbody = document.getElementById('licensesBody');
   if (!data.length) { tbody.innerHTML = '<tr><td colspan="8" class="empty">No licenses found.</td></tr>'; return; }
   tbody.innerHTML = data.map(l => `
@@ -585,11 +575,8 @@ async function loadLicenses() {
 }
 
 async function loadRequests() {
-  const { data, error } = await sb
-    .from('license_requests')
-    .select('*')
-    .order('created_at', { ascending: false });
-  if (error) { console.error(error); return; }
+  let data;
+  try { data = await adm('get_requests'); } catch(e) { console.error(e); return; }
 
   const pending = data.filter(r => r.status === 'new' || r.status === 'reviewing').length;
   document.getElementById('statRequests').textContent = pending;
@@ -607,9 +594,7 @@ async function loadRequests() {
       <td data-label="Status"><span class="status ${r.status}">${r.status}</span></td>
       <td data-label="Actions">
         <div class="tbl-actions">
-          ${r.status !== 'rejected' && r.status !== 'converted' ? `
-            <button class="act-btn teal" onclick="openRequestDetail('${r.id}')">Review</button>
-          ` : ''}
+          ${r.status !== 'rejected' && r.status !== 'converted' ? `<button class="act-btn teal" onclick="openRequestDetail('${r.id}')">Review</button>` : ''}
           <button class="act-btn muted" onclick="openRequestDetail('${r.id}')">View</button>
         </div>
       </td>
@@ -618,11 +603,8 @@ async function loadRequests() {
 }
 
 async function loadTransfers() {
-  const { data, error } = await sb
-    .from('license_transfers')
-    .select('*, licenses(license_key, agency_name, holder_domain)')
-    .order('created_at', { ascending: false });
-  if (error) { console.error(error); return; }
+  let data;
+  try { data = await adm('get_transfers'); } catch(e) { console.error(e); return; }
 
   const pending = data.filter(t => t.status === 'pending').length;
   document.getElementById('statTransfers').textContent = pending;
@@ -650,16 +632,20 @@ async function loadTransfers() {
 
 // ── LICENSE ACTIONS ──
 async function activateLicense(id) {
-  await sb.from('licenses').update({ status: 'active', activated_at: new Date().toISOString() }).eq('id', id);
-  await logEvent(id, 'status_change', 'License activated');
-  loadLicenses();
+  try {
+    await adm('update_license', { id, status: 'active', activated_at: new Date().toISOString() });
+    await logEvent(id, 'status_change', 'License activated');
+    loadLicenses();
+  } catch(e) { alert('Error: ' + e.message); }
 }
 
 async function suspendLicense(id) {
   if (!confirm('Suspend this license?')) return;
-  await sb.from('licenses').update({ status: 'suspended' }).eq('id', id);
-  await logEvent(id, 'status_change', 'License suspended');
-  loadLicenses();
+  try {
+    await adm('update_license', { id, status: 'suspended' });
+    await logEvent(id, 'status_change', 'License suspended');
+    loadLicenses();
+  } catch(e) { alert('Error: ' + e.message); }
 }
 
 // ── TRANSFER FLOW ──
@@ -694,23 +680,22 @@ async function submitTransfer() {
   const toOrg = document.getElementById('tfToOrg').value.trim();
   const toEmail = document.getElementById('tfToEmail').value.trim();
   if (!toOrg || !toEmail) { alert('Receiving organization and email are required.'); return; }
-
-  const { error } = await sb.from('license_transfers').insert({
-    license_id: licenseId || null,
-    from_org: document.getElementById('tfFromOrg').value,
-    from_email: document.getElementById('tfFromEmail').value,
-    to_org: toOrg,
-    to_email: toEmail,
-    to_contact: document.getElementById('tfToContact').value || null,
-    to_phone: document.getElementById('tfToPhone').value || null,
-    transfer_reason: document.getElementById('tfReason').value || null,
-    owner_authorized: true,
-    owner_authorized_at: new Date().toISOString(),
-    status: 'owner_approved',
-  });
-  if (error) { alert('Error: ' + error.message); return; }
-  closeModal('transferModal');
-  loadTransfers();
+  try {
+    await adm('insert_transfer', {
+      license_id: licenseId || '',
+      from_org: document.getElementById('tfFromOrg').value,
+      from_email: document.getElementById('tfFromEmail').value,
+      to_org: toOrg, to_email: toEmail,
+      to_contact: document.getElementById('tfToContact').value,
+      to_phone: document.getElementById('tfToPhone').value,
+      transfer_reason: document.getElementById('tfReason').value,
+      owner_authorized: 'true',
+      owner_authorized_at: new Date().toISOString(),
+      status: 'owner_approved',
+    });
+    closeModal('transferModal');
+    loadTransfers();
+  } catch(e) { alert('Error: ' + e.message); }
 }
 
 function openAuthorizeModal(transferId, fromOrg, toOrg, toEmail, licenseId) {
@@ -721,7 +706,6 @@ function openAuthorizeModal(transferId, fromOrg, toOrg, toEmail, licenseId) {
     <strong style="color:var(--off-white)">Receiving Email:</strong> ${toEmail}<br>
     <strong style="color:var(--off-white)">License ID:</strong> ${licenseId || 'unlinked'}
   `;
-  // Store for authorize action
   document.getElementById('authTransferId').dataset.licenseId = licenseId;
   document.getElementById('authTransferId').dataset.toOrg = toOrg;
   document.getElementById('authTransferId').dataset.toEmail = toEmail;
@@ -734,49 +718,34 @@ async function authorizeTransfer() {
   const toOrg = document.getElementById('authTransferId').dataset.toOrg;
   const toEmail = document.getElementById('authTransferId').dataset.toEmail;
   const adminNotes = document.getElementById('authAdminNotes').value;
-
-  // 1. Get transfer details
-  const { data: tf } = await sb.from('license_transfers').select('*').eq('id', transferId).single();
-
-  // 2. Update license holder
-  if (licenseId) {
-    await sb.from('licenses').update({
-      holder_org: toOrg,
-      holder_email: toEmail,
-      holder_contact: tf?.to_contact || toOrg,
-      is_owner_held: false,
-      status: 'active',
-    }).eq('id', licenseId);
-    await logEvent(licenseId, 'transfer_completed', `License transferred from ${tf?.from_org || '?'} to ${toOrg}`, {
-      from: tf?.from_org, to: toOrg
-    });
-  }
-
-  // 3. Complete transfer record
-  await sb.from('license_transfers').update({
-    status: 'completed',
-    owner_authorized: true,
-    owner_authorized_at: new Date().toISOString(),
-    completed_at: new Date().toISOString(),
-    admin_notes: adminNotes || null,
-  }).eq('id', transferId);
-
-  closeModal('authorizeModal');
-  loadAll();
+  try {
+    const now = new Date().toISOString();
+    if (licenseId) {
+      await adm('update_license', { id: licenseId, holder_org: toOrg, holder_email: toEmail, is_owner_held: 'false', status: 'active' });
+      await logEvent(licenseId, 'transfer_completed', `License transferred to ${toOrg}`);
+    }
+    await adm('update_transfer', { id: transferId, status: 'completed', owner_authorized: 'true', owner_authorized_at: now, completed_at: now, admin_notes: adminNotes });
+    closeModal('authorizeModal');
+    loadAll();
+  } catch(e) { alert('Error: ' + e.message); }
 }
 
 async function rejectTransfer() {
   const transferId = document.getElementById('authTransferId').value;
   if (!confirm('Reject this transfer?')) return;
-  await sb.from('license_transfers').update({ status: 'rejected' }).eq('id', transferId);
-  closeModal('authorizeModal');
-  loadTransfers();
+  try {
+    await adm('update_transfer', { id: transferId, status: 'rejected' });
+    closeModal('authorizeModal');
+    loadTransfers();
+  } catch(e) { alert('Error: ' + e.message); }
 }
 
 // ── REQUEST FLOW ──
 async function openRequestDetail(requestId) {
-  const { data: r, error } = await sb.from('license_requests').select('*').eq('id', requestId).single();
-  if (error || !r) return;
+  let data;
+  try { data = await adm('get_requests'); } catch(e) { return; }
+  const r = data.find(x => x.id === requestId);
+  if (!r) return;
   activeRequestData = r;
   document.getElementById('activeRequestId').value = requestId;
   document.getElementById('reqAdminNotes').value = r.admin_notes || '';
@@ -803,84 +772,63 @@ async function approveRequest() {
   const r = activeRequestData;
   if (!r) return;
   const adminNotes = document.getElementById('reqAdminNotes').value;
-
-  // Create license from request
-  const { data: newLicense, error } = await sb.from('licenses').insert({
-    tier: r.tier,
-    billing_cycle: r.billing_pref === 'annual' ? 'annual' : 'monthly',
-    status: 'active',
-    holder_org: r.agency_name,
-    holder_contact: r.contact_name,
-    holder_email: r.contact_email,
-    holder_phone: r.contact_phone || null,
-    holder_domain: r.custom_domain || null,
-    agency_name: r.agency_name,
-    department: r.department || null,
-    num_districts: r.num_districts || null,
-    program_description: r.program_description || null,
-    launch_date: r.launch_date || null,
-    is_owner_held: false,
-    monthly_rate: r.tier === 'starter' ? 4500 : r.tier === 'professional' ? 9500 : null,
-    annual_rate: r.tier === 'starter' ? 45000 : r.tier === 'professional' ? 95000 : null,
-    activated_at: new Date().toISOString(),
-  }).select().single();
-
-  if (error) { alert('Error creating license: ' + error.message); return; }
-
-  // Update request
-  await sb.from('license_requests').update({
-    status: 'converted',
-    converted_license_id: newLicense.id,
-    admin_notes: adminNotes || null,
-  }).eq('id', r.id);
-
-  await logEvent(newLicense.id, 'license_created', `License created from request. Agency: ${r.agency_name}`);
-
-  closeModal('requestDetailModal');
-  loadAll();
+  try {
+    const newLicense = await adm('insert_license', {
+      tier: r.tier,
+      billing_cycle: r.billing_pref === 'annual' ? 'annual' : 'monthly',
+      holder_org: r.agency_name,
+      holder_contact: r.contact_name,
+      holder_email: r.contact_email,
+      holder_phone: r.contact_phone || '',
+      holder_domain: r.custom_domain || '',
+      agency_name: r.agency_name,
+      department: r.department || '',
+      num_districts: r.num_districts || '',
+      program_description: r.program_description || '',
+      launch_date: r.launch_date || '',
+      is_owner_held: 'false',
+      monthly_rate: r.tier === 'starter' ? '4500' : r.tier === 'professional' ? '9500' : '',
+      annual_rate: r.tier === 'starter' ? '45000' : r.tier === 'professional' ? '95000' : '',
+    });
+    await adm('update_request', { id: r.id, status: 'converted', converted_license_id: newLicense.id, admin_notes: adminNotes });
+    await logEvent(newLicense.id, 'license_created', `License created from request for ${r.agency_name}`);
+    closeModal('requestDetailModal');
+    loadAll();
+  } catch(e) { alert('Error: ' + e.message); }
 }
 
 async function rejectRequest() {
   const requestId = document.getElementById('activeRequestId').value;
   const adminNotes = document.getElementById('reqAdminNotes').value;
   if (!confirm('Reject this request?')) return;
-  await sb.from('license_requests').update({
-    status: 'rejected',
-    admin_notes: adminNotes || null,
-  }).eq('id', requestId);
-  closeModal('requestDetailModal');
-  loadRequests();
+  try {
+    await adm('update_request', { id: requestId, status: 'rejected', admin_notes: adminNotes });
+    closeModal('requestDetailModal');
+    loadRequests();
+  } catch(e) { alert('Error: ' + e.message); }
 }
 
 // ── NEW LICENSE ──
 async function createLicense() {
   const agency = document.getElementById('nl_agency').value.trim();
-  const holderOrg = document.getElementById('nl_holderOrg').value.trim();
-  const holderContact = document.getElementById('nl_holderContact').value.trim();
   const holderEmail = document.getElementById('nl_holderEmail').value.trim();
-  if (!agency || !holderOrg || !holderContact || !holderEmail) {
-    alert('Please fill in all required fields.'); return;
-  }
-  const { data, error } = await sb.from('licenses').insert({
-    agency_name: agency,
-    department: document.getElementById('nl_dept').value || null,
-    holder_org: holderOrg,
-    holder_contact: holderContact,
-    holder_email: holderEmail,
-    holder_domain: document.getElementById('nl_domain').value || null,
-    tier: document.getElementById('nl_tier').value,
-    billing_cycle: document.getElementById('nl_billing').value,
-    status: 'active',
-    is_owner_held: false,
-    monthly_rate: document.getElementById('nl_monthly').value || null,
-    annual_rate: document.getElementById('nl_annual').value || null,
-    notes: document.getElementById('nl_notes').value || null,
-    activated_at: new Date().toISOString(),
-  }).select().single();
-  if (error) { alert('Error: ' + error.message); return; }
-  await logEvent(data.id, 'license_created', `New license manually created for ${agency}`);
-  closeModal('newLicenseModal');
-  loadLicenses();
+  if (!agency || !holderEmail) { alert('Agency name and email are required.'); return; }
+  try {
+    const newLicense = await adm('insert_license', {
+      agency_name: agency,
+      holder_org: agency,
+      holder_email: holderEmail,
+      holder_phone: document.getElementById('nl_holderPhone').value,
+      holder_domain: document.getElementById('nl_domain').value,
+      tier: document.getElementById('nl_tier').value,
+      billing_cycle: document.getElementById('nl_billing').value,
+      notes: document.getElementById('nl_notes').value,
+      is_owner_held: 'false',
+    });
+    await logEvent(newLicense.id, 'license_created', `License manually created for ${agency}`);
+    closeModal('newLicenseModal');
+    loadLicenses();
+  } catch(e) { alert('Error: ' + e.message); }
 }
 
 // ── HISTORY ──
@@ -889,33 +837,28 @@ async function openHistoryModal(licenseId, isCaltrans) {
   document.getElementById('historyList').innerHTML = '<p class="empty">Loading...</p>';
   openModal('historyModal');
   if (!id) { document.getElementById('historyList').innerHTML = '<p class="empty">No license linked.</p>'; return; }
-  const { data, error } = await sb
-    .from('license_events')
-    .select('*')
-    .eq('license_id', id)
-    .order('created_at', { ascending: false });
-  if (error || !data?.length) {
-    document.getElementById('historyList').innerHTML = '<p class="empty">No events recorded yet.</p>';
-    return;
-  }
-  document.getElementById('historyList').innerHTML = data.map(e => `
-    <div class="history-item">
-      <div class="history-type">${e.event_type.replace(/_/g,' ')}</div>
-      <div class="history-desc">${e.description || '—'}</div>
-      <div class="history-meta">${fmtDate(e.created_at)} · ${e.performed_by}</div>
-    </div>
-  `).join('');
+  try {
+    const data = await adm('get_events', { license_id: id });
+    if (!data?.length) { document.getElementById('historyList').innerHTML = '<p class="empty">No events recorded yet.</p>'; return; }
+    document.getElementById('historyList').innerHTML = data.map(e => `
+      <div class="history-item">
+        <div class="history-type">${e.event_type.replace(/_/g,' ')}</div>
+        <div class="history-desc">${e.description || '—'}</div>
+        <div class="history-meta">${fmtDate(e.created_at)} · ${e.performed_by}</div>
+      </div>
+    `).join('');
+  } catch(e) { document.getElementById('historyList').innerHTML = '<p class="empty">Error loading history.</p>'; }
 }
 
 // ── HELPERS ──
 async function logEvent(licenseId, eventType, description, metadata) {
-  await sb.from('license_events').insert({
-    license_id: licenseId,
-    event_type: eventType,
-    description,
-    performed_by: ADMIN_EMAIL,
-    metadata: metadata || null,
-  });
+  try {
+    await adm('insert_event', {
+      license_id: licenseId, event_type: eventType, description,
+      performed_by: ADMIN_EMAIL,
+      metadata: metadata ? JSON.stringify(metadata) : '',
+    });
+  } catch(e) { console.warn('logEvent failed:', e); }
 }
 
 function openModal(id) { document.getElementById(id).classList.add('open'); }
