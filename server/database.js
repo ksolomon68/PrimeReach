@@ -1,6 +1,7 @@
-const mysql = require('mysql2/promise');
+const mysql  = require('mysql2/promise');
+const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv');
-const path = require('path');
+const path   = require('path');
 
 // First try to load the default .env file
 dotenv.config({ path: path.join(__dirname, '../.env') });
@@ -430,6 +431,59 @@ async function initDatabase() {
                 FOREIGN KEY (worker_id) REFERENCES workers(id) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         `);
+
+        // ── Demo Data Seeding ─────────────────────────────────────────────────
+        // Runs only when the opportunities table is empty (fresh installs / new prod DBs).
+        const [[{ oppCount }]] = await db.execute('SELECT COUNT(*) AS oppCount FROM opportunities');
+        if (oppCount === 0) {
+            console.log('PrimeReach DB: Empty opportunities table — seeding demo data...');
+            const demoHash = await bcrypt.hash('DemoPass1!', 10);
+
+            const demoUsers = [
+                { email: 'demo-admin@primereachgov.com', type: 'admin',          org: 'PrimeReach Platform Admin',    contact: 'Alex Rivera',    phone: '916-555-0100' },
+                { email: 'apex.builders@demo.com',       type: 'agency',         org: 'Apex Builders Group',          contact: 'Marcus Thompson', phone: '916-555-0201' },
+                { email: 'summit.construction@demo.com', type: 'agency',         org: 'Summit Construction Partners', contact: 'Diane Park',      phone: '916-555-0202' },
+                { email: 'greenpath.services@demo.com',  type: 'small_business', biz: 'GreenPath Environmental Services', contact: 'Tanya Williams', phone: '510-555-0301', certs: 'DBE,SBE' },
+                { email: 'truenorth.electric@demo.com',  type: 'small_business', biz: 'TrueNorth Electrical Contractors', contact: 'James Okafor',   phone: '213-555-0302', certs: 'DBE,MBE' },
+                { email: 'blueprint.consulting@demo.com',type: 'small_business', biz: 'Blueprint Engineering Consultants', contact: 'Sofia Ramirez', phone: '619-555-0303', certs: 'DBE,WBE' },
+                { email: 'vanguard.landscape@demo.com',  type: 'small_business', biz: 'Vanguard Landscape & Erosion Control', contact: 'Carlos Mendez', phone: '559-555-0304', certs: 'SBE,DVB' },
+            ];
+
+            let primeId = null;
+            for (const u of demoUsers) {
+                try {
+                    const [r] = await db.execute(
+                        `INSERT IGNORE INTO users (email, password_hash, type, business_name, organization_name, contact_name, phone, certifications, status)
+                         VALUES (?,?,?,?,?,?,?,?,'active')`,
+                        [u.email, demoHash, u.type, u.biz || null, u.org || null, u.contact, u.phone, u.certs || null]
+                    );
+                    if (u.type === 'agency' && !primeId && r.insertId) primeId = r.insertId;
+                } catch (e) { console.warn('PrimeReach DB: Demo user skip:', u.email, e.message); }
+            }
+            if (!primeId) {
+                const [r] = await db.execute('SELECT id FROM users WHERE email = ?', ['apex.builders@demo.com']);
+                if (r.length) primeId = r[0].id;
+            }
+
+            const demoOpps = [
+                ['DEMO-OPP-001', 'Highway 101 Median Barrier Replacement — DBE Subcontract', 'Seeking a DBE-certified firm to supply and install concrete median barriers along a 4.2-mile segment of US-101.', '4', 'District 4', 'construction', 'Construction', '$380,000 – $450,000', '2026-08-15', 'published'],
+                ['DEMO-OPP-002', 'Traffic Signal Upgrade — Electrical Subcontractor Needed', 'Prime contractor seeks a certified DBE or MBE electrical subcontractor for traffic signal upgrades at 14 intersections.', '7', 'District 7', 'electrical', 'Electrical', '$620,000 – $750,000', '2026-08-22', 'published'],
+                ['DEMO-OPP-003', 'Slope Stabilization & Revegetation — SR-99 Corridor', 'Subcontracting opportunity for SBE or DVB-certified landscape and erosion control firm along a 6-mile stretch of SR-99.', '6', 'District 6', 'landscaping', 'Landscaping', '$195,000 – $240,000', '2026-08-30', 'published'],
+                ['DEMO-OPP-004', 'Environmental Site Assessment — Bridge Rehabilitation Project', 'Prime contractor seeking a DBE environmental consulting firm for Phase I/II site assessments and NEPA documentation.', '3', 'District 3', 'environmental', 'Environmental', '$85,000 – $120,000', '2026-09-06', 'published'],
+                ['DEMO-OPP-005', 'Structural Engineering Plan Review — District 11 Bridge Program', 'Seeking a WBE or DBE-certified structural engineering firm for independent plan review on six bridge replacement projects.', '11', 'District 11', 'engineering', 'Engineering', '$160,000 – $210,000', '2026-09-13', 'published'],
+                ['DEMO-OPP-006', 'Concrete Flatwork & Curb Ramp Installation — ADA Transition Program', 'SBE or DBE concrete contractor to install ADA-compliant curb ramps and sidewalk panels at 40+ Bay Area locations.', '4', 'District 4', 'construction', 'Construction', '$220,000 – $270,000', '2026-09-30', 'published'],
+                ['DEMO-OPP-007', 'Electrical & Lighting — I-5 HOV Lane Extension', 'DBE/MBE electrical subcontractor needed for roadway lighting and conduit installation on Interstate 5 HOV extension.', '12', 'District 12', 'electrical', 'Electrical', '$310,000 – $390,000', '2026-10-01', 'published'],
+            ];
+
+            for (const [id, title, scope, district, dname, cat, catName, value, due, status] of demoOpps) {
+                await db.execute(
+                    `INSERT IGNORE INTO opportunities (id, title, scope_summary, district, district_name, category, category_name, estimated_value, due_date, status, posted_by)
+                     VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
+                    [id, title, scope, district, dname, cat, catName, value, due, status, primeId]
+                ).catch(e => console.warn('PrimeReach DB: Demo opp skip:', id, e.message));
+            }
+            console.log(`PrimeReach DB: Demo data seeded (${demoOpps.length} opportunities).`);
+        }
 
         console.log('PrimeReach DB: All MySQL tables initialized successfully.');
 
