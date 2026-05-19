@@ -284,7 +284,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // Attempt login
             try {
                 login(email, password)
-                    .then(user => redirectToDashboard(user))
+                    .then(() => redirectToDashboard(getCurrentUser()))
                     .catch(error => {
                         showErrorMessage(error.message, loginForm.parentElement);
                     });
