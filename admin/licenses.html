@@ -173,6 +173,24 @@ main{max-width:1280px;margin:0 auto;padding:32px 24px}
 </head>
 <body>
 
+<!-- PASSWORD GATE -->
+<div id="pwGate" style="position:fixed;inset:0;background:var(--navy);z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px">
+  <div style="background:var(--navy-mid);border:1px solid var(--card-border);border-radius:16px;padding:52px 48px;max-width:400px;width:100%;text-align:center">
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:26px;margin-bottom:6px">Prime<span style="color:var(--teal)">Reach</span></div>
+    <div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:28px">License Admin</div>
+    <input type="password" id="pwInput" placeholder="Enter admin password" autocomplete="current-password"
+      style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;color:var(--off-white);font-family:'DM Sans',sans-serif;font-size:15px;margin-bottom:12px;transition:border-color 0.2s;outline:none"
+      onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor='var(--card-border)'"
+      onkeydown="if(event.key==='Enter')checkPassword()">
+    <button onclick="checkPassword()"
+      style="width:100%;background:var(--teal);color:var(--navy);padding:14px;border-radius:8px;font-family:'Syne',sans-serif;font-weight:800;font-size:15px;border:none;cursor:pointer;transition:background 0.2s;margin-bottom:12px"
+      onmouseover="this.style.background='#00bfa0'" onmouseout="this.style.background='var(--teal)'">
+      Sign In
+    </button>
+    <p id="pwErr" style="font-size:13px;color:var(--red);min-height:18px"></p>
+  </div>
+</div>
+
 <!-- TOP BAR -->
 <div class="topbar">
   <div class="topbar-logo">Prime<span>Reach</span> &nbsp;<span style="color:var(--muted);font-size:14px;font-weight:400">License Admin</span></div>
@@ -464,18 +482,41 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
 let caltransLicense = null;
 let activeRequestData = null;
 
-// ── AUTH — handled by Apache .htaccess Basic Auth ──
-function init() {
-  loadAll();
+// ── AUTH — JS password gate ──
+const PW_HASH = 'c6facc0a6717e9e66da95d7aeca4474ac3f129ca59131a0db526068d2300a7fd';
+const SESSION_KEY = 'pr_admin_auth';
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function checkPassword() {
+  const val = document.getElementById('pwInput').value;
+  const hash = await sha256(val);
+  if (hash === PW_HASH) {
+    sessionStorage.setItem(SESSION_KEY, '1');
+    document.getElementById('pwGate').style.display = 'none';
+    loadAll();
+  } else {
+    document.getElementById('pwErr').textContent = 'Incorrect password.';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').focus();
+  }
 }
 
 function logout() {
-  // Force the browser to drop the Basic Auth credentials
-  fetch(window.location.href, {
-    headers: { Authorization: 'Basic ' + btoa('logout:logout') }
-  }).catch(() => {}).finally(() => {
-    window.location.reload();
-  });
+  sessionStorage.removeItem(SESSION_KEY);
+  window.location.reload();
+}
+
+function init() {
+  if (sessionStorage.getItem(SESSION_KEY) === '1') {
+    document.getElementById('pwGate').style.display = 'none';
+    loadAll();
+  } else {
+    document.getElementById('pwInput').focus();
+  }
 }
 
 // ── DATA LOADING ──
