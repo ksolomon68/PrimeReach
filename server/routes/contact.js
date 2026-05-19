@@ -4,7 +4,7 @@ const express = require('express');
 const { sendEmail, getContactConfirmationEmail } = require('../config/email');
 
 const router = express.Router();
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'SBEss@dot.ca.gov';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'info@evobrand.net';
 
 // ── POST /api/contact/submit ─────────────────────────────────────────────────
 router.post('/submit', async (req, res) => {
