@@ -254,7 +254,7 @@ function redirectToDashboard(user) {
         window.location.href = 'dashboard-admin.html';
     } else if (user.type === 'small_business') {
         window.location.href = 'dashboard-small-business.html';
-    } else if (user.type === 'agency') {
+    } else if (user.type === 'agency' || user.type === 'prime_contractor') {
         window.location.href = 'dashboard-prime-contractor.html';
     }
 }
@@ -423,7 +423,7 @@ function syncNavHeader() {
     if (user && loginBtn) {
         const li = loginBtn.parentElement;
         let dashboardUrl = 'dashboard-small-business.html';
-        if (user.type === 'agency') dashboardUrl = 'dashboard-prime-contractor.html';
+        if (user.type === 'agency' || user.type === 'prime_contractor') dashboardUrl = 'dashboard-prime-contractor.html';
         if (user.type === 'admin') dashboardUrl = 'dashboard-admin.html';
 
         li.innerHTML = `

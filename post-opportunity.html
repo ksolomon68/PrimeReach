@@ -245,12 +245,12 @@
                             <div class="form-group">
                                 <label for="requirements" class="required">Requirements</label>
                                 <textarea id="requirements" name="requirements" class="form-control" rows="6" required
-                                    placeholder="List specific requirements for small businesses..."></textarea>
+                                    placeholder="List specific requirements for subcontractors..."></textarea>
                             </div>
                             <div class="form-group">
                                 <label for="certifications">Required Certifications</label>
                                 <textarea id="certifications" name="certifications" class="form-control" rows="4"
-                                    placeholder="e.g., Small Business, Small Business, WBE..."></textarea>
+                                    placeholder="e.g., SBE, DBE, WBE, MBE..."></textarea>
                             </div>
                             <div class="form-group">
                                 <label for="experience">Experience Required</label>
@@ -425,7 +425,7 @@
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData.entries());
 
-            const user = JSON.parse(localStorage.getItem('caltrans_user'));
+            const user = getCurrentUser();
             if (!user) {
                 alert('Please log in to post an opportunity.');
                 return;

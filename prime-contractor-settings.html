@@ -265,7 +265,7 @@
     <script src="js/components/navigation.js?v=1774549569000"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const user = JSON.parse(localStorage.getItem('caltrans_user'));
+            const user = getCurrentUser();
             if (!user) {
                 window.location.href = 'login.html';
                 return;
@@ -343,7 +343,7 @@
                     if (result.error) throw new Error(result.error);
 
                     // Update LocalStorage with server response + prefs
-                    localStorage.setItem('caltrans_user', JSON.stringify({ ...updatedUser, ...result }));
+                    localStorage.setItem(USER_KEY, JSON.stringify({ ...updatedUser, ...result }));
 
                     alert('Profile updated successfully!');
 

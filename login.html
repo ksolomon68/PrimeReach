@@ -53,6 +53,29 @@
       </div>
 
       <div class="auth-card">
+        <div style="background: #f0f7ff; border: 1px solid #bfdbfe; border-radius: var(--border-radius-md); padding: var(--space-md); margin-bottom: var(--space-lg);">
+          <p style="font-weight: var(--font-weight-bold); margin-bottom: var(--space-sm); color: var(--color-primary);">Try a Demo Account</p>
+          <p style="font-size: var(--font-size-sm); color: #374151; margin-bottom: var(--space-md);">Click any account below to log in instantly. All use password: <strong>DemoPass1!</strong></p>
+          <div style="display: flex; flex-direction: column; gap: var(--space-sm);">
+            <button type="button" onclick="fillAndSubmitDemo('greenpath.services@demo.com')" style="display: flex; justify-content: space-between; align-items: center; padding: var(--space-sm) var(--space-md); background: #fff; border: 1px solid #bfdbfe; border-radius: var(--border-radius-sm); cursor: pointer; width: 100%; text-align: left; transition: background 0.15s;" onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#fff'">
+              <span style="font-weight: var(--font-weight-semibold); color: var(--color-primary);">Small Business</span>
+              <span style="font-size: var(--font-size-sm); color: #374151;">greenpath.services@demo.com</span>
+            </button>
+            <button type="button" onclick="fillAndSubmitDemo('apex.builders@demo.com')" style="display: flex; justify-content: space-between; align-items: center; padding: var(--space-sm) var(--space-md); background: #fff; border: 1px solid #bfdbfe; border-radius: var(--border-radius-sm); cursor: pointer; width: 100%; text-align: left; transition: background 0.15s;" onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#fff'">
+              <span style="font-weight: var(--font-weight-semibold); color: var(--color-primary);">Prime Contractor</span>
+              <span style="font-size: var(--font-size-sm); color: #374151;">apex.builders@demo.com</span>
+            </button>
+            <button type="button" onclick="fillAndSubmitDemo('demo-admin@primereachgov.com')" style="display: flex; justify-content: space-between; align-items: center; padding: var(--space-sm) var(--space-md); background: #fff; border: 1px solid #bfdbfe; border-radius: var(--border-radius-sm); cursor: pointer; width: 100%; text-align: left; transition: background 0.15s;" onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#fff'">
+              <span style="font-weight: var(--font-weight-semibold); color: var(--color-primary);">Platform Admin</span>
+              <span style="font-size: var(--font-size-sm); color: #374151;">demo-admin@primereachgov.com</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="auth-divider">
+          <span>or log in with your credentials</span>
+        </div>
+
         <form id="loginForm" novalidate>
           <div class="form-group">
             <label for="email" class="required">Email Address</label>
@@ -80,15 +103,6 @@
 
           <button type="submit" class="btn btn-primary" style="width: 100%;">Log In</button>
         </form>
-
-        <div class="auth-divider">
-          <span>New to PrimeReach?</span>
-        </div>
-
-        <div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: var(--space-md);">
-          <a href="register-small-business.html" class="btn btn-outline" style="flex: 1; min-width: 250px;">Register as Small Business</a>
-          <a href="register-prime-contractor.html" class="btn btn-outline" style="flex: 1; min-width: 250px;">Register as Prime Contractor</a>
-        </div>
       </div>
     </div>
   </main>
@@ -141,11 +155,18 @@
     </div>
   </footer>
 
-  <script src="js/config.js?v=1774549569000"></script>
+  <script src="js/config.js?v=1774555160000"></script>
   <script src="js/main.js?v=1774549569000"></script>
   <script src="js/auth.js?v=1774549569000"></script>
   <script src="js/accessibility-widget.js?v=1774549569000"></script>
   <script src="js/pwa.js?v=1774549569000"></script>
+  <script>
+    function fillAndSubmitDemo(email) {
+      document.getElementById('email').value = email;
+      document.getElementById('password').value = 'DemoPass1!';
+      document.getElementById('loginForm').requestSubmit();
+    }
+  </script>
 </body>
 
 </html>
