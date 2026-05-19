@@ -527,7 +527,7 @@ async function sendMagicLink() {
   btn.textContent = 'Sending...';
   const { error } = await sb.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: window.location.href }
+    options: { emailRedirectTo: 'https://primereachgov.com/admin/licenses.html' }
   });
   if (error) {
     msg.className = 'auth-msg err';
