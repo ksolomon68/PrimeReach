@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PrimeReach — License Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --navy:        #0A1628;
+  --navy-mid:    #0D1F38;
+  --navy-light:  #132240;
+  --teal:        #00D4AA;
+  --teal-dim:    rgba(0,212,170,0.12);
+  --amber:       #F5A623;
+  --amber-dim:   rgba(245,166,35,0.15);
+  --off-white:   #F0EEE8;
+  --muted:       rgba(240,238,232,0.55);
+  --card:        rgba(0,212,170,0.05);
+  --card-border: rgba(0,212,170,0.14);
+  --red:         #FF4D6D;
+  --red-dim:     rgba(255,77,109,0.12);
+  --gold:        #C9A84C;
+  --gold-dim:    rgba(201,168,76,0.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--off-white);min-height:100vh}
+
+/* ── AUTH GATE ── */
+#authGate{position:fixed;inset:0;background:var(--navy);z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px}
+#authGate.hidden{display:none}
+.auth-box{background:var(--navy-mid);border:1px solid var(--card-border);border-radius:16px;padding:52px 48px;max-width:420px;width:100%;text-align:center}
+.auth-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:26px;margin-bottom:8px}
+.auth-logo span{color:var(--teal)}
+.auth-eyebrow{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:28px}
+.auth-title{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;margin-bottom:8px}
+.auth-sub{font-size:14px;color:var(--muted);margin-bottom:32px;line-height:1.6}
+.auth-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;color:var(--off-white);font-family:'DM Sans',sans-serif;font-size:15px;margin-bottom:16px;transition:border-color 0.2s}
+.auth-input:focus{outline:none;border-color:var(--teal)}
+.auth-btn{width:100%;background:var(--teal);color:var(--navy);padding:15px;border-radius:8px;font-family:'Syne',sans-serif;font-weight:800;font-size:16px;border:none;cursor:pointer;transition:background 0.2s}
+.auth-btn:hover{background:#00bfa0}
+.auth-btn:disabled{opacity:.5;cursor:not-allowed}
+.auth-msg{margin-top:16px;font-size:13px;color:var(--teal);min-height:20px}
+.auth-msg.err{color:var(--red)}
+
+/* ── TOP BAR ── */
+.topbar{background:rgba(10,22,40,0.95);backdrop-filter:blur(14px);border-bottom:1px solid var(--card-border);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px}
+.topbar-logo span{color:var(--teal)}
+.topbar-right{display:flex;align-items:center;gap:20px}
+.admin-badge{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;background:var(--gold-dim);color:var(--gold);border:1px solid rgba(201,168,76,0.3);padding:4px 12px;border-radius:20px}
+.logout-btn{font-size:13px;color:var(--muted);background:none;border:none;cursor:pointer;transition:color 0.2s}
+.logout-btn:hover{color:var(--red)}
+
+/* ── MAIN LAYOUT ── */
+main{max-width:1280px;margin:0 auto;padding:32px 24px}
+
+/* ── CALTRANS CARD ── */
+.caltrans-card{background:linear-gradient(135deg,rgba(201,168,76,0.09) 0%,rgba(10,22,40,0) 100%);border:1.5px solid rgba(201,168,76,0.4);border-radius:16px;padding:36px 40px;margin-bottom:36px;position:relative;overflow:hidden}
+.caltrans-card::after{content:'PRIORITY LICENSE';position:absolute;top:20px;right:28px;font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.22em;color:rgba(201,168,76,0.35)}
+.caltrans-header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:24px}
+.caltrans-header-left{}
+.caltrans-label{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.caltrans-title{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;margin-bottom:4px}
+.caltrans-sub{font-size:14px;color:var(--muted)}
+.owner-held-badge{display:inline-flex;align-items:center;gap:6px;background:var(--gold-dim);border:1px solid rgba(201,168,76,0.35);border-radius:20px;padding:6px 16px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold)}
+.caltrans-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px}
+.caltrans-meta-item{}
+.caltrans-meta-label{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(201,168,76,0.6);margin-bottom:4px}
+.caltrans-meta-value{font-size:15px;font-weight:500;color:var(--off-white)}
+.caltrans-notes{background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.15);border-radius:8px;padding:14px 18px;font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:24px}
+.caltrans-notes strong{color:var(--gold)}
+.caltrans-actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn-gold{background:var(--gold);color:var(--navy);padding:12px 32px;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;border:none;cursor:pointer;transition:background 0.2s}
+.btn-gold:hover{background:#b8932e}
+.btn-outline-gold{background:transparent;color:var(--gold);padding:12px 24px;border-radius:8px;font-family:'Syne',sans-serif;font-weight:600;font-size:14px;border:1.5px solid rgba(201,168,76,0.4);cursor:pointer;transition:all 0.2s}
+.btn-outline-gold:hover{background:var(--gold-dim)}
+
+/* ── STATS BAR ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:36px}
+.stat-card{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:24px 20px}
+.stat-label{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.stat-value{font-family:'Syne',sans-serif;font-weight:800;font-size:32px;letter-spacing:-0.02em;color:var(--teal)}
+.stat-card.amber .stat-value{color:var(--amber)}
+.stat-card.red .stat-value{color:var(--red)}
+.stat-card.gold .stat-value{color:var(--gold)}
+
+/* ── SECTION HEADERS ── */
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;margin-top:40px}
+.section-hdr h2{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;letter-spacing:-0.01em}
+.badge{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:11px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;padding:0 7px}
+.badge.teal{background:var(--teal-dim);color:var(--teal);border:1px solid rgba(0,212,170,0.3)}
+.badge.amber{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,166,35,0.3)}
+.badge.red{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,77,109,0.3)}
+
+/* ── TABLES ── */
+.table-wrap{background:var(--navy-mid);border:1px solid var(--card-border);border-radius:12px;overflow:hidden;margin-bottom:8px}
+.tbl{width:100%;border-collapse:collapse}
+.tbl thead th{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:14px 16px;text-align:left;color:var(--muted);border-bottom:1px solid var(--card-border);white-space:nowrap}
+.tbl tbody tr{border-bottom:1px solid rgba(0,212,170,0.05);transition:background 0.15s}
+.tbl tbody tr:last-child{border-bottom:none}
+.tbl tbody tr:hover{background:rgba(0,212,170,0.025)}
+.tbl tbody td{padding:14px 16px;font-size:13px;color:var(--muted);vertical-align:middle}
+.tbl tbody td.bright{color:var(--off-white);font-weight:500}
+.tbl-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Status badges */
+.status{display:inline-block;padding:3px 10px;border-radius:20px;font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase}
+.status.active{background:rgba(0,212,170,0.15);color:var(--teal);border:1px solid rgba(0,212,170,0.3)}
+.status.pending{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,166,35,0.3)}
+.status.suspended{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,77,109,0.3)}
+.status.transferred,.status.cancelled{background:rgba(240,238,232,0.05);color:var(--muted);border:1px solid rgba(240,238,232,0.1)}
+.status.new{background:var(--teal-dim);color:var(--teal);border:1px solid rgba(0,212,170,0.25)}
+.status.reviewing{background:rgba(245,166,35,0.1);color:var(--amber);border:1px solid rgba(245,166,35,0.2)}
+.status.approved,.status.converted{background:rgba(0,212,170,0.1);color:var(--teal);border:1px solid rgba(0,212,170,0.2)}
+.status.rejected{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,77,109,0.2)}
+.status.completed{background:rgba(0,212,170,0.1);color:var(--teal);border:1px solid rgba(0,212,170,0.2)}
+.status.owner_approved{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(201,168,76,0.3)}
+
+/* Action buttons */
+.act-btn{padding:5px 14px;border-radius:6px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;border:none;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+.act-btn.teal{background:rgba(0,212,170,0.12);color:var(--teal);border:1px solid rgba(0,212,170,0.25)}
+.act-btn.teal:hover{background:rgba(0,212,170,0.22)}
+.act-btn.amber{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,166,35,0.25)}
+.act-btn.amber:hover{background:rgba(245,166,35,0.25)}
+.act-btn.red{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,77,109,0.25)}
+.act-btn.red:hover{background:rgba(255,77,109,0.22)}
+.act-btn.gold{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(201,168,76,0.25)}
+.act-btn.gold:hover{background:rgba(201,168,76,0.22)}
+.act-btn.muted{background:rgba(240,238,232,0.05);color:var(--muted);border:1px solid rgba(240,238,232,0.1)}
+.act-btn.muted:hover{background:rgba(240,238,232,0.1)}
+.owner-held-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:var(--gold-dim);color:var(--gold);border:1px solid rgba(201,168,76,0.3)}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:none;align-items:center;justify-content:center;padding:24px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--navy-mid);border:1px solid var(--card-border);border-radius:16px;padding:40px;max-width:580px;width:100%;max-height:90vh;overflow-y:auto}
+.modal h3{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;margin-bottom:20px}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.modal-group{display:flex;flex-direction:column;gap:6px}
+.modal-group.full{grid-column:1/-1}
+.modal-label{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--teal)}
+.modal-input,.modal-select,.modal-textarea{background:rgba(255,255,255,0.04);border:1px solid var(--card-border);border-radius:8px;padding:12px 14px;color:var(--off-white);font-family:'DM Sans',sans-serif;font-size:14px;width:100%}
+.modal-input:focus,.modal-select:focus,.modal-textarea:focus{outline:none;border-color:var(--teal)}
+.modal-select{appearance:none}
+.modal-select option{background:var(--navy-mid)}
+.modal-textarea{resize:vertical;min-height:80px;line-height:1.5}
+.modal-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:24px}
+.modal-btn{padding:12px 28px;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;border:none;cursor:pointer;transition:all 0.2s}
+.modal-btn.primary{background:var(--teal);color:var(--navy)}
+.modal-btn.primary:hover{background:#00bfa0}
+.modal-btn.danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,77,109,0.3)}
+.modal-btn.cancel{background:transparent;color:var(--muted);border:1px solid var(--card-border)}
+.modal-btn.cancel:hover{color:var(--off-white)}
+.modal-btn.gold{background:var(--gold);color:var(--navy)}
+.modal-btn.gold:hover{background:#b8932e}
+
+/* ── HISTORY PANEL ── */
+.history-list{display:flex;flex-direction:column;gap:10px;max-height:320px;overflow-y:auto;padding-right:4px}
+.history-item{background:rgba(255,255,255,0.02);border:1px solid rgba(0,212,170,0.08);border-radius:8px;padding:12px 16px}
+.history-type{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--teal);margin-bottom:4px}
+.history-desc{font-size:13px;color:var(--off-white);margin-bottom:4px}
+.history-meta{font-size:12px;color:var(--muted)}
+
+/* ── NOTICE ── */
+.notice{background:rgba(0,212,170,0.05);border:1px solid rgba(0,212,170,0.15);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--muted);margin-bottom:20px}
+.notice strong{color:var(--teal)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .modal-grid{grid-template-columns:1fr}
+  .caltrans-meta{grid-template-columns:1fr 1fr}
+  main{padding:20px 16px}
+  .caltrans-card{padding:24px 20px}
+}
+@media(max-width:580px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .tbl thead{display:none}
+  .tbl tbody td{display:block;padding:6px 16px}
+  .tbl tbody td::before{content:attr(data-label)': ';font-weight:700;color:var(--teal);font-size:11px;text-transform:uppercase;letter-spacing:0.08em}
+  .tbl tbody tr{display:block;padding:10px 0;border-bottom:1px solid var(--card-border)}
+}
+</style>
+</head>
+<body>
+
+<!-- AUTH GATE -->
+<div id="authGate">
+  <div class="auth-box">
+    <div class="auth-logo">Prime<span>Reach</span></div>
+    <div class="auth-eyebrow">Owner Admin — EVOBRAND Concepts</div>
+    <h2 class="auth-title">License Dashboard</h2>
+    <p class="auth-sub">Enter your email to receive a secure magic link. Access is restricted to authorized administrators.</p>
+    <input type="email" class="auth-input" id="authEmail" placeholder="ks@evobrand.net" value="ks@evobrand.net">
+    <button class="auth-btn" id="authBtn" onclick="sendMagicLink()">Send Login Link</button>
+    <p class="auth-msg" id="authMsg"></p>
+  </div>
+</div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-logo">Prime<span>Reach</span> &nbsp;<span style="color:var(--muted);font-size:14px;font-weight:400">License Admin</span></div>
+  <div class="topbar-right">
+    <span class="admin-badge">EVOBRAND OWNER</span>
+    <button class="logout-btn" onclick="logout()">Sign Out</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main>
+
+  <!-- CALTRANS PRIORITY CARD -->
+  <div class="caltrans-card" id="caltransCard" style="display:none">
+    <div class="caltrans-header">
+      <div class="caltrans-header-left">
+        <div class="caltrans-label">Priority License — Owner Held</div>
+        <div class="caltrans-title" id="caltransAgency">—</div>
+        <div class="caltrans-sub" id="caltransDept">—</div>
+      </div>
+      <span class="owner-held-badge">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#C9A84C" stroke-width="1.2"/><path d="M3.5 6l2 2 3-4" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Owner Held
+      </span>
+    </div>
+    <div class="caltrans-meta">
+      <div class="caltrans-meta-item"><div class="caltrans-meta-label">License Key</div><div class="caltrans-meta-value" id="caltransKey">—</div></div>
+      <div class="caltrans-meta-item"><div class="caltrans-meta-label">Domain</div><div class="caltrans-meta-value" id="caltransDomain">—</div></div>
+      <div class="caltrans-meta-item"><div class="caltrans-meta-label">Tier</div><div class="caltrans-meta-value" id="caltransTier">—</div></div>
+      <div class="caltrans-meta-item"><div class="caltrans-meta-label">Monthly Rate</div><div class="caltrans-meta-value" id="caltransMonthly">—</div></div>
+      <div class="caltrans-meta-item"><div class="caltrans-meta-label">Annual Rate</div><div class="caltrans-meta-value" id="caltransAnnual">—</div></div>
+      <div class="caltrans-meta-item"><div class="caltrans-meta-label">Activated</div><div class="caltrans-meta-value" id="caltransActivated">—</div></div>
+    </div>
+    <div class="caltrans-notes" id="caltransNotes"></div>
+    <div class="caltrans-actions">
+      <button class="btn-gold" id="caltransTransferBtn" onclick="openCaltransTransfer()">Transfer to Caltrans</button>
+      <button class="btn-outline-gold" onclick="openHistoryModal(null, true)">View History</button>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-label">Active Licenses</div><div class="stat-value" id="statActive">—</div></div>
+    <div class="stat-card amber"><div class="stat-label">Pending Requests</div><div class="stat-value" id="statRequests">—</div></div>
+    <div class="stat-card red"><div class="stat-label">Pending Transfers</div><div class="stat-value" id="statTransfers">—</div></div>
+    <div class="stat-card gold"><div class="stat-label">Monthly Revenue</div><div class="stat-value" id="statMRR">—</div></div>
+  </div>
+
+  <!-- LICENSES TABLE -->
+  <div class="section-hdr">
+    <h2>Licenses <span class="badge teal" id="licenseCount">0</span></h2>
+    <button class="act-btn teal" onclick="openNewLicenseModal()">+ New License</button>
+  </div>
+  <div class="table-wrap">
+    <div style="overflow-x:auto">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>License Key</th>
+            <th>Agency</th>
+            <th>Tier</th>
+            <th>Status</th>
+            <th>Holder</th>
+            <th>Domain</th>
+            <th>Owner Held</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="licensesBody"><tr><td colspan="8" class="empty">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- LICENSE REQUESTS TABLE -->
+  <div class="section-hdr">
+    <h2>License Requests <span class="badge amber" id="requestCount">0</span></h2>
+  </div>
+  <div class="table-wrap">
+    <div style="overflow-x:auto">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Agency</th>
+            <th>Contact</th>
+            <th>Tier</th>
+            <th>Billing</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="requestsBody"><tr><td colspan="7" class="empty">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TRANSFERS TABLE -->
+  <div class="section-hdr">
+    <h2>Transfer Requests <span class="badge red" id="transferCount">0</span></h2>
+  </div>
+  <div class="table-wrap">
+    <div style="overflow-x:auto">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>From</th>
+            <th>To</th>
+            <th>License</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="transfersBody"><tr><td colspan="6" class="empty">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<!-- TRANSFER MODAL -->
+<div class="modal-overlay" id="transferModal">
+  <div class="modal">
+    <h3 id="transferModalTitle">Initiate License Transfer</h3>
+    <input type="hidden" id="transferLicenseId">
+    <div class="modal-grid">
+      <div class="modal-group">
+        <label class="modal-label">From Organization</label>
+        <input type="text" class="modal-input" id="tfFromOrg" placeholder="Current holder">
+      </div>
+      <div class="modal-group">
+        <label class="modal-label">From Email</label>
+        <input type="email" class="modal-input" id="tfFromEmail" placeholder="holder@org.com">
+      </div>
+      <div class="modal-group">
+        <label class="modal-label">To Organization *</label>
+        <input type="text" class="modal-input" id="tfToOrg" placeholder="Receiving agency" required>
+      </div>
+      <div class="modal-group">
+        <label class="modal-label">To Contact Email *</label>
+        <input type="email" class="modal-input" id="tfToEmail" placeholder="contact@agency.gov" required>
+      </div>
+      <div class="modal-group">
+        <label class="modal-label">To Contact Name</label>
+        <input type="text" class="modal-input" id="tfToContact" placeholder="Full name">
+      </div>
+      <div class="modal-group">
+        <label class="modal-label">To Phone</label>
+        <input type="tel" class="modal-input" id="tfToPhone" placeholder="(000) 000-0000">
+      </div>
+      <div class="modal-group full">
+        <label class="modal-label">Reason / Notes</label>
+        <textarea class="modal-textarea" id="tfReason" placeholder="Transfer context..."></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeModal('transferModal')">Cancel</button>
+      <button class="modal-btn gold" onclick="submitTransfer()">Submit Transfer</button>
+    </div>
+  </div>
+</div>
+
+<!-- AUTHORIZE TRANSFER MODAL -->
+<div class="modal-overlay" id="authorizeModal">
+  <div class="modal">
+    <h3>Authorize License Transfer</h3>
+    <input type="hidden" id="authTransferId">
+    <div class="notice">
+      <strong>Attention:</strong> This will immediately transfer the license to the receiving organization and update all holder information. This action cannot be undone.
+    </div>
+    <div id="authorizeDetails" style="margin-bottom:20px;font-size:14px;color:var(--muted);line-height:1.7"></div>
+    <div class="modal-group" style="margin-bottom:20px">
+      <label class="modal-label">Admin Notes (optional)</label>
+      <textarea class="modal-textarea" id="authAdminNotes" placeholder="Internal notes for this transfer..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeModal('authorizeModal')">Cancel</button>
+      <button class="modal-btn danger" onclick="rejectTransfer()">Reject</button>
+      <button class="modal-btn gold" onclick="authorizeTransfer()">Authorize Transfer</button>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY MODAL -->
+<div class="modal-overlay" id="historyModal">
+  <div class="modal">
+    <h3>License History</h3>
+    <div class="history-list" id="historyList"><p class="empty">No events found.</p></div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeModal('historyModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- REQUEST DETAIL MODAL -->
+<div class="modal-overlay" id="requestDetailModal">
+  <div class="modal">
+    <h3>Request Details</h3>
+    <div id="requestDetailContent" style="font-size:14px;color:var(--muted);line-height:1.8"></div>
+    <div class="modal-group" style="margin-top:16px;margin-bottom:20px">
+      <label class="modal-label">Admin Notes</label>
+      <textarea class="modal-textarea" id="reqAdminNotes" placeholder="Notes..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeModal('requestDetailModal')">Close</button>
+      <button class="modal-btn danger" onclick="rejectRequest()">Reject</button>
+      <button class="modal-btn primary" onclick="approveRequest()">Approve & Create License</button>
+    </div>
+    <input type="hidden" id="activeRequestId">
+  </div>
+</div>
+
+<!-- NEW LICENSE MODAL -->
+<div class="modal-overlay" id="newLicenseModal">
+  <div class="modal">
+    <h3>Create New License</h3>
+    <div class="modal-grid">
+      <div class="modal-group">
+        <label class="modal-label">Agency Name *</label>
+        <input type="text" class="modal-input" id="nl_agency" required>
+      </div>
+      <div class="modal-group">
+        <label class="modal-label">Department</label>
+        <input type="text" class="modal-input" id="nl_dept">
+      </div>
+      <div class="modal-group">
+        <label class="modal-label">Holder Org *</label>
+        <input type="text" class="modal-input" id="nl_holderOrg" required>
+      </div>
+      <div class="modal-group">
+        <label class="modal-label">Holder Contact *</label>
+        <input type="text" class="modal-input" id="nl_holderContact" required>
+      </div>
+      <div class="modal-group">
+        <label class="modal-label">Holder Email *</label>
+        <input type="email" class="modal-input" id="nl_holderEmail" required>
+      </div>
+      <div class="modal-group">
+        <label class="modal-label">Domain</label>
+        <input type="text" class="modal-input" id="nl_domain" placeholder="agency.gov">
+      </div>
+      <div class="modal-group">
+        <label class="modal-label">Tier *</label>
+        <select class="modal-select" id="nl_tier">
+          <option value="starter">Starter</option>
+          <option value="professional" selected>Professional</option>
+          <option value="enterprise">Enterprise</option>
+        </select>
+      </div>
+      <div class="modal-group">
+        <label class="modal-label">Billing</label>
+        <select class="modal-select" id="nl_billing">
+          <option value="monthly">Monthly</option>
+          <option value="annual">Annual</option>
+        </select>
+      </div>
+      <div class="modal-group">
+        <label class="modal-label">Monthly Rate ($)</label>
+        <input type="number" class="modal-input" id="nl_monthly" placeholder="9500">
+      </div>
+      <div class="modal-group">
+        <label class="modal-label">Annual Rate ($)</label>
+        <input type="number" class="modal-input" id="nl_annual" placeholder="95000">
+      </div>
+      <div class="modal-group full">
+        <label class="modal-label">Notes</label>
+        <textarea class="modal-textarea" id="nl_notes"></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeModal('newLicenseModal')">Cancel</button>
+      <button class="modal-btn primary" onclick="createLicense()">Create License</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://dwpmujyycpgibpsculfd.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3cG11anl5Y3BnaWJwc2N1bGZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0MDIzOTksImV4cCI6MjA4Nzk3ODM5OX0.vpyxfDO86Mr7K8SldkJOLIgCewAHIFE7cN79H23STDs';
+const ADMIN_EMAIL = 'ks@evobrand.net';
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let caltransLicense = null;
+let activeRequestData = null;
+
+// ── AUTH ──
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session && session.user?.email === ADMIN_EMAIL) {
+    showDashboard();
+    loadAll();
+  }
+  // Listen for auth state changes (magic link callback)
+  sb.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN' && session?.user?.email === ADMIN_EMAIL) {
+      showDashboard();
+      loadAll();
+    } else if (event === 'SIGNED_IN' && session?.user?.email !== ADMIN_EMAIL) {
+      sb.auth.signOut();
+      document.getElementById('authMsg').className = 'auth-msg err';
+      document.getElementById('authMsg').textContent = 'Access denied. Authorized users only.';
+    }
+  });
+}
+
+function showDashboard() {
+  document.getElementById('authGate').classList.add('hidden');
+}
+
+async function sendMagicLink() {
+  const email = document.getElementById('authEmail').value.trim();
+  const btn = document.getElementById('authBtn');
+  const msg = document.getElementById('authMsg');
+  if (!email) return;
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  const { error } = await sb.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: window.location.href }
+  });
+  if (error) {
+    msg.className = 'auth-msg err';
+    msg.textContent = 'Error: ' + error.message;
+    btn.disabled = false;
+    btn.textContent = 'Send Login Link';
+  } else {
+    msg.className = 'auth-msg';
+    msg.textContent = 'Magic link sent! Check your inbox.';
+    btn.textContent = 'Link Sent ✓';
+  }
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  window.location.reload();
+}
+
+// ── DATA LOADING ──
+async function loadAll() {
+  await Promise.all([loadLicenses(), loadRequests(), loadTransfers()]);
+}
+
+async function loadLicenses() {
+  const { data, error } = await sb
+    .from('licenses')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) { console.error(error); return; }
+
+  // Stats
+  const active = data.filter(l => l.status === 'active').length;
+  const mrr = data
+    .filter(l => l.status === 'active' && l.monthly_rate)
+    .reduce((sum, l) => sum + parseFloat(l.monthly_rate), 0);
+
+  document.getElementById('statActive').textContent = active;
+  document.getElementById('statMRR').textContent = '$' + Math.round(mrr).toLocaleString();
+  document.getElementById('licenseCount').textContent = data.length;
+
+  // Caltrans card
+  caltransLicense = data.find(l => l.is_owner_held && l.holder_domain === 'caltransbizconnect.org')
+    || data.find(l => l.is_owner_held);
+
+  if (caltransLicense) {
+    const c = caltransLicense;
+    document.getElementById('caltransCard').style.display = 'block';
+    document.getElementById('caltransAgency').textContent = c.agency_name;
+    document.getElementById('caltransDept').textContent = c.department || '';
+    document.getElementById('caltransKey').textContent = c.license_key;
+    document.getElementById('caltransDomain').textContent = c.holder_domain || '—';
+    document.getElementById('caltransTier').textContent = capitalize(c.tier);
+    document.getElementById('caltransMonthly').textContent = c.monthly_rate ? '$' + Number(c.monthly_rate).toLocaleString() + '/mo' : '—';
+    document.getElementById('caltransAnnual').textContent = c.annual_rate ? '$' + Number(c.annual_rate).toLocaleString() + '/yr' : '—';
+    document.getElementById('caltransActivated').textContent = c.activated_at ? fmtDate(c.activated_at) : '—';
+    document.getElementById('caltransNotes').innerHTML = '<strong>Notes:</strong> ' + (c.notes || 'None');
+  }
+
+  // Table
+  const tbody = document.getElementById('licensesBody');
+  if (!data.length) { tbody.innerHTML = '<tr><td colspan="8" class="empty">No licenses found.</td></tr>'; return; }
+  tbody.innerHTML = data.map(l => `
+    <tr>
+      <td class="bright" data-label="License Key"><code style="font-size:12px;color:var(--teal)">${l.license_key}</code></td>
+      <td class="bright" data-label="Agency">${l.agency_name}</td>
+      <td data-label="Tier">${capitalize(l.tier)}</td>
+      <td data-label="Status"><span class="status ${l.status}">${l.status}</span></td>
+      <td data-label="Holder">${l.holder_org}</td>
+      <td data-label="Domain">${l.holder_domain || '—'}</td>
+      <td data-label="Owner Held">${l.is_owner_held ? '<span class="owner-held-tag">Owner Held</span>' : '<span style="color:var(--muted)">—</span>'}</td>
+      <td data-label="Actions">
+        <div class="tbl-actions">
+          ${l.status === 'pending' ? `<button class="act-btn teal" onclick="activateLicense('${l.id}')">Activate</button>` : ''}
+          ${l.status === 'active' ? `<button class="act-btn amber" onclick="suspendLicense('${l.id}')">Suspend</button>` : ''}
+          ${l.status === 'suspended' ? `<button class="act-btn teal" onclick="activateLicense('${l.id}')">Reactivate</button>` : ''}
+          <button class="act-btn gold" onclick="openTransferModal('${l.id}','${escHtml(l.holder_org)}','${escHtml(l.holder_email)}')">Transfer</button>
+          <button class="act-btn muted" onclick="openHistoryModal('${l.id}', false)">History</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function loadRequests() {
+  const { data, error } = await sb
+    .from('license_requests')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) { console.error(error); return; }
+
+  const pending = data.filter(r => r.status === 'new' || r.status === 'reviewing').length;
+  document.getElementById('statRequests').textContent = pending;
+  document.getElementById('requestCount').textContent = data.length;
+
+  const tbody = document.getElementById('requestsBody');
+  if (!data.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty">No requests yet.</td></tr>'; return; }
+  tbody.innerHTML = data.map(r => `
+    <tr>
+      <td data-label="Date">${fmtDate(r.created_at)}</td>
+      <td class="bright" data-label="Agency">${r.agency_name}</td>
+      <td data-label="Contact">${r.contact_name}<br><span style="font-size:12px">${r.contact_email}</span></td>
+      <td data-label="Tier">${capitalize(r.tier)}</td>
+      <td data-label="Billing">${capitalize(r.billing_pref || 'monthly')}</td>
+      <td data-label="Status"><span class="status ${r.status}">${r.status}</span></td>
+      <td data-label="Actions">
+        <div class="tbl-actions">
+          ${r.status !== 'rejected' && r.status !== 'converted' ? `
+            <button class="act-btn teal" onclick="openRequestDetail('${r.id}')">Review</button>
+          ` : ''}
+          <button class="act-btn muted" onclick="openRequestDetail('${r.id}')">View</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function loadTransfers() {
+  const { data, error } = await sb
+    .from('license_transfers')
+    .select('*, licenses(license_key, agency_name, holder_domain)')
+    .order('created_at', { ascending: false });
+  if (error) { console.error(error); return; }
+
+  const pending = data.filter(t => t.status === 'pending').length;
+  document.getElementById('statTransfers').textContent = pending;
+  document.getElementById('transferCount').textContent = data.length;
+
+  const tbody = document.getElementById('transfersBody');
+  if (!data.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">No transfer requests yet.</td></tr>'; return; }
+  tbody.innerHTML = data.map(t => `
+    <tr>
+      <td data-label="Date">${fmtDate(t.created_at)}</td>
+      <td data-label="From">${t.from_org}<br><span style="font-size:12px">${t.from_email}</span></td>
+      <td class="bright" data-label="To">${t.to_org}<br><span style="font-size:12px">${t.to_email}</span></td>
+      <td data-label="License">${t.licenses ? (t.licenses.holder_domain || t.licenses.agency_name) : (t.admin_notes || '—')}</td>
+      <td data-label="Status"><span class="status ${t.status}">${t.status.replace('_',' ')}</span></td>
+      <td data-label="Actions">
+        <div class="tbl-actions">
+          ${t.status === 'pending' || t.status === 'owner_approved' ? `
+            <button class="act-btn gold" onclick="openAuthorizeModal('${t.id}','${escHtml(t.from_org)}','${escHtml(t.to_org)}','${escHtml(t.to_email)}','${t.license_id || ''}')">Authorize</button>
+          ` : ''}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ── LICENSE ACTIONS ──
+async function activateLicense(id) {
+  await sb.from('licenses').update({ status: 'active', activated_at: new Date().toISOString() }).eq('id', id);
+  await logEvent(id, 'status_change', 'License activated');
+  loadLicenses();
+}
+
+async function suspendLicense(id) {
+  if (!confirm('Suspend this license?')) return;
+  await sb.from('licenses').update({ status: 'suspended' }).eq('id', id);
+  await logEvent(id, 'status_change', 'License suspended');
+  loadLicenses();
+}
+
+// ── TRANSFER FLOW ──
+function openTransferModal(licenseId, holderOrg, holderEmail) {
+  document.getElementById('transferLicenseId').value = licenseId;
+  document.getElementById('tfFromOrg').value = holderOrg || '';
+  document.getElementById('tfFromEmail').value = holderEmail || '';
+  document.getElementById('tfToOrg').value = '';
+  document.getElementById('tfToEmail').value = '';
+  document.getElementById('tfToContact').value = '';
+  document.getElementById('tfToPhone').value = '';
+  document.getElementById('tfReason').value = '';
+  document.getElementById('transferModalTitle').textContent = 'Initiate License Transfer';
+  openModal('transferModal');
+}
+
+function openCaltransTransfer() {
+  if (!caltransLicense) return;
+  document.getElementById('transferLicenseId').value = caltransLicense.id;
+  document.getElementById('tfFromOrg').value = caltransLicense.holder_org;
+  document.getElementById('tfFromEmail').value = caltransLicense.holder_email;
+  document.getElementById('tfToOrg').value = 'California Department of Transportation';
+  document.getElementById('tfToEmail').value = '';
+  document.getElementById('tfToContact').value = '';
+  document.getElementById('tfReason').value = 'Settlement of scope/payment dispute with MWS & Associates. Transfer of caltransbizconnect.org license to Caltrans upon payment resolution.';
+  document.getElementById('transferModalTitle').textContent = 'Transfer to Caltrans';
+  openModal('transferModal');
+}
+
+async function submitTransfer() {
+  const licenseId = document.getElementById('transferLicenseId').value;
+  const toOrg = document.getElementById('tfToOrg').value.trim();
+  const toEmail = document.getElementById('tfToEmail').value.trim();
+  if (!toOrg || !toEmail) { alert('Receiving organization and email are required.'); return; }
+
+  const { error } = await sb.from('license_transfers').insert({
+    license_id: licenseId || null,
+    from_org: document.getElementById('tfFromOrg').value,
+    from_email: document.getElementById('tfFromEmail').value,
+    to_org: toOrg,
+    to_email: toEmail,
+    to_contact: document.getElementById('tfToContact').value || null,
+    to_phone: document.getElementById('tfToPhone').value || null,
+    transfer_reason: document.getElementById('tfReason').value || null,
+    owner_authorized: true,
+    owner_authorized_at: new Date().toISOString(),
+    status: 'owner_approved',
+  });
+  if (error) { alert('Error: ' + error.message); return; }
+  closeModal('transferModal');
+  loadTransfers();
+}
+
+function openAuthorizeModal(transferId, fromOrg, toOrg, toEmail, licenseId) {
+  document.getElementById('authTransferId').value = transferId;
+  document.getElementById('authAdminNotes').value = '';
+  document.getElementById('authorizeDetails').innerHTML = `
+    <strong style="color:var(--off-white)">Transfer:</strong> ${fromOrg} → ${toOrg}<br>
+    <strong style="color:var(--off-white)">Receiving Email:</strong> ${toEmail}<br>
+    <strong style="color:var(--off-white)">License ID:</strong> ${licenseId || 'unlinked'}
+  `;
+  // Store for authorize action
+  document.getElementById('authTransferId').dataset.licenseId = licenseId;
+  document.getElementById('authTransferId').dataset.toOrg = toOrg;
+  document.getElementById('authTransferId').dataset.toEmail = toEmail;
+  openModal('authorizeModal');
+}
+
+async function authorizeTransfer() {
+  const transferId = document.getElementById('authTransferId').value;
+  const licenseId = document.getElementById('authTransferId').dataset.licenseId;
+  const toOrg = document.getElementById('authTransferId').dataset.toOrg;
+  const toEmail = document.getElementById('authTransferId').dataset.toEmail;
+  const adminNotes = document.getElementById('authAdminNotes').value;
+
+  // 1. Get transfer details
+  const { data: tf } = await sb.from('license_transfers').select('*').eq('id', transferId).single();
+
+  // 2. Update license holder
+  if (licenseId) {
+    await sb.from('licenses').update({
+      holder_org: toOrg,
+      holder_email: toEmail,
+      holder_contact: tf?.to_contact || toOrg,
+      is_owner_held: false,
+      status: 'active',
+    }).eq('id', licenseId);
+    await logEvent(licenseId, 'transfer_completed', `License transferred from ${tf?.from_org || '?'} to ${toOrg}`, {
+      from: tf?.from_org, to: toOrg
+    });
+  }
+
+  // 3. Complete transfer record
+  await sb.from('license_transfers').update({
+    status: 'completed',
+    owner_authorized: true,
+    owner_authorized_at: new Date().toISOString(),
+    completed_at: new Date().toISOString(),
+    admin_notes: adminNotes || null,
+  }).eq('id', transferId);
+
+  closeModal('authorizeModal');
+  loadAll();
+}
+
+async function rejectTransfer() {
+  const transferId = document.getElementById('authTransferId').value;
+  if (!confirm('Reject this transfer?')) return;
+  await sb.from('license_transfers').update({ status: 'rejected' }).eq('id', transferId);
+  closeModal('authorizeModal');
+  loadTransfers();
+}
+
+// ── REQUEST FLOW ──
+async function openRequestDetail(requestId) {
+  const { data: r, error } = await sb.from('license_requests').select('*').eq('id', requestId).single();
+  if (error || !r) return;
+  activeRequestData = r;
+  document.getElementById('activeRequestId').value = requestId;
+  document.getElementById('reqAdminNotes').value = r.admin_notes || '';
+  document.getElementById('requestDetailContent').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px">
+      <div><strong style="color:var(--teal)">Agency:</strong> ${r.agency_name}</div>
+      <div><strong style="color:var(--teal)">Dept:</strong> ${r.department || '—'}</div>
+      <div><strong style="color:var(--teal)">Contact:</strong> ${r.contact_name}</div>
+      <div><strong style="color:var(--teal)">Title:</strong> ${r.contact_title || '—'}</div>
+      <div><strong style="color:var(--teal)">Email:</strong> ${r.contact_email}</div>
+      <div><strong style="color:var(--teal)">Phone:</strong> ${r.contact_phone || '—'}</div>
+      <div><strong style="color:var(--teal)">Tier:</strong> ${capitalize(r.tier)}</div>
+      <div><strong style="color:var(--teal)">Billing:</strong> ${capitalize(r.billing_pref || 'monthly')}</div>
+      <div><strong style="color:var(--teal)">Districts:</strong> ${r.num_districts || '—'}</div>
+      <div><strong style="color:var(--teal)">Launch:</strong> ${r.launch_date ? fmtDate(r.launch_date) : '—'}</div>
+      <div style="grid-column:1/-1"><strong style="color:var(--teal)">Domain:</strong> ${r.custom_domain || '—'}</div>
+      <div style="grid-column:1/-1"><strong style="color:var(--teal)">Program:</strong> ${r.program_description || '—'}</div>
+    </div>
+  `;
+  openModal('requestDetailModal');
+}
+
+async function approveRequest() {
+  const r = activeRequestData;
+  if (!r) return;
+  const adminNotes = document.getElementById('reqAdminNotes').value;
+
+  // Create license from request
+  const { data: newLicense, error } = await sb.from('licenses').insert({
+    tier: r.tier,
+    billing_cycle: r.billing_pref === 'annual' ? 'annual' : 'monthly',
+    status: 'active',
+    holder_org: r.agency_name,
+    holder_contact: r.contact_name,
+    holder_email: r.contact_email,
+    holder_phone: r.contact_phone || null,
+    holder_domain: r.custom_domain || null,
+    agency_name: r.agency_name,
+    department: r.department || null,
+    num_districts: r.num_districts || null,
+    program_description: r.program_description || null,
+    launch_date: r.launch_date || null,
+    is_owner_held: false,
+    monthly_rate: r.tier === 'starter' ? 4500 : r.tier === 'professional' ? 9500 : null,
+    annual_rate: r.tier === 'starter' ? 45000 : r.tier === 'professional' ? 95000 : null,
+    activated_at: new Date().toISOString(),
+  }).select().single();
+
+  if (error) { alert('Error creating license: ' + error.message); return; }
+
+  // Update request
+  await sb.from('license_requests').update({
+    status: 'converted',
+    converted_license_id: newLicense.id,
+    admin_notes: adminNotes || null,
+  }).eq('id', r.id);
+
+  await logEvent(newLicense.id, 'license_created', `License created from request. Agency: ${r.agency_name}`);
+
+  closeModal('requestDetailModal');
+  loadAll();
+}
+
+async function rejectRequest() {
+  const requestId = document.getElementById('activeRequestId').value;
+  const adminNotes = document.getElementById('reqAdminNotes').value;
+  if (!confirm('Reject this request?')) return;
+  await sb.from('license_requests').update({
+    status: 'rejected',
+    admin_notes: adminNotes || null,
+  }).eq('id', requestId);
+  closeModal('requestDetailModal');
+  loadRequests();
+}
+
+// ── NEW LICENSE ──
+async function createLicense() {
+  const agency = document.getElementById('nl_agency').value.trim();
+  const holderOrg = document.getElementById('nl_holderOrg').value.trim();
+  const holderContact = document.getElementById('nl_holderContact').value.trim();
+  const holderEmail = document.getElementById('nl_holderEmail').value.trim();
+  if (!agency || !holderOrg || !holderContact || !holderEmail) {
+    alert('Please fill in all required fields.'); return;
+  }
+  const { data, error } = await sb.from('licenses').insert({
+    agency_name: agency,
+    department: document.getElementById('nl_dept').value || null,
+    holder_org: holderOrg,
+    holder_contact: holderContact,
+    holder_email: holderEmail,
+    holder_domain: document.getElementById('nl_domain').value || null,
+    tier: document.getElementById('nl_tier').value,
+    billing_cycle: document.getElementById('nl_billing').value,
+    status: 'active',
+    is_owner_held: false,
+    monthly_rate: document.getElementById('nl_monthly').value || null,
+    annual_rate: document.getElementById('nl_annual').value || null,
+    notes: document.getElementById('nl_notes').value || null,
+    activated_at: new Date().toISOString(),
+  }).select().single();
+  if (error) { alert('Error: ' + error.message); return; }
+  await logEvent(data.id, 'license_created', `New license manually created for ${agency}`);
+  closeModal('newLicenseModal');
+  loadLicenses();
+}
+
+// ── HISTORY ──
+async function openHistoryModal(licenseId, isCaltrans) {
+  const id = isCaltrans && caltransLicense ? caltransLicense.id : licenseId;
+  document.getElementById('historyList').innerHTML = '<p class="empty">Loading...</p>';
+  openModal('historyModal');
+  if (!id) { document.getElementById('historyList').innerHTML = '<p class="empty">No license linked.</p>'; return; }
+  const { data, error } = await sb
+    .from('license_events')
+    .select('*')
+    .eq('license_id', id)
+    .order('created_at', { ascending: false });
+  if (error || !data?.length) {
+    document.getElementById('historyList').innerHTML = '<p class="empty">No events recorded yet.</p>';
+    return;
+  }
+  document.getElementById('historyList').innerHTML = data.map(e => `
+    <div class="history-item">
+      <div class="history-type">${e.event_type.replace(/_/g,' ')}</div>
+      <div class="history-desc">${e.description || '—'}</div>
+      <div class="history-meta">${fmtDate(e.created_at)} · ${e.performed_by}</div>
+    </div>
+  `).join('');
+}
+
+// ── HELPERS ──
+async function logEvent(licenseId, eventType, description, metadata) {
+  await sb.from('license_events').insert({
+    license_id: licenseId,
+    event_type: eventType,
+    description,
+    performed_by: ADMIN_EMAIL,
+    metadata: metadata || null,
+  });
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function capitalize(str) { return str ? str.charAt(0).toUpperCase() + str.slice(1) : ''; }
+
+function fmtDate(str) {
+  if (!str) return '—';
+  return new Date(str).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+}
+
+function escHtml(str) { return (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+
+function openNewLicenseModal() { openModal('newLicenseModal'); }
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+init();
+</script>
+</body>
+</html>
