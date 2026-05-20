@@ -409,46 +409,113 @@ main{max-width:1280px;margin:0 auto;padding:32px 24px}
 
 <!-- NEW LICENSE MODAL -->
 <div class="modal-overlay" id="newLicenseModal">
-  <div class="modal">
+  <div class="modal" style="max-width:680px">
     <h3>New License</h3>
-    <div style="display:flex;flex-direction:column;gap:14px">
-      <div class="modal-group">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+
+      <div class="modal-group full">
         <label class="modal-label">Agency Name *</label>
-        <input type="text" class="modal-input" id="nl_agency" placeholder="e.g. California DOT">
+        <input type="text" class="modal-input" id="nl_agency" placeholder="e.g. California Dept. of Transportation">
       </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Department</label>
+        <input type="text" class="modal-input" id="nl_dept" placeholder="e.g. Office of Civil Rights">
+      </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Holder Org</label>
+        <input type="text" class="modal-input" id="nl_holderOrg" placeholder="If different from agency name">
+      </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Contact Name *</label>
+        <input type="text" class="modal-input" id="nl_contactName" placeholder="First Last">
+      </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Contact Title</label>
+        <input type="text" class="modal-input" id="nl_contactTitle" placeholder="e.g. Program Manager">
+      </div>
+
       <div class="modal-group">
         <label class="modal-label">Holder Email *</label>
         <input type="email" class="modal-input" id="nl_holderEmail" placeholder="contact@agency.gov">
       </div>
+
       <div class="modal-group">
         <label class="modal-label">Phone</label>
         <input type="tel" class="modal-input" id="nl_holderPhone" placeholder="(000) 000-0000">
       </div>
+
       <div class="modal-group">
         <label class="modal-label">Domain</label>
         <input type="text" class="modal-input" id="nl_domain" placeholder="agency.gov">
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-        <div class="modal-group">
-          <label class="modal-label">Tier</label>
-          <select class="modal-select" id="nl_tier">
-            <option value="starter">Starter</option>
-            <option value="professional" selected>Professional</option>
-            <option value="enterprise">Enterprise</option>
-          </select>
-        </div>
-        <div class="modal-group">
-          <label class="modal-label">Billing</label>
-          <select class="modal-select" id="nl_billing">
-            <option value="monthly">Monthly</option>
-            <option value="annual">Annual</option>
-          </select>
-        </div>
-      </div>
+
       <div class="modal-group">
-        <label class="modal-label">Notes</label>
-        <textarea class="modal-textarea" id="nl_notes" placeholder="Internal notes..."></textarea>
+        <label class="modal-label">Number of Districts</label>
+        <input type="text" class="modal-input" id="nl_districts" placeholder="e.g. 12">
       </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Tier</label>
+        <select class="modal-select" id="nl_tier">
+          <option value="starter">Starter</option>
+          <option value="professional" selected>Professional</option>
+          <option value="enterprise">Enterprise</option>
+        </select>
+      </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Billing Cycle</label>
+        <select class="modal-select" id="nl_billing">
+          <option value="monthly">Monthly</option>
+          <option value="annual">Annual</option>
+        </select>
+      </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Status</label>
+        <select class="modal-select" id="nl_status">
+          <option value="active">Active</option>
+          <option value="pending">Pending</option>
+        </select>
+      </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Monthly Rate ($)</label>
+        <input type="number" class="modal-input" id="nl_monthly" placeholder="e.g. 4500" min="0" step="0.01">
+      </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Annual Rate ($)</label>
+        <input type="number" class="modal-input" id="nl_annual" placeholder="e.g. 45000" min="0" step="0.01">
+      </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Launch Date</label>
+        <input type="date" class="modal-input" id="nl_launch">
+      </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Owner Held?</label>
+        <select class="modal-select" id="nl_ownerHeld">
+          <option value="false">No — held by licensee</option>
+          <option value="true">Yes — held by EVOBRAND</option>
+        </select>
+      </div>
+
+      <div class="modal-group full">
+        <label class="modal-label">Program Description</label>
+        <textarea class="modal-textarea" id="nl_desc" placeholder="Brief description of the program..." rows="3"></textarea>
+      </div>
+
+      <div class="modal-group full">
+        <label class="modal-label">Internal Notes</label>
+        <textarea class="modal-textarea" id="nl_notes" placeholder="Billing terms, disputes, special conditions..." rows="2"></textarea>
+      </div>
+
     </div>
     <div class="modal-actions">
       <button class="modal-btn cancel" onclick="closeModal('newLicenseModal')">Cancel</button>
@@ -835,24 +902,40 @@ async function rejectRequest() {
 
 // ── NEW LICENSE ──
 async function createLicense() {
-  const agency = document.getElementById('nl_agency').value.trim();
+  const agency      = document.getElementById('nl_agency').value.trim();
+  const contactName = document.getElementById('nl_contactName').value.trim();
   const holderEmail = document.getElementById('nl_holderEmail').value.trim();
-  if (!agency || !holderEmail) { alert('Agency name and email are required.'); return; }
+  if (!agency || !holderEmail || !contactName) {
+    alert('Agency name, contact name, and email are required.');
+    return;
+  }
   try {
+    const holderOrg = document.getElementById('nl_holderOrg').value.trim() || agency;
+    const monthly   = document.getElementById('nl_monthly').value;
+    const annual    = document.getElementById('nl_annual').value;
     const newLicense = await adm('insert_license', {
-      agency_name: agency,
-      holder_org: agency,
-      holder_email: holderEmail,
-      holder_phone: document.getElementById('nl_holderPhone').value,
-      holder_domain: document.getElementById('nl_domain').value,
-      tier: document.getElementById('nl_tier').value,
-      billing_cycle: document.getElementById('nl_billing').value,
-      notes: document.getElementById('nl_notes').value,
-      is_owner_held: 'false',
+      agency_name:         agency,
+      holder_org:          holderOrg,
+      holder_contact:      contactName,
+      holder_email:        holderEmail,
+      holder_phone:        document.getElementById('nl_holderPhone').value.trim(),
+      holder_domain:       document.getElementById('nl_domain').value.trim(),
+      department:          document.getElementById('nl_dept').value.trim(),
+      num_districts:       document.getElementById('nl_districts').value.trim(),
+      program_description: document.getElementById('nl_desc').value.trim(),
+      tier:                document.getElementById('nl_tier').value,
+      billing_cycle:       document.getElementById('nl_billing').value,
+      status:              document.getElementById('nl_status').value,
+      monthly_rate:        monthly || null,
+      annual_rate:         annual  || null,
+      launch_date:         document.getElementById('nl_launch').value || null,
+      is_owner_held:       document.getElementById('nl_ownerHeld').value,
+      notes:               document.getElementById('nl_notes').value.trim(),
     });
-    await logEvent(newLicense.id, 'license_created', `License manually created for ${agency}`);
+    await logEvent(newLicense.id, 'license_created', `License manually created for ${agency}`, { tier: newLicense.tier, monthly_rate: monthly, annual_rate: annual });
     closeModal('newLicenseModal');
     loadLicenses();
+    showToast(`License created for ${agency}`);
   } catch(e) { alert('Error: ' + e.message); }
 }
 
@@ -898,7 +981,19 @@ function fmtDate(str) {
 
 function escHtml(str) { return (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
 
-function openNewLicenseModal() { openModal('newLicenseModal'); }
+function openNewLicenseModal() {
+  ['nl_agency','nl_dept','nl_holderOrg','nl_contactName','nl_contactTitle',
+   'nl_holderEmail','nl_holderPhone','nl_domain','nl_districts',
+   'nl_monthly','nl_annual','nl_launch','nl_desc','nl_notes'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('nl_tier').value      = 'professional';
+  document.getElementById('nl_billing').value   = 'monthly';
+  document.getElementById('nl_status').value    = 'active';
+  document.getElementById('nl_ownerHeld').value = 'false';
+  openModal('newLicenseModal');
+}
 
 // Close modals on overlay click
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
