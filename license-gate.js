@@ -1,5 +1,5 @@
 (function () {
-  const ENDPOINT = 'https://dwpmujyycpgibpsculfd.supabase.co/functions/v1/check-license-status';
+  const ENDPOINT = 'https://ujrftxcromzktftgikzh.supabase.co/functions/v1/check-license-status';
   const CACHE_KEY = 'pr_license_status';
   const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
