@@ -738,9 +738,9 @@ async function triggerMaintenanceMode(licenseId, action) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ license_id: licenseId, action }),
   });
+  const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    console.warn('Site maintenance toggle failed:', data.error || res.status);
+    throw new Error(data.error || `Site toggle failed (${res.status}). Check that GITHUB_TOKEN is set in Supabase secrets.`);
   }
 }
 
