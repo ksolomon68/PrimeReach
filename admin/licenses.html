@@ -464,6 +464,7 @@ main{max-width:1280px;margin:0 auto;padding:32px 24px}
 const SUPABASE_URL = 'https://dwpmujyycpgibpsculfd.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR3cG11anl5Y3BnaWJwc2N1bGZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0MDIzOTksImV4cCI6MjA4Nzk3ODM5OX0.vpyxfDO86Mr7K8SldkJOLIgCewAHIFE7cN79H23STDs';
 const ADMIN_EMAIL = 'ks@evobrand.net';
+const FUNCTIONS_URL = `${SUPABASE_URL}/functions/v1`;
 
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
@@ -634,18 +635,42 @@ async function loadTransfers() {
 async function activateLicense(id) {
   try {
     await adm('update_license', { id, status: 'active', activated_at: new Date().toISOString() });
-    await logEvent(id, 'status_change', 'License activated');
+    await logEvent(id, 'status_change', 'License activated — maintenance mode deactivated');
+    await triggerMaintenanceMode(id, 'reactivate');
     loadLicenses();
+    showToast('License activated. Site will come back online within ~60 seconds.');
   } catch(e) { alert('Error: ' + e.message); }
 }
 
 async function suspendLicense(id) {
-  if (!confirm('Suspend this license?')) return;
+  if (!confirm('Suspend this license? The site will enter maintenance mode within ~60 seconds.')) return;
   try {
     await adm('update_license', { id, status: 'suspended' });
-    await logEvent(id, 'status_change', 'License suspended');
+    await logEvent(id, 'status_change', 'License suspended — maintenance mode activated');
+    await triggerMaintenanceMode(id, 'suspend');
     loadLicenses();
+    showToast('License suspended. Site will enter maintenance mode within ~60 seconds.');
   } catch(e) { alert('Error: ' + e.message); }
+}
+
+async function triggerMaintenanceMode(licenseId, action) {
+  const res = await fetch(`${FUNCTIONS_URL}/suspend-license-site`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ license_id: licenseId, action }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    console.warn('Site maintenance toggle failed:', data.error || res.status);
+  }
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#1a2e4a;color:#F0EEE8;border:1px solid rgba(0,212,170,0.3);border-radius:8px;padding:14px 24px;font-size:14px;z-index:9999;box-shadow:0 4px 24px rgba(0,0,0,0.4);max-width:480px;text-align:center';
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
 }
 
 // ── TRANSFER FLOW ──
