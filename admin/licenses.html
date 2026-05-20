@@ -240,7 +240,7 @@ main{max-width:1280px;margin:0 auto;padding:32px 24px}
     <div class="stat-card"><div class="stat-label">Active Licenses</div><div class="stat-value" id="statActive">—</div></div>
     <div class="stat-card amber"><div class="stat-label">Pending Requests</div><div class="stat-value" id="statRequests">—</div></div>
     <div class="stat-card red"><div class="stat-label">Pending Transfers</div><div class="stat-value" id="statTransfers">—</div></div>
-    <div class="stat-card gold"><div class="stat-label">Monthly Revenue</div><div class="stat-value" id="statMRR">—</div></div>
+    <div class="stat-card gold"><div class="stat-label">Monthly Revenue (MRR)</div><div class="stat-value" id="statMRR">—</div><div style="font-size:12px;color:var(--muted);margin-top:4px">ARR: <span id="statARR">—</span></div></div>
   </div>
 
   <!-- LICENSES TABLE -->
@@ -594,11 +594,23 @@ async function loadLicenses() {
 
   const active = data.filter(l => l.status === 'active').length;
   const mrr = data
-    .filter(l => l.status === 'active' && l.monthly_rate)
-    .reduce((sum, l) => sum + parseFloat(l.monthly_rate), 0);
+    .filter(l => l.status === 'active')
+    .reduce((sum, l) => {
+      if (l.monthly_rate) return sum + parseFloat(l.monthly_rate);
+      if (l.annual_rate)  return sum + parseFloat(l.annual_rate) / 12;
+      return sum;
+    }, 0);
+  const arr = data
+    .filter(l => l.status === 'active')
+    .reduce((sum, l) => {
+      if (l.annual_rate)  return sum + parseFloat(l.annual_rate);
+      if (l.monthly_rate) return sum + parseFloat(l.monthly_rate) * 12;
+      return sum;
+    }, 0);
 
   document.getElementById('statActive').textContent = active;
   document.getElementById('statMRR').textContent = '$' + Math.round(mrr).toLocaleString();
+  document.getElementById('statARR').textContent = '$' + Math.round(arr).toLocaleString();
   document.getElementById('licenseCount').textContent = data.length;
 
   caltransLicense = data.find(l => l.is_owner_held && l.holder_domain === 'caltransbizconnect.org')
