@@ -538,6 +538,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
 
 let caltransLicense = null;
 let activeRequestData = null;
+let licensesData = [];
 
 // ── AUTH — JS password gate ──
 const PW_HASH = 'c6facc0a6717e9e66da95d7aeca4474ac3f129ca59131a0db526068d2300a7fd';
@@ -591,6 +592,7 @@ async function loadAll() {
 async function loadLicenses() {
   let data;
   try { data = await adm('get_licenses'); } catch(e) { console.error(e); return; }
+  licensesData = data;
 
   const active = data.filter(l => l.status === 'active').length;
   const mrr = data
@@ -648,6 +650,7 @@ async function loadLicenses() {
           ${l.status === 'suspended' ? `<button class="act-btn teal" onclick="activateLicense('${l.id}')">Reactivate</button>` : ''}
           <button class="act-btn gold" onclick="openTransferModal('${l.id}','${escHtml(l.holder_org)}','${escHtml(l.holder_email)}')">Transfer</button>
           <button class="act-btn muted" onclick="openHistoryModal('${l.id}', false)">History</button>
+          <button class="act-btn teal" onclick="downloadLicensePDF('${l.id}')">PDF</button>
         </div>
       </td>
     </tr>
@@ -985,6 +988,110 @@ function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
 function capitalize(str) { return str ? str.charAt(0).toUpperCase() + str.slice(1) : ''; }
+
+function downloadLicensePDF(id) {
+  const l = licensesData.find(x => x.id === id);
+  if (!l) { alert('License data not found. Please reload the page.'); return; }
+
+  const field = (label, val) => val ? `
+    <tr>
+      <td style="padding:8px 12px;color:#555;font-size:12px;font-weight:600;width:38%;border-bottom:1px solid #f0f0f0;white-space:nowrap">${label}</td>
+      <td style="padding:8px 12px;font-size:13px;border-bottom:1px solid #f0f0f0;color:#1a1a1a">${val}</td>
+    </tr>` : '';
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>License — ${l.license_key}</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',Arial,sans-serif; background:#fff; color:#1a1a1a; padding:48px; }
+    @media print {
+      body { padding:24px; }
+      .no-print { display:none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;padding-bottom:24px;border-bottom:3px solid #0A1628">
+    <div>
+      <div style="font-size:22px;font-weight:800;color:#0A1628;letter-spacing:-0.5px">PrimeReach</div>
+      <div style="font-size:11px;color:#888;letter-spacing:0.12em;text-transform:uppercase;margin-top:3px">Government Platform Licensing</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.1em">License Certificate</div>
+      <div style="font-size:18px;font-weight:700;color:#00D4AA;font-family:monospace;margin-top:4px">${l.license_key}</div>
+      <div style="margin-top:6px;display:inline-block;padding:3px 12px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+        background:${l.status==='active'?'#e6faf6':l.status==='suspended'?'#fff0f2':'#fff8e6'};
+        color:${l.status==='active'?'#00a885':l.status==='suspended'?'#d0354a':'#d07a00'};
+        border:1px solid ${l.status==='active'?'#00d4aa':l.status==='suspended'?'#ff4d6d':'#f5a623'}">
+        ${l.status.toUpperCase()}
+      </div>
+    </div>
+  </div>
+
+  <!-- Agency -->
+  <div style="margin-bottom:28px">
+    <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">Licensed To</div>
+    <div style="font-size:20px;font-weight:700;color:#0A1628">${l.agency_name}</div>
+    ${l.department ? `<div style="font-size:13px;color:#555;margin-top:3px">${l.department}</div>` : ''}
+  </div>
+
+  <!-- Details table -->
+  <table style="width:100%;border-collapse:collapse;margin-bottom:28px;border:1px solid #e8e8e8;border-radius:8px;overflow:hidden">
+    <tbody>
+      ${field('License Tier', capitalize(l.tier))}
+      ${field('Billing Cycle', capitalize(l.billing_cycle))}
+      ${field('License Holder', l.holder_org)}
+      ${field('Contact', l.holder_contact)}
+      ${field('Email', l.holder_email)}
+      ${field('Phone', l.holder_phone)}
+      ${field('Platform Domain', l.holder_domain)}
+      ${field('Number of Districts', l.num_districts)}
+      ${field('Launch Date', l.launch_date ? new Date(l.launch_date).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) : null)}
+      ${field('Activated', l.activated_at ? new Date(l.activated_at).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) : null)}
+    </tbody>
+  </table>
+
+  ${l.program_description ? `
+  <div style="margin-bottom:28px">
+    <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px">Program Description</div>
+    <div style="font-size:13px;line-height:1.7;color:#333;background:#fafafa;border:1px solid #e8e8e8;border-radius:6px;padding:14px 16px">${l.program_description}</div>
+  </div>` : ''}
+
+  ${l.notes ? `
+  <div style="margin-bottom:28px">
+    <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px">Notes</div>
+    <div style="font-size:13px;line-height:1.7;color:#333;background:#fafafa;border:1px solid #e8e8e8;border-radius:6px;padding:14px 16px">${l.notes}</div>
+  </div>` : ''}
+
+  <!-- Footer -->
+  <div style="margin-top:40px;padding-top:20px;border-top:1px solid #e8e8e8;display:flex;justify-content:space-between;align-items:flex-end">
+    <div>
+      <div style="font-size:11px;color:#888">Original License Owner</div>
+      <div style="font-size:13px;font-weight:600;color:#0A1628;margin-top:2px">${l.original_owner || 'EVOBRAND Concepts'}</div>
+      <div style="font-size:11px;color:#888;margin-top:1px">${l.owner_email || 'ks@evobrand.net'}</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:11px;color:#bbb">Generated ${new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</div>
+      <div style="font-size:10px;color:#ccc;margin-top:2px">primereachgov.com</div>
+    </div>
+  </div>
+
+  <div class="no-print" style="margin-top:32px;text-align:center">
+    <button onclick="window.print()" style="background:#0A1628;color:#fff;border:none;padding:12px 32px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">Save as PDF / Print</button>
+  </div>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(() => win.print(), 600);
+}
 
 function fmtDate(str) {
   if (!str) return '—';
