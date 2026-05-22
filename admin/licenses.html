@@ -787,7 +787,11 @@ async function triggerMaintenanceMode(licenseId, action) {
   const { data, error } = await sb.functions.invoke('suspend-license-site', {
     body: { license_id: licenseId, action },
   });
-  if (error) throw new Error(error.message || `Site toggle failed. Check that GITHUB_TOKEN is set in Supabase secrets.`);
+  if (error) {
+    let detail = error.message;
+    try { const body = await error.context?.json?.(); detail = body?.error || body?.message || detail; } catch(_) {}
+    throw new Error(`Site toggle failed: ${detail}`);
+  }
 }
 
 function showToast(msg) {
