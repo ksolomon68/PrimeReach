@@ -357,6 +357,24 @@ main{max-width:1280px;margin:0 auto;padding:32px 24px}
   </div>
 </div>
 
+<!-- REVOKE LICENSE MODAL -->
+<div class="modal-overlay" id="revokeModal">
+  <div class="modal">
+    <h3 style="color:var(--red)">Revoke License</h3>
+    <input type="hidden" id="revokeLicenseId">
+    <input type="hidden" id="revokeLicenseStatus">
+    <p id="revokeWarning" style="color:var(--muted);font-size:14px;margin-bottom:16px;line-height:1.5"></p>
+    <div class="modal-group full">
+      <label class="modal-label">Reason for Revocation *</label>
+      <textarea class="modal-textarea" id="revokeReason" placeholder="Describe the reason for revoking this license..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeModal('revokeModal')">Cancel</button>
+      <button class="modal-btn danger" onclick="revokeConfirm()">Revoke License</button>
+    </div>
+  </div>
+</div>
+
 <!-- AUTHORIZE TRANSFER MODAL -->
 <div class="modal-overlay" id="authorizeModal">
   <div class="modal">
@@ -651,6 +669,7 @@ async function loadLicenses() {
           <button class="act-btn gold" onclick="openTransferModal('${l.id}','${escHtml(l.holder_org)}','${escHtml(l.holder_email)}')">Transfer</button>
           <button class="act-btn muted" onclick="openHistoryModal('${l.id}', false)">History</button>
           <button class="act-btn teal" onclick="downloadLicensePDF('${l.id}')">PDF</button>
+          ${l.status !== 'cancelled' ? `<button class="act-btn red" onclick="openRevokeModal('${l.id}','${escHtml(l.agency_name)}','${l.status}')">Revoke</button>` : ''}
         </div>
       </td>
     </tr>
@@ -732,6 +751,35 @@ async function suspendLicense(id) {
     await triggerMaintenanceMode(id, 'suspend');
     loadLicenses();
     showToast('License suspended. Site will enter maintenance mode within ~60 seconds.');
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+function openRevokeModal(id, agencyName, currentStatus) {
+  document.getElementById('revokeLicenseId').value = id;
+  document.getElementById('revokeLicenseStatus').value = currentStatus;
+  document.getElementById('revokeReason').value = '';
+  const siteWarn = currentStatus === 'active' ? ' The associated site will enter maintenance mode within ~60 seconds.' : '';
+  document.getElementById('revokeWarning').textContent =
+    `You are about to permanently revoke the license for ${agencyName}. This will cancel the license and cannot be undone.${siteWarn}`;
+  openModal('revokeModal');
+}
+
+async function revokeConfirm() {
+  const id = document.getElementById('revokeLicenseId').value;
+  const currentStatus = document.getElementById('revokeLicenseStatus').value;
+  const reason = document.getElementById('revokeReason').value.trim();
+  if (!reason) { alert('Please provide a reason for revoking this license.'); return; }
+  try {
+    await adm('update_license', { id, status: 'cancelled' });
+    await logEvent(id, 'license_revoked', `License revoked: ${reason}`);
+    if (currentStatus === 'active') {
+      await triggerMaintenanceMode(id, 'suspend');
+    }
+    closeModal('revokeModal');
+    loadLicenses();
+    showToast(currentStatus === 'active'
+      ? 'License revoked. Site will enter maintenance mode within ~60 seconds.'
+      : 'License revoked.');
   } catch(e) { alert('Error: ' + e.message); }
 }
 
