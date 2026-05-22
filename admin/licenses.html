@@ -786,7 +786,10 @@ async function revokeConfirm() {
 async function triggerMaintenanceMode(licenseId, action) {
   const res = await fetch(`${FUNCTIONS_URL}/suspend-license-site`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${SUPABASE_ANON}`,
+    },
     body: JSON.stringify({ license_id: licenseId, action }),
   });
   const data = await res.json().catch(() => ({}));
