@@ -784,18 +784,10 @@ async function revokeConfirm() {
 }
 
 async function triggerMaintenanceMode(licenseId, action) {
-  const res = await fetch(`${FUNCTIONS_URL}/suspend-license-site`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${SUPABASE_ANON}`,
-    },
-    body: JSON.stringify({ license_id: licenseId, action }),
+  const { data, error } = await sb.functions.invoke('suspend-license-site', {
+    body: { license_id: licenseId, action },
   });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    throw new Error(data.error || `Site toggle failed (${res.status}). Check that GITHUB_TOKEN is set in Supabase secrets.`);
-  }
+  if (error) throw new Error(error.message || `Site toggle failed. Check that GITHUB_TOKEN is set in Supabase secrets.`);
 }
 
 function showToast(msg) {
