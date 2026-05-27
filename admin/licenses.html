@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PrimeReach — License Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --navy:        #0A1628;
+  --navy-mid:    #0D1F38;
+  --navy-light:  #132240;
+  --teal:        #00D4AA;
+  --teal-dim:    rgba(0,212,170,0.12);
+  --amber:       #F5A623;
+  --amber-dim:   rgba(245,166,35,0.15);
+  --off-white:   #F0EEE8;
+  --muted:       rgba(240,238,232,0.55);
+  --card:        rgba(0,212,170,0.05);
+  --card-border: rgba(0,212,170,0.14);
+  --red:         #FF4D6D;
+  --red-dim:     rgba(255,77,109,0.12);
+  --gold:        #C9A84C;
+  --gold-dim:    rgba(201,168,76,0.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--off-white);min-height:100vh}
+
+/* ── TOP BAR ── */
+.topbar{background:rgba(10,22,40,0.95);backdrop-filter:blur(14px);border-bottom:1px solid var(--card-border);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px}
+.topbar-logo span{color:var(--teal)}
+.topbar-right{display:flex;align-items:center;gap:20px}
+.admin-badge{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;background:var(--gold-dim);color:var(--gold);border:1px solid rgba(201,168,76,0.3);padding:4px 12px;border-radius:20px}
+.logout-btn{font-size:13px;color:var(--muted);background:none;border:none;cursor:pointer;transition:color 0.2s}
+.logout-btn:hover{color:var(--red)}
+
+/* ── MAIN LAYOUT ── */
+main{max-width:1280px;margin:0 auto;padding:32px 24px}
+
+/* ── CALTRANS CARD ── */
+.caltrans-card{background:linear-gradient(135deg,rgba(201,168,76,0.09) 0%,rgba(10,22,40,0) 100%);border:1.5px solid rgba(201,168,76,0.4);border-radius:16px;padding:36px 40px;margin-bottom:36px;position:relative;overflow:hidden}
+.caltrans-card::after{content:'PRIORITY LICENSE';position:absolute;top:20px;right:28px;font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.22em;color:rgba(201,168,76,0.35)}
+.caltrans-header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:24px}
+.caltrans-header-left{}
+.caltrans-label{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.caltrans-title{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;margin-bottom:4px}
+.caltrans-sub{font-size:14px;color:var(--muted)}
+.owner-held-badge{display:inline-flex;align-items:center;gap:6px;background:var(--gold-dim);border:1px solid rgba(201,168,76,0.35);border-radius:20px;padding:6px 16px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold)}
+.caltrans-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px}
+.caltrans-meta-item{}
+.caltrans-meta-label{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(201,168,76,0.6);margin-bottom:4px}
+.caltrans-meta-value{font-size:15px;font-weight:500;color:var(--off-white)}
+.caltrans-notes{background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.15);border-radius:8px;padding:14px 18px;font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:24px}
+.caltrans-notes strong{color:var(--gold)}
+.caltrans-actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn-gold{background:var(--gold);color:var(--navy);padding:12px 32px;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;border:none;cursor:pointer;transition:background 0.2s}
+.btn-gold:hover{background:#b8932e}
+.btn-outline-gold{background:transparent;color:var(--gold);padding:12px 24px;border-radius:8px;font-family:'Syne',sans-serif;font-weight:600;font-size:14px;border:1.5px solid rgba(201,168,76,0.4);cursor:pointer;transition:all 0.2s}
+.btn-outline-gold:hover{background:var(--gold-dim)}
+
+/* ── STATS BAR ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:36px}
+.stat-card{background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:24px 20px}
+.stat-label{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.stat-value{font-family:'Syne',sans-serif;font-weight:800;font-size:32px;letter-spacing:-0.02em;color:var(--teal)}
+.stat-card.amber .stat-value{color:var(--amber)}
+.stat-card.red .stat-value{color:var(--red)}
+.stat-card.gold .stat-value{color:var(--gold)}
+
+/* ── SECTION HEADERS ── */
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;margin-top:40px}
+.section-hdr h2{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;letter-spacing:-0.01em}
+.badge{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;border-radius:11px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;padding:0 7px}
+.badge.teal{background:var(--teal-dim);color:var(--teal);border:1px solid rgba(0,212,170,0.3)}
+.badge.amber{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,166,35,0.3)}
+.badge.red{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,77,109,0.3)}
+
+/* ── TABLES ── */
+.table-wrap{background:var(--navy-mid);border:1px solid var(--card-border);border-radius:12px;overflow:hidden;margin-bottom:8px}
+.tbl{width:100%;border-collapse:collapse}
+.tbl thead th{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:14px 16px;text-align:left;color:var(--muted);border-bottom:1px solid var(--card-border);white-space:nowrap}
+.tbl tbody tr{border-bottom:1px solid rgba(0,212,170,0.05);transition:background 0.15s}
+.tbl tbody tr:last-child{border-bottom:none}
+.tbl tbody tr:hover{background:rgba(0,212,170,0.025)}
+.tbl tbody td{padding:14px 16px;font-size:13px;color:var(--muted);vertical-align:middle}
+.tbl tbody td.bright{color:var(--off-white);font-weight:500}
+.tbl-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* Status badges */
+.status{display:inline-block;padding:3px 10px;border-radius:20px;font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase}
+.status.active{background:rgba(0,212,170,0.15);color:var(--teal);border:1px solid rgba(0,212,170,0.3)}
+.status.pending{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,166,35,0.3)}
+.status.suspended{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,77,109,0.3)}
+.status.transferred,.status.cancelled{background:rgba(240,238,232,0.05);color:var(--muted);border:1px solid rgba(240,238,232,0.1)}
+.status.new{background:var(--teal-dim);color:var(--teal);border:1px solid rgba(0,212,170,0.25)}
+.status.reviewing{background:rgba(245,166,35,0.1);color:var(--amber);border:1px solid rgba(245,166,35,0.2)}
+.status.approved,.status.converted{background:rgba(0,212,170,0.1);color:var(--teal);border:1px solid rgba(0,212,170,0.2)}
+.status.rejected{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,77,109,0.2)}
+.status.completed{background:rgba(0,212,170,0.1);color:var(--teal);border:1px solid rgba(0,212,170,0.2)}
+.status.owner_approved{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(201,168,76,0.3)}
+
+/* Action buttons */
+.act-btn{padding:5px 14px;border-radius:6px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;border:none;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+.act-btn.teal{background:rgba(0,212,170,0.12);color:var(--teal);border:1px solid rgba(0,212,170,0.25)}
+.act-btn.teal:hover{background:rgba(0,212,170,0.22)}
+.act-btn.amber{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,166,35,0.25)}
+.act-btn.amber:hover{background:rgba(245,166,35,0.25)}
+.act-btn.red{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,77,109,0.25)}
+.act-btn.red:hover{background:rgba(255,77,109,0.22)}
+.act-btn.gold{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(201,168,76,0.25)}
+.act-btn.gold:hover{background:rgba(201,168,76,0.22)}
+.act-btn.muted{background:rgba(240,238,232,0.05);color:var(--muted);border:1px solid rgba(240,238,232,0.1)}
+.act-btn.muted:hover{background:rgba(240,238,232,0.1)}
+.owner-held-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:var(--gold-dim);color:var(--gold);border:1px solid rgba(201,168,76,0.3)}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:none;align-items:center;justify-content:center;padding:24px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--navy-mid);border:1px solid var(--card-border);border-radius:16px;padding:40px;max-width:580px;width:100%;max-height:90vh;overflow-y:auto}
+.modal h3{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;margin-bottom:20px}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.modal-group{display:flex;flex-direction:column;gap:6px}
+.modal-group.full{grid-column:1/-1}
+.modal-label{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--teal)}
+.modal-input,.modal-select,.modal-textarea{background:rgba(255,255,255,0.04);border:1px solid var(--card-border);border-radius:8px;padding:12px 14px;color:var(--off-white);font-family:'DM Sans',sans-serif;font-size:14px;width:100%}
+.modal-input:focus,.modal-select:focus,.modal-textarea:focus{outline:none;border-color:var(--teal)}
+.modal-select{appearance:none}
+.modal-select option{background:var(--navy-mid)}
+.modal-textarea{resize:vertical;min-height:80px;line-height:1.5}
+.modal-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:24px}
+.modal-btn{padding:12px 28px;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;border:none;cursor:pointer;transition:all 0.2s}
+.modal-btn.primary{background:var(--teal);color:var(--navy)}
+.modal-btn.primary:hover{background:#00bfa0}
+.modal-btn.danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,77,109,0.3)}
+.modal-btn.cancel{background:transparent;color:var(--muted);border:1px solid var(--card-border)}
+.modal-btn.cancel:hover{color:var(--off-white)}
+.modal-btn.gold{background:var(--gold);color:var(--navy)}
+.modal-btn.gold:hover{background:#b8932e}
+
+/* ── HISTORY PANEL ── */
+.history-list{display:flex;flex-direction:column;gap:10px;max-height:320px;overflow-y:auto;padding-right:4px}
+.history-item{background:rgba(255,255,255,0.02);border:1px solid rgba(0,212,170,0.08);border-radius:8px;padding:12px 16px}
+.history-type{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--teal);margin-bottom:4px}
+.history-desc{font-size:13px;color:var(--off-white);margin-bottom:4px}
+.history-meta{font-size:12px;color:var(--muted)}
+
+/* ── NOTICE ── */
+.notice{background:rgba(0,212,170,0.05);border:1px solid rgba(0,212,170,0.15);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--muted);margin-bottom:20px}
+.notice strong{color:var(--teal)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .modal-grid{grid-template-columns:1fr}
+  .caltrans-meta{grid-template-columns:1fr 1fr}
+  main{padding:20px 16px}
+  .caltrans-card{padding:24px 20px}
+}
+@media(max-width:580px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .tbl thead{display:none}
+  .tbl tbody td{display:block;padding:6px 16px}
+  .tbl tbody td::before{content:attr(data-label)': ';font-weight:700;color:var(--teal);font-size:11px;text-transform:uppercase;letter-spacing:0.08em}
+  .tbl tbody tr{display:block;padding:10px 0;border-bottom:1px solid var(--card-border)}
+}
+</style>
+</head>
+<body>
+
+<!-- PASSWORD GATE -->
+<div id="pwGate" style="position:fixed;inset:0;background:var(--navy);z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px">
+  <div style="background:var(--navy-mid);border:1px solid var(--card-border);border-radius:16px;padding:52px 48px;max-width:400px;width:100%;text-align:center">
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:26px;margin-bottom:6px">Prime<span style="color:var(--teal)">Reach</span></div>
+    <div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:28px">License Admin</div>
+    <input type="password" id="pwInput" placeholder="Enter admin password" autocomplete="current-password"
+      style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--card-border);border-radius:8px;padding:14px 16px;color:var(--off-white);font-family:'DM Sans',sans-serif;font-size:15px;margin-bottom:12px;transition:border-color 0.2s;outline:none"
+      onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor='var(--card-border)'"
+      onkeydown="if(event.key==='Enter')checkPassword()">
+    <button onclick="checkPassword()"
+      style="width:100%;background:var(--teal);color:var(--navy);padding:14px;border-radius:8px;font-family:'Syne',sans-serif;font-weight:800;font-size:15px;border:none;cursor:pointer;transition:background 0.2s;margin-bottom:12px"
+      onmouseover="this.style.background='#00bfa0'" onmouseout="this.style.background='var(--teal)'">
+      Sign In
+    </button>
+    <p id="pwErr" style="font-size:13px;color:var(--red);min-height:18px"></p>
+  </div>
+</div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-logo">Prime<span>Reach</span> &nbsp;<span style="color:var(--muted);font-size:14px;font-weight:400">License Admin</span></div>
+  <div class="topbar-right">
+    <a href="../licensing.html" target="_blank" style="font-size:13px;color:var(--teal);text-decoration:none;display:flex;align-items:center;gap:6px;transition:opacity 0.2s" onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M6 2H2.5A1.5 1.5 0 001 3.5v8A1.5 1.5 0 002.5 13h8A1.5 1.5 0 0012 11.5V8M9 1h4m0 0v4m0-4L6.5 7.5" stroke="#00D4AA" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      View Licensing Page
+    </a>
+    <span class="admin-badge">EVOBRAND OWNER</span>
+    <button class="logout-btn" onclick="logout()" title="Sign out">Sign Out</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main>
+
+  <!-- CALTRANS PRIORITY CARD -->
+  <div class="caltrans-card" id="caltransCard" style="display:none">
+    <div class="caltrans-header">
+      <div class="caltrans-header-left">
+        <div class="caltrans-label">Priority License — Owner Held</div>
+        <div class="caltrans-title" id="caltransAgency">—</div>
+        <div class="caltrans-sub" id="caltransDept">—</div>
+      </div>
+      <span class="owner-held-badge">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#C9A84C" stroke-width="1.2"/><path d="M3.5 6l2 2 3-4" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Owner Held
+      </span>
+    </div>
+    <div class="caltrans-meta">
+      <div class="caltrans-meta-item"><div class="caltrans-meta-label">License Key</div><div class="caltrans-meta-value" id="caltransKey">—</div></div>
+      <div class="caltrans-meta-item"><div class="caltrans-meta-label">Domain</div><div class="caltrans-meta-value" id="caltransDomain">—</div></div>
+      <div class="caltrans-meta-item"><div class="caltrans-meta-label">Tier</div><div class="caltrans-meta-value" id="caltransTier">—</div></div>
+      <div class="caltrans-meta-item"><div class="caltrans-meta-label">Monthly Rate</div><div class="caltrans-meta-value" id="caltransMonthly">—</div></div>
+      <div class="caltrans-meta-item"><div class="caltrans-meta-label">Annual Rate</div><div class="caltrans-meta-value" id="caltransAnnual">—</div></div>
+      <div class="caltrans-meta-item"><div class="caltrans-meta-label">Activated</div><div class="caltrans-meta-value" id="caltransActivated">—</div></div>
+    </div>
+    <div class="caltrans-notes" id="caltransNotes"></div>
+    <div class="caltrans-actions">
+      <button class="btn-gold" id="caltransTransferBtn" onclick="openCaltransTransfer()">Transfer to Caltrans</button>
+      <button class="btn-outline-gold" onclick="openHistoryModal(null, true)">View History</button>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-label">Active Licenses</div><div class="stat-value" id="statActive">—</div></div>
+    <div class="stat-card amber"><div class="stat-label">Pending Requests</div><div class="stat-value" id="statRequests">—</div></div>
+    <div class="stat-card red"><div class="stat-label">Pending Transfers</div><div class="stat-value" id="statTransfers">—</div></div>
+    <div class="stat-card gold"><div class="stat-label">Monthly Revenue (MRR)</div><div class="stat-value" id="statMRR">—</div><div style="font-size:12px;color:var(--muted);margin-top:4px">ARR: <span id="statARR">—</span></div></div>
+  </div>
+
+  <!-- LICENSES TABLE -->
+  <div class="section-hdr">
+    <h2>Licenses <span class="badge teal" id="licenseCount">0</span></h2>
+    <button class="act-btn teal" onclick="openNewLicenseModal()">+ New License</button>
+  </div>
+  <div class="table-wrap">
+    <div style="overflow-x:auto">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>License Key</th>
+            <th>Agency</th>
+            <th>Tier</th>
+            <th>Status</th>
+            <th>Holder</th>
+            <th>Domain</th>
+            <th>Owner Held</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="licensesBody"><tr><td colspan="8" class="empty">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- LICENSE REQUESTS TABLE -->
+  <div class="section-hdr">
+    <h2>License Requests <span class="badge amber" id="requestCount">0</span></h2>
+  </div>
+  <div class="table-wrap">
+    <div style="overflow-x:auto">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Agency</th>
+            <th>Contact</th>
+            <th>Tier</th>
+            <th>Billing</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="requestsBody"><tr><td colspan="7" class="empty">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TRANSFERS TABLE -->
+  <div class="section-hdr">
+    <h2>Transfer Requests <span class="badge red" id="transferCount">0</span></h2>
+  </div>
+  <div class="table-wrap">
+    <div style="overflow-x:auto">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>From</th>
+            <th>To</th>
+            <th>License</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="transfersBody"><tr><td colspan="6" class="empty">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<!-- TRANSFER MODAL -->
+<div class="modal-overlay" id="transferModal">
+  <div class="modal">
+    <h3 id="transferModalTitle">Initiate License Transfer</h3>
+    <input type="hidden" id="transferLicenseId">
+    <div class="modal-grid">
+      <div class="modal-group">
+        <label class="modal-label">From Organization</label>
+        <input type="text" class="modal-input" id="tfFromOrg" placeholder="Current holder">
+      </div>
+      <div class="modal-group">
+        <label class="modal-label">From Email</label>
+        <input type="email" class="modal-input" id="tfFromEmail" placeholder="holder@org.com">
+      </div>
+      <div class="modal-group">
+        <label class="modal-label">To Organization *</label>
+        <input type="text" class="modal-input" id="tfToOrg" placeholder="Receiving agency" required>
+      </div>
+      <div class="modal-group">
+        <label class="modal-label">To Contact Email *</label>
+        <input type="email" class="modal-input" id="tfToEmail" placeholder="contact@agency.gov" required>
+      </div>
+      <div class="modal-group">
+        <label class="modal-label">To Contact Name</label>
+        <input type="text" class="modal-input" id="tfToContact" placeholder="Full name">
+      </div>
+      <div class="modal-group">
+        <label class="modal-label">To Phone</label>
+        <input type="tel" class="modal-input" id="tfToPhone" placeholder="(000) 000-0000">
+      </div>
+      <div class="modal-group full">
+        <label class="modal-label">Reason / Notes</label>
+        <textarea class="modal-textarea" id="tfReason" placeholder="Transfer context..."></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeModal('transferModal')">Cancel</button>
+      <button class="modal-btn gold" onclick="submitTransfer()">Submit Transfer</button>
+    </div>
+  </div>
+</div>
+
+<!-- REVOKE LICENSE MODAL -->
+<div class="modal-overlay" id="revokeModal">
+  <div class="modal">
+    <h3 style="color:var(--red)">Revoke License</h3>
+    <input type="hidden" id="revokeLicenseId">
+    <input type="hidden" id="revokeLicenseStatus">
+    <p id="revokeWarning" style="color:var(--muted);font-size:14px;margin-bottom:16px;line-height:1.5"></p>
+    <div class="modal-group full">
+      <label class="modal-label">Reason for Revocation *</label>
+      <textarea class="modal-textarea" id="revokeReason" placeholder="Describe the reason for revoking this license..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeModal('revokeModal')">Cancel</button>
+      <button class="modal-btn danger" onclick="revokeConfirm()">Revoke License</button>
+    </div>
+  </div>
+</div>
+
+<!-- AUTHORIZE TRANSFER MODAL -->
+<div class="modal-overlay" id="authorizeModal">
+  <div class="modal">
+    <h3>Authorize License Transfer</h3>
+    <input type="hidden" id="authTransferId">
+    <div class="notice">
+      <strong>Attention:</strong> This will immediately transfer the license to the receiving organization and update all holder information. This action cannot be undone.
+    </div>
+    <div id="authorizeDetails" style="margin-bottom:20px;font-size:14px;color:var(--muted);line-height:1.7"></div>
+    <div class="modal-group" style="margin-bottom:20px">
+      <label class="modal-label">Admin Notes (optional)</label>
+      <textarea class="modal-textarea" id="authAdminNotes" placeholder="Internal notes for this transfer..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeModal('authorizeModal')">Cancel</button>
+      <button class="modal-btn danger" onclick="rejectTransfer()">Reject</button>
+      <button class="modal-btn gold" onclick="authorizeTransfer()">Authorize Transfer</button>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY MODAL -->
+<div class="modal-overlay" id="historyModal">
+  <div class="modal">
+    <h3>License History</h3>
+    <div class="history-list" id="historyList"><p class="empty">No events found.</p></div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeModal('historyModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- REQUEST DETAIL MODAL -->
+<div class="modal-overlay" id="requestDetailModal">
+  <div class="modal">
+    <h3>Request Details</h3>
+    <div id="requestDetailContent" style="font-size:14px;color:var(--muted);line-height:1.8"></div>
+    <div class="modal-group" style="margin-top:16px;margin-bottom:20px">
+      <label class="modal-label">Admin Notes</label>
+      <textarea class="modal-textarea" id="reqAdminNotes" placeholder="Notes..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeModal('requestDetailModal')">Close</button>
+      <button class="modal-btn danger" onclick="rejectRequest()">Reject</button>
+      <button class="modal-btn primary" onclick="approveRequest()">Approve & Create License</button>
+    </div>
+    <input type="hidden" id="activeRequestId">
+  </div>
+</div>
+
+<!-- NEW LICENSE MODAL -->
+<div class="modal-overlay" id="newLicenseModal">
+  <div class="modal" style="max-width:680px">
+    <h3>New License</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+
+      <div class="modal-group full">
+        <label class="modal-label">Agency Name *</label>
+        <input type="text" class="modal-input" id="nl_agency" placeholder="e.g. California Dept. of Transportation">
+      </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Department</label>
+        <input type="text" class="modal-input" id="nl_dept" placeholder="e.g. Office of Civil Rights">
+      </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Holder Org</label>
+        <input type="text" class="modal-input" id="nl_holderOrg" placeholder="If different from agency name">
+      </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Contact Name *</label>
+        <input type="text" class="modal-input" id="nl_contactName" placeholder="First Last">
+      </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Contact Title</label>
+        <input type="text" class="modal-input" id="nl_contactTitle" placeholder="e.g. Program Manager">
+      </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Holder Email *</label>
+        <input type="email" class="modal-input" id="nl_holderEmail" placeholder="contact@agency.gov">
+      </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Phone</label>
+        <input type="tel" class="modal-input" id="nl_holderPhone" placeholder="(000) 000-0000">
+      </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Domain</label>
+        <input type="text" class="modal-input" id="nl_domain" placeholder="agency.gov">
+      </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Number of Districts</label>
+        <input type="text" class="modal-input" id="nl_districts" placeholder="e.g. 12">
+      </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Tier</label>
+        <select class="modal-select" id="nl_tier">
+          <option value="starter">Starter</option>
+          <option value="professional" selected>Professional</option>
+          <option value="enterprise">Enterprise</option>
+        </select>
+      </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Billing Cycle</label>
+        <select class="modal-select" id="nl_billing">
+          <option value="monthly">Monthly</option>
+          <option value="annual">Annual</option>
+        </select>
+      </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Status</label>
+        <select class="modal-select" id="nl_status">
+          <option value="active">Active</option>
+          <option value="pending">Pending</option>
+        </select>
+      </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Monthly Rate ($)</label>
+        <input type="number" class="modal-input" id="nl_monthly" placeholder="e.g. 4500" min="0" step="0.01">
+      </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Annual Rate ($)</label>
+        <input type="number" class="modal-input" id="nl_annual" placeholder="e.g. 45000" min="0" step="0.01">
+      </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Launch Date</label>
+        <input type="date" class="modal-input" id="nl_launch">
+      </div>
+
+      <div class="modal-group">
+        <label class="modal-label">Owner Held?</label>
+        <select class="modal-select" id="nl_ownerHeld">
+          <option value="false">No — held by licensee</option>
+          <option value="true">Yes — held by EVOBRAND</option>
+        </select>
+      </div>
+
+      <div class="modal-group full">
+        <label class="modal-label">Program Description</label>
+        <textarea class="modal-textarea" id="nl_desc" placeholder="Brief description of the program..." rows="3"></textarea>
+      </div>
+
+      <div class="modal-group full">
+        <label class="modal-label">Internal Notes</label>
+        <textarea class="modal-textarea" id="nl_notes" placeholder="Billing terms, disputes, special conditions..." rows="2"></textarea>
+      </div>
+
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeModal('newLicenseModal')">Cancel</button>
+      <button class="modal-btn primary" onclick="createLicense()">Create License</button>
+    </div>
+  </div>
+</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://ujrftxcromzktftgikzh.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVqcmZ0eGNyb216a3RmdGdpa3poIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMDIwNTcsImV4cCI6MjA5NDg3ODA1N30.FmoqBdWE2yb2_BmkhGtSVftnmMtasm9FQChXAeBOXcg';
+const ADMIN_EMAIL = 'ks@evobrand.net';
+const FUNCTIONS_URL = `${SUPABASE_URL}/functions/v1`;
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let caltransLicense = null;
+let activeRequestData = null;
+let licensesData = [];
+
+// ── AUTH — JS password gate ──
+const PW_HASH = 'c6facc0a6717e9e66da95d7aeca4474ac3f129ca59131a0db526068d2300a7fd';
+const SESSION_KEY = 'pr_admin_auth';
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function checkPassword() {
+  const val = document.getElementById('pwInput').value;
+  const hash = await sha256(val);
+  if (hash === PW_HASH) {
+    sessionStorage.setItem(SESSION_KEY, '1');
+    document.getElementById('pwGate').style.display = 'none';
+    loadAll();
+  } else {
+    document.getElementById('pwErr').textContent = 'Incorrect password.';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').focus();
+  }
+}
+
+function logout() {
+  sessionStorage.removeItem(SESSION_KEY);
+  window.location.reload();
+}
+
+function init() {
+  if (sessionStorage.getItem(SESSION_KEY) === '1') {
+    document.getElementById('pwGate').style.display = 'none';
+    loadAll();
+  } else {
+    document.getElementById('pwInput').focus();
+  }
+}
+
+// ── RPC HELPER ──
+async function adm(op, payload = {}) {
+  const { data, error } = await sb.rpc('license_admin', { op, payload });
+  if (error) throw error;
+  return data;
+}
+
+// ── DATA LOADING ──
+async function loadAll() {
+  await Promise.all([loadLicenses(), loadRequests(), loadTransfers()]);
+}
+
+async function loadLicenses() {
+  let data;
+  try { data = await adm('get_licenses'); } catch(e) { console.error(e); return; }
+  licensesData = data;
+
+  const active = data.filter(l => l.status === 'active').length;
+  const mrr = data
+    .filter(l => l.status === 'active')
+    .reduce((sum, l) => {
+      if (l.monthly_rate) return sum + parseFloat(l.monthly_rate);
+      if (l.annual_rate)  return sum + parseFloat(l.annual_rate) / 12;
+      return sum;
+    }, 0);
+  const arr = data
+    .filter(l => l.status === 'active')
+    .reduce((sum, l) => {
+      if (l.annual_rate)  return sum + parseFloat(l.annual_rate);
+      if (l.monthly_rate) return sum + parseFloat(l.monthly_rate) * 12;
+      return sum;
+    }, 0);
+
+  document.getElementById('statActive').textContent = active;
+  document.getElementById('statMRR').textContent = '$' + Math.round(mrr).toLocaleString();
+  document.getElementById('statARR').textContent = '$' + Math.round(arr).toLocaleString();
+  document.getElementById('licenseCount').textContent = data.length;
+
+  caltransLicense = data.find(l => l.is_owner_held && l.holder_domain === 'caltransbizconnect.org')
+    || data.find(l => l.is_owner_held);
+
+  if (caltransLicense) {
+    const c = caltransLicense;
+    document.getElementById('caltransCard').style.display = 'block';
+    document.getElementById('caltransAgency').textContent = c.agency_name;
+    document.getElementById('caltransDept').textContent = c.department || '';
+    document.getElementById('caltransKey').textContent = c.license_key;
+    document.getElementById('caltransDomain').textContent = c.holder_domain || '—';
+    document.getElementById('caltransTier').textContent = capitalize(c.tier);
+    document.getElementById('caltransMonthly').textContent = c.monthly_rate ? '$' + Number(c.monthly_rate).toLocaleString() + '/mo' : '—';
+    document.getElementById('caltransAnnual').textContent = c.annual_rate ? '$' + Number(c.annual_rate).toLocaleString() + '/yr' : '—';
+    document.getElementById('caltransActivated').textContent = c.activated_at ? fmtDate(c.activated_at) : '—';
+    document.getElementById('caltransNotes').innerHTML = '<strong>Notes:</strong> ' + (c.notes || 'None');
+  }
+
+  const tbody = document.getElementById('licensesBody');
+  if (!data.length) { tbody.innerHTML = '<tr><td colspan="8" class="empty">No licenses found.</td></tr>'; return; }
+  tbody.innerHTML = data.map(l => `
+    <tr>
+      <td class="bright" data-label="License Key"><code style="font-size:12px;color:var(--teal)">${l.license_key}</code></td>
+      <td class="bright" data-label="Agency">${l.agency_name}</td>
+      <td data-label="Tier">${capitalize(l.tier)}</td>
+      <td data-label="Status"><span class="status ${l.status}">${l.status}</span></td>
+      <td data-label="Holder">${l.holder_org}</td>
+      <td data-label="Domain">${l.holder_domain || '—'}</td>
+      <td data-label="Owner Held">${l.is_owner_held ? '<span class="owner-held-tag">Owner Held</span>' : '<span style="color:var(--muted)">—</span>'}</td>
+      <td data-label="Actions">
+        <div class="tbl-actions">
+          ${l.status === 'pending' ? `<button class="act-btn teal" onclick="activateLicense('${l.id}')">Activate</button>` : ''}
+          ${l.status === 'active' ? `<button class="act-btn amber" onclick="suspendLicense('${l.id}')">Suspend</button>` : ''}
+          ${l.status === 'suspended' ? `<button class="act-btn teal" onclick="activateLicense('${l.id}')">Reactivate</button>` : ''}
+          <button class="act-btn gold" onclick="openTransferModal('${l.id}','${escHtml(l.holder_org)}','${escHtml(l.holder_email)}')">Transfer</button>
+          <button class="act-btn muted" onclick="openHistoryModal('${l.id}', false)">History</button>
+          <button class="act-btn teal" onclick="downloadLicensePDF('${l.id}')">PDF</button>
+          ${l.status !== 'cancelled' ? `<button class="act-btn red" onclick="openRevokeModal('${l.id}','${escHtml(l.agency_name)}','${l.status}')">Revoke</button>` : ''}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function loadRequests() {
+  let data;
+  try { data = await adm('get_requests'); } catch(e) { console.error(e); return; }
+
+  const pending = data.filter(r => r.status === 'new' || r.status === 'reviewing').length;
+  document.getElementById('statRequests').textContent = pending;
+  document.getElementById('requestCount').textContent = data.length;
+
+  const tbody = document.getElementById('requestsBody');
+  if (!data.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty">No requests yet.</td></tr>'; return; }
+  tbody.innerHTML = data.map(r => `
+    <tr>
+      <td data-label="Date">${fmtDate(r.created_at)}</td>
+      <td class="bright" data-label="Agency">${r.agency_name}</td>
+      <td data-label="Contact">${r.contact_name}<br><span style="font-size:12px">${r.contact_email}</span></td>
+      <td data-label="Tier">${capitalize(r.tier)}</td>
+      <td data-label="Billing">${capitalize(r.billing_pref || 'monthly')}</td>
+      <td data-label="Status"><span class="status ${r.status}">${r.status}</span></td>
+      <td data-label="Actions">
+        <div class="tbl-actions">
+          ${r.status !== 'rejected' && r.status !== 'converted' ? `<button class="act-btn teal" onclick="openRequestDetail('${r.id}')">Review</button>` : ''}
+          <button class="act-btn muted" onclick="openRequestDetail('${r.id}')">View</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function loadTransfers() {
+  let data;
+  try { data = await adm('get_transfers'); } catch(e) { console.error(e); return; }
+
+  const pending = data.filter(t => t.status === 'pending').length;
+  document.getElementById('statTransfers').textContent = pending;
+  document.getElementById('transferCount').textContent = data.length;
+
+  const tbody = document.getElementById('transfersBody');
+  if (!data.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">No transfer requests yet.</td></tr>'; return; }
+  tbody.innerHTML = data.map(t => `
+    <tr>
+      <td data-label="Date">${fmtDate(t.created_at)}</td>
+      <td data-label="From">${t.from_org}<br><span style="font-size:12px">${t.from_email}</span></td>
+      <td class="bright" data-label="To">${t.to_org}<br><span style="font-size:12px">${t.to_email}</span></td>
+      <td data-label="License">${t.licenses ? (t.licenses.holder_domain || t.licenses.agency_name) : (t.admin_notes || '—')}</td>
+      <td data-label="Status"><span class="status ${t.status}">${t.status.replace('_',' ')}</span></td>
+      <td data-label="Actions">
+        <div class="tbl-actions">
+          ${t.status === 'pending' || t.status === 'owner_approved' ? `
+            <button class="act-btn gold" onclick="openAuthorizeModal('${t.id}','${escHtml(t.from_org)}','${escHtml(t.to_org)}','${escHtml(t.to_email)}','${t.license_id || ''}')">Authorize</button>
+          ` : ''}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ── LICENSE ACTIONS ──
+async function activateLicense(id) {
+  try {
+    await adm('update_license', { id, status: 'active', activated_at: new Date().toISOString() });
+    await logEvent(id, 'status_change', 'License activated — maintenance mode deactivated');
+    await triggerMaintenanceMode(id, 'reactivate');
+    loadLicenses();
+    showToast('License activated. Site will come back online within ~60 seconds.');
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+async function suspendLicense(id) {
+  if (!confirm('Suspend this license? The site will enter maintenance mode within ~60 seconds.')) return;
+  try {
+    await adm('update_license', { id, status: 'suspended' });
+    await logEvent(id, 'status_change', 'License suspended — maintenance mode activated');
+    await triggerMaintenanceMode(id, 'suspend');
+    loadLicenses();
+    showToast('License suspended. Site will enter maintenance mode within ~60 seconds.');
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+function openRevokeModal(id, agencyName, currentStatus) {
+  document.getElementById('revokeLicenseId').value = id;
+  document.getElementById('revokeLicenseStatus').value = currentStatus;
+  document.getElementById('revokeReason').value = '';
+  const siteWarn = currentStatus === 'active' ? ' The associated site will enter maintenance mode within ~60 seconds.' : '';
+  document.getElementById('revokeWarning').textContent =
+    `You are about to permanently revoke the license for ${agencyName}. This will cancel the license and cannot be undone.${siteWarn}`;
+  openModal('revokeModal');
+}
+
+async function revokeConfirm() {
+  const id = document.getElementById('revokeLicenseId').value;
+  const currentStatus = document.getElementById('revokeLicenseStatus').value;
+  const reason = document.getElementById('revokeReason').value.trim();
+  if (!reason) { alert('Please provide a reason for revoking this license.'); return; }
+  try {
+    await adm('update_license', { id, status: 'cancelled' });
+    await logEvent(id, 'license_revoked', `License revoked: ${reason}`);
+    if (currentStatus === 'active') {
+      await triggerMaintenanceMode(id, 'suspend');
+    }
+    closeModal('revokeModal');
+    loadLicenses();
+    showToast(currentStatus === 'active'
+      ? 'License revoked. Site will enter maintenance mode within ~60 seconds.'
+      : 'License revoked.');
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+async function triggerMaintenanceMode(licenseId, action) {
+  const { data, error } = await sb.functions.invoke('suspend-license-site', {
+    body: { license_id: licenseId, action },
+  });
+  if (error) {
+    let detail = error.message;
+    try { const body = await error.context?.json?.(); detail = body?.error || body?.message || detail; } catch(_) {}
+    throw new Error(`Site toggle failed: ${detail}`);
+  }
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#1a2e4a;color:#F0EEE8;border:1px solid rgba(0,212,170,0.3);border-radius:8px;padding:14px 24px;font-size:14px;z-index:9999;box-shadow:0 4px 24px rgba(0,0,0,0.4);max-width:480px;text-align:center';
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+// ── TRANSFER FLOW ──
+function openTransferModal(licenseId, holderOrg, holderEmail) {
+  document.getElementById('transferLicenseId').value = licenseId;
+  document.getElementById('tfFromOrg').value = holderOrg || '';
+  document.getElementById('tfFromEmail').value = holderEmail || '';
+  document.getElementById('tfToOrg').value = '';
+  document.getElementById('tfToEmail').value = '';
+  document.getElementById('tfToContact').value = '';
+  document.getElementById('tfToPhone').value = '';
+  document.getElementById('tfReason').value = '';
+  document.getElementById('transferModalTitle').textContent = 'Initiate License Transfer';
+  openModal('transferModal');
+}
+
+function openCaltransTransfer() {
+  if (!caltransLicense) return;
+  document.getElementById('transferLicenseId').value = caltransLicense.id;
+  document.getElementById('tfFromOrg').value = caltransLicense.holder_org;
+  document.getElementById('tfFromEmail').value = caltransLicense.holder_email;
+  document.getElementById('tfToOrg').value = 'California Department of Transportation';
+  document.getElementById('tfToEmail').value = '';
+  document.getElementById('tfToContact').value = '';
+  document.getElementById('tfReason').value = 'Settlement of scope/payment dispute with MWS & Associates. Transfer of caltransbizconnect.org license to Caltrans upon payment resolution.';
+  document.getElementById('transferModalTitle').textContent = 'Transfer to Caltrans';
+  openModal('transferModal');
+}
+
+async function submitTransfer() {
+  const licenseId = document.getElementById('transferLicenseId').value;
+  const toOrg = document.getElementById('tfToOrg').value.trim();
+  const toEmail = document.getElementById('tfToEmail').value.trim();
+  if (!toOrg || !toEmail) { alert('Receiving organization and email are required.'); return; }
+  try {
+    await adm('insert_transfer', {
+      license_id: licenseId || '',
+      from_org: document.getElementById('tfFromOrg').value,
+      from_email: document.getElementById('tfFromEmail').value,
+      to_org: toOrg, to_email: toEmail,
+      to_contact: document.getElementById('tfToContact').value,
+      to_phone: document.getElementById('tfToPhone').value,
+      transfer_reason: document.getElementById('tfReason').value,
+      owner_authorized: 'true',
+      owner_authorized_at: new Date().toISOString(),
+      status: 'owner_approved',
+    });
+    closeModal('transferModal');
+    loadTransfers();
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+function openAuthorizeModal(transferId, fromOrg, toOrg, toEmail, licenseId) {
+  document.getElementById('authTransferId').value = transferId;
+  document.getElementById('authAdminNotes').value = '';
+  document.getElementById('authorizeDetails').innerHTML = `
+    <strong style="color:var(--off-white)">Transfer:</strong> ${fromOrg} → ${toOrg}<br>
+    <strong style="color:var(--off-white)">Receiving Email:</strong> ${toEmail}<br>
+    <strong style="color:var(--off-white)">License ID:</strong> ${licenseId || 'unlinked'}
+  `;
+  document.getElementById('authTransferId').dataset.licenseId = licenseId;
+  document.getElementById('authTransferId').dataset.toOrg = toOrg;
+  document.getElementById('authTransferId').dataset.toEmail = toEmail;
+  openModal('authorizeModal');
+}
+
+async function authorizeTransfer() {
+  const transferId = document.getElementById('authTransferId').value;
+  const licenseId = document.getElementById('authTransferId').dataset.licenseId;
+  const toOrg = document.getElementById('authTransferId').dataset.toOrg;
+  const toEmail = document.getElementById('authTransferId').dataset.toEmail;
+  const adminNotes = document.getElementById('authAdminNotes').value;
+  try {
+    const now = new Date().toISOString();
+    if (licenseId) {
+      await adm('update_license', { id: licenseId, holder_org: toOrg, holder_email: toEmail, is_owner_held: 'false', status: 'active' });
+      await logEvent(licenseId, 'transfer_completed', `License transferred to ${toOrg}`);
+    }
+    await adm('update_transfer', { id: transferId, status: 'completed', owner_authorized: 'true', owner_authorized_at: now, completed_at: now, admin_notes: adminNotes });
+    closeModal('authorizeModal');
+    loadAll();
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+async function rejectTransfer() {
+  const transferId = document.getElementById('authTransferId').value;
+  if (!confirm('Reject this transfer?')) return;
+  try {
+    await adm('update_transfer', { id: transferId, status: 'rejected' });
+    closeModal('authorizeModal');
+    loadTransfers();
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+// ── REQUEST FLOW ──
+async function openRequestDetail(requestId) {
+  let data;
+  try { data = await adm('get_requests'); } catch(e) { return; }
+  const r = data.find(x => x.id === requestId);
+  if (!r) return;
+  activeRequestData = r;
+  document.getElementById('activeRequestId').value = requestId;
+  document.getElementById('reqAdminNotes').value = r.admin_notes || '';
+  document.getElementById('requestDetailContent').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px">
+      <div><strong style="color:var(--teal)">Agency:</strong> ${r.agency_name}</div>
+      <div><strong style="color:var(--teal)">Dept:</strong> ${r.department || '—'}</div>
+      <div><strong style="color:var(--teal)">Contact:</strong> ${r.contact_name}</div>
+      <div><strong style="color:var(--teal)">Title:</strong> ${r.contact_title || '—'}</div>
+      <div><strong style="color:var(--teal)">Email:</strong> ${r.contact_email}</div>
+      <div><strong style="color:var(--teal)">Phone:</strong> ${r.contact_phone || '—'}</div>
+      <div><strong style="color:var(--teal)">Tier:</strong> ${capitalize(r.tier)}</div>
+      <div><strong style="color:var(--teal)">Billing:</strong> ${capitalize(r.billing_pref || 'monthly')}</div>
+      <div><strong style="color:var(--teal)">Districts:</strong> ${r.num_districts || '—'}</div>
+      <div><strong style="color:var(--teal)">Launch:</strong> ${r.launch_date ? fmtDate(r.launch_date) : '—'}</div>
+      <div style="grid-column:1/-1"><strong style="color:var(--teal)">Domain:</strong> ${r.custom_domain || '—'}</div>
+      <div style="grid-column:1/-1"><strong style="color:var(--teal)">Program:</strong> ${r.program_description || '—'}</div>
+    </div>
+  `;
+  openModal('requestDetailModal');
+}
+
+async function approveRequest() {
+  const r = activeRequestData;
+  if (!r) return;
+  const adminNotes = document.getElementById('reqAdminNotes').value;
+  try {
+    const newLicense = await adm('insert_license', {
+      tier: r.tier,
+      billing_cycle: r.billing_pref === 'annual' ? 'annual' : 'monthly',
+      holder_org: r.agency_name,
+      holder_contact: r.contact_name,
+      holder_email: r.contact_email,
+      holder_phone: r.contact_phone || '',
+      holder_domain: r.custom_domain || '',
+      agency_name: r.agency_name,
+      department: r.department || '',
+      num_districts: r.num_districts || '',
+      program_description: r.program_description || '',
+      launch_date: r.launch_date || '',
+      is_owner_held: 'false',
+      monthly_rate: r.tier === 'starter' ? '4500' : r.tier === 'professional' ? '9500' : '',
+      annual_rate: r.tier === 'starter' ? '45000' : r.tier === 'professional' ? '95000' : '',
+    });
+    await adm('update_request', { id: r.id, status: 'converted', converted_license_id: newLicense.id, admin_notes: adminNotes });
+    await logEvent(newLicense.id, 'license_created', `License created from request for ${r.agency_name}`);
+    closeModal('requestDetailModal');
+    loadAll();
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+async function rejectRequest() {
+  const requestId = document.getElementById('activeRequestId').value;
+  const adminNotes = document.getElementById('reqAdminNotes').value;
+  if (!confirm('Reject this request?')) return;
+  try {
+    await adm('update_request', { id: requestId, status: 'rejected', admin_notes: adminNotes });
+    closeModal('requestDetailModal');
+    loadRequests();
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+// ── NEW LICENSE ──
+async function createLicense() {
+  const agency      = document.getElementById('nl_agency').value.trim();
+  const contactName = document.getElementById('nl_contactName').value.trim();
+  const holderEmail = document.getElementById('nl_holderEmail').value.trim();
+  if (!agency || !holderEmail || !contactName) {
+    alert('Agency name, contact name, and email are required.');
+    return;
+  }
+  try {
+    const holderOrg = document.getElementById('nl_holderOrg').value.trim() || agency;
+    const monthly   = document.getElementById('nl_monthly').value;
+    const annual    = document.getElementById('nl_annual').value;
+    const newLicense = await adm('insert_license', {
+      agency_name:         agency,
+      holder_org:          holderOrg,
+      holder_contact:      contactName,
+      holder_email:        holderEmail,
+      holder_phone:        document.getElementById('nl_holderPhone').value.trim(),
+      holder_domain:       document.getElementById('nl_domain').value.trim(),
+      department:          document.getElementById('nl_dept').value.trim(),
+      num_districts:       document.getElementById('nl_districts').value.trim(),
+      program_description: document.getElementById('nl_desc').value.trim(),
+      tier:                document.getElementById('nl_tier').value,
+      billing_cycle:       document.getElementById('nl_billing').value,
+      status:              document.getElementById('nl_status').value,
+      monthly_rate:        monthly || null,
+      annual_rate:         annual  || null,
+      launch_date:         document.getElementById('nl_launch').value || null,
+      is_owner_held:       document.getElementById('nl_ownerHeld').value,
+      notes:               document.getElementById('nl_notes').value.trim(),
+    });
+    await logEvent(newLicense.id, 'license_created', `License manually created for ${agency}`, { tier: newLicense.tier, monthly_rate: monthly, annual_rate: annual });
+    closeModal('newLicenseModal');
+    loadLicenses();
+    showToast(`License created for ${agency}`);
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+// ── HISTORY ──
+async function openHistoryModal(licenseId, isCaltrans) {
+  const id = isCaltrans && caltransLicense ? caltransLicense.id : licenseId;
+  document.getElementById('historyList').innerHTML = '<p class="empty">Loading...</p>';
+  openModal('historyModal');
+  if (!id) { document.getElementById('historyList').innerHTML = '<p class="empty">No license linked.</p>'; return; }
+  try {
+    const data = await adm('get_events', { license_id: id });
+    if (!data?.length) { document.getElementById('historyList').innerHTML = '<p class="empty">No events recorded yet.</p>'; return; }
+    document.getElementById('historyList').innerHTML = data.map(e => `
+      <div class="history-item">
+        <div class="history-type">${e.event_type.replace(/_/g,' ')}</div>
+        <div class="history-desc">${e.description || '—'}</div>
+        <div class="history-meta">${fmtDate(e.created_at)} · ${e.performed_by}</div>
+      </div>
+    `).join('');
+  } catch(e) { document.getElementById('historyList').innerHTML = '<p class="empty">Error loading history.</p>'; }
+}
+
+// ── HELPERS ──
+async function logEvent(licenseId, eventType, description, metadata) {
+  try {
+    await adm('insert_event', {
+      license_id: licenseId, event_type: eventType, description,
+      performed_by: ADMIN_EMAIL,
+      metadata: metadata ? JSON.stringify(metadata) : '',
+    });
+  } catch(e) { console.warn('logEvent failed:', e); }
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function capitalize(str) { return str ? str.charAt(0).toUpperCase() + str.slice(1) : ''; }
+
+function downloadLicensePDF(id) {
+  const l = licensesData.find(x => x.id === id);
+  if (!l) { alert('License data not found. Please reload the page.'); return; }
+
+  const field = (label, val) => val ? `
+    <tr>
+      <td style="padding:8px 12px;color:#555;font-size:12px;font-weight:600;width:38%;border-bottom:1px solid #f0f0f0;white-space:nowrap">${label}</td>
+      <td style="padding:8px 12px;font-size:13px;border-bottom:1px solid #f0f0f0;color:#1a1a1a">${val}</td>
+    </tr>` : '';
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>License — ${l.license_key}</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',Arial,sans-serif; background:#fff; color:#1a1a1a; padding:48px; }
+    @media print {
+      body { padding:24px; }
+      .no-print { display:none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;padding-bottom:24px;border-bottom:3px solid #0A1628">
+    <div>
+      <div style="font-size:22px;font-weight:800;color:#0A1628;letter-spacing:-0.5px">PrimeReach</div>
+      <div style="font-size:11px;color:#888;letter-spacing:0.12em;text-transform:uppercase;margin-top:3px">Government Platform Licensing</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.1em">License Certificate</div>
+      <div style="font-size:18px;font-weight:700;color:#00D4AA;font-family:monospace;margin-top:4px">${l.license_key}</div>
+      <div style="margin-top:6px;display:inline-block;padding:3px 12px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+        background:${l.status==='active'?'#e6faf6':l.status==='suspended'?'#fff0f2':'#fff8e6'};
+        color:${l.status==='active'?'#00a885':l.status==='suspended'?'#d0354a':'#d07a00'};
+        border:1px solid ${l.status==='active'?'#00d4aa':l.status==='suspended'?'#ff4d6d':'#f5a623'}">
+        ${l.status.toUpperCase()}
+      </div>
+    </div>
+  </div>
+
+  <!-- Agency -->
+  <div style="margin-bottom:28px">
+    <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">Licensed To</div>
+    <div style="font-size:20px;font-weight:700;color:#0A1628">${l.agency_name}</div>
+    ${l.department ? `<div style="font-size:13px;color:#555;margin-top:3px">${l.department}</div>` : ''}
+  </div>
+
+  <!-- Details table -->
+  <table style="width:100%;border-collapse:collapse;margin-bottom:28px;border:1px solid #e8e8e8;border-radius:8px;overflow:hidden">
+    <tbody>
+      ${field('License Tier', capitalize(l.tier))}
+      ${field('Billing Cycle', capitalize(l.billing_cycle))}
+      ${field('License Holder', l.holder_org)}
+      ${field('Contact', l.holder_contact)}
+      ${field('Email', l.holder_email)}
+      ${field('Phone', l.holder_phone)}
+      ${field('Platform Domain', l.holder_domain)}
+      ${field('Number of Districts', l.num_districts)}
+      ${field('Launch Date', l.launch_date ? new Date(l.launch_date).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) : null)}
+      ${field('Activated', l.activated_at ? new Date(l.activated_at).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) : null)}
+    </tbody>
+  </table>
+
+  ${l.program_description ? `
+  <div style="margin-bottom:28px">
+    <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px">Program Description</div>
+    <div style="font-size:13px;line-height:1.7;color:#333;background:#fafafa;border:1px solid #e8e8e8;border-radius:6px;padding:14px 16px">${l.program_description}</div>
+  </div>` : ''}
+
+  ${l.notes ? `
+  <div style="margin-bottom:28px">
+    <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px">Notes</div>
+    <div style="font-size:13px;line-height:1.7;color:#333;background:#fafafa;border:1px solid #e8e8e8;border-radius:6px;padding:14px 16px">${l.notes}</div>
+  </div>` : ''}
+
+  <!-- Footer -->
+  <div style="margin-top:40px;padding-top:20px;border-top:1px solid #e8e8e8;display:flex;justify-content:space-between;align-items:flex-end">
+    <div>
+      <div style="font-size:11px;color:#888">Original License Owner</div>
+      <div style="font-size:13px;font-weight:600;color:#0A1628;margin-top:2px">${l.original_owner || 'EVOBRAND Concepts'}</div>
+      <div style="font-size:11px;color:#888;margin-top:1px">${l.owner_email || 'ks@evobrand.net'}</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:11px;color:#bbb">Generated ${new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}</div>
+      <div style="font-size:10px;color:#ccc;margin-top:2px">primereachgov.com</div>
+    </div>
+  </div>
+
+  <div class="no-print" style="margin-top:32px;text-align:center">
+    <button onclick="window.print()" style="background:#0A1628;color:#fff;border:none;padding:12px 32px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">Save as PDF / Print</button>
+  </div>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(() => win.print(), 600);
+}
+
+function fmtDate(str) {
+  if (!str) return '—';
+  return new Date(str).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+}
+
+function escHtml(str) { return (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+
+function openNewLicenseModal() {
+  ['nl_agency','nl_dept','nl_holderOrg','nl_contactName','nl_contactTitle',
+   'nl_holderEmail','nl_holderPhone','nl_domain','nl_districts',
+   'nl_monthly','nl_annual','nl_launch','nl_desc','nl_notes'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('nl_tier').value      = 'professional';
+  document.getElementById('nl_billing').value   = 'monthly';
+  document.getElementById('nl_status').value    = 'active';
+  document.getElementById('nl_ownerHeld').value = 'false';
+  openModal('newLicenseModal');
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+init();
+</script>
+</body>
+</html>
