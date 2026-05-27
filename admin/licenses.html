@@ -232,6 +232,7 @@ main{max-width:1280px;margin:0 auto;padding:32px 24px}
     <div class="caltrans-actions">
       <button class="btn-gold" id="caltransTransferBtn" onclick="openCaltransTransfer()">Transfer to Caltrans</button>
       <button class="btn-outline-gold" onclick="openHistoryModal(null, true)">View History</button>
+      <button class="btn-outline-gold" id="caltransEditNotesBtn">Edit Notes</button>
     </div>
   </div>
 
@@ -541,6 +542,36 @@ main{max-width:1280px;margin:0 auto;padding:32px 24px}
     </div>
   </div>
 </div>
+
+<!-- EDIT INFO MODAL -->
+<div class="modal-overlay" id="editInfoModal">
+  <div class="modal" style="max-width:500px">
+    <h3>Edit License Info</h3>
+    <input type="hidden" id="editInfoLicenseId">
+    <div class="modal-grid">
+      <div class="modal-group">
+        <label class="modal-label">Contact Name</label>
+        <input type="text" class="modal-input" id="ei_contact" placeholder="Holder contact name">
+      </div>
+      <div class="modal-group">
+        <label class="modal-label">Contact Email</label>
+        <input type="email" class="modal-input" id="ei_email" placeholder="Holder email">
+      </div>
+      <div class="modal-group full">
+        <label class="modal-label">Phone</label>
+        <input type="tel" class="modal-input" id="ei_phone" placeholder="Holder phone">
+      </div>
+      <div class="modal-group full">
+        <label class="modal-label">Notes</label>
+        <textarea class="modal-textarea" id="ei_notes" placeholder="License notes..." rows="4"></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeModal('editInfoModal')">Cancel</button>
+      <button class="modal-btn primary" onclick="saveInfo()">Save Info</button>
+    </div>
+  </div>
+</div>
     </div>
   </div>
 </div>
@@ -557,6 +588,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
 let caltransLicense = null;
 let activeRequestData = null;
 let licensesData = [];
+let transfersData = [];
 
 // ── AUTH — JS password gate ──
 const PW_HASH = 'c6facc0a6717e9e66da95d7aeca4474ac3f129ca59131a0db526068d2300a7fd';
@@ -648,6 +680,7 @@ async function loadLicenses() {
     document.getElementById('caltransAnnual').textContent = c.annual_rate ? '$' + Number(c.annual_rate).toLocaleString() + '/yr' : '—';
     document.getElementById('caltransActivated').textContent = c.activated_at ? fmtDate(c.activated_at) : '—';
     document.getElementById('caltransNotes').innerHTML = '<strong>Notes:</strong> ' + (c.notes || 'None');
+    document.getElementById('caltransEditNotesBtn').onclick = () => openEditInfoModal(c.id);
   }
 
   const tbody = document.getElementById('licensesBody');
@@ -669,6 +702,7 @@ async function loadLicenses() {
           <button class="act-btn gold" onclick="openTransferModal('${l.id}','${escHtml(l.holder_org)}','${escHtml(l.holder_email)}')">Transfer</button>
           <button class="act-btn muted" onclick="openHistoryModal('${l.id}', false)">History</button>
           <button class="act-btn teal" onclick="downloadLicensePDF('${l.id}')">PDF</button>
+          <button class="act-btn muted" onclick="openEditInfoModal('${l.id}')">Edit Info</button>
           ${l.status !== 'cancelled' ? `<button class="act-btn red" onclick="openRevokeModal('${l.id}','${escHtml(l.agency_name)}','${l.status}')">Revoke</button>` : ''}
         </div>
       </td>
@@ -707,6 +741,7 @@ async function loadRequests() {
 async function loadTransfers() {
   let data;
   try { data = await adm('get_transfers'); } catch(e) { console.error(e); return; }
+  transfersData = data;
 
   const pending = data.filter(t => t.status === 'pending').length;
   document.getElementById('statTransfers').textContent = pending;
@@ -724,7 +759,7 @@ async function loadTransfers() {
       <td data-label="Actions">
         <div class="tbl-actions">
           ${t.status === 'pending' || t.status === 'owner_approved' ? `
-            <button class="act-btn gold" onclick="openAuthorizeModal('${t.id}','${escHtml(t.from_org)}','${escHtml(t.to_org)}','${escHtml(t.to_email)}','${t.license_id || ''}')">Authorize</button>
+            <button class="act-btn gold" onclick="openAuthorizeModal('${t.id}')">Authorize</button>
           ` : ''}
         </div>
       </td>
@@ -852,30 +887,46 @@ async function submitTransfer() {
   } catch(e) { alert('Error: ' + e.message); }
 }
 
-function openAuthorizeModal(transferId, fromOrg, toOrg, toEmail, licenseId) {
+function openAuthorizeModal(transferId) {
+  const t = transfersData.find(x => x.id === transferId);
+  if (!t) return;
   document.getElementById('authTransferId').value = transferId;
   document.getElementById('authAdminNotes').value = '';
   document.getElementById('authorizeDetails').innerHTML = `
-    <strong style="color:var(--off-white)">Transfer:</strong> ${fromOrg} → ${toOrg}<br>
-    <strong style="color:var(--off-white)">Receiving Email:</strong> ${toEmail}<br>
-    <strong style="color:var(--off-white)">License ID:</strong> ${licenseId || 'unlinked'}
+    <strong style="color:var(--off-white)">Transfer:</strong> ${escHtml(t.from_org)} → ${escHtml(t.to_org)}<br>
+    <strong style="color:var(--off-white)">Receiving Email:</strong> ${escHtml(t.to_email)}<br>
+    <strong style="color:var(--off-white)">License ID:</strong> ${t.license_id || 'unlinked'}
   `;
-  document.getElementById('authTransferId').dataset.licenseId = licenseId;
-  document.getElementById('authTransferId').dataset.toOrg = toOrg;
-  document.getElementById('authTransferId').dataset.toEmail = toEmail;
+  document.getElementById('authTransferId').dataset.licenseId = t.license_id || '';
+  document.getElementById('authTransferId').dataset.toOrg = t.to_org || '';
+  document.getElementById('authTransferId').dataset.toEmail = t.to_email || '';
+  document.getElementById('authTransferId').dataset.toContact = t.to_contact || '';
+  document.getElementById('authTransferId').dataset.toPhone = t.to_phone || '';
   openModal('authorizeModal');
 }
 
 async function authorizeTransfer() {
   const transferId = document.getElementById('authTransferId').value;
-  const licenseId = document.getElementById('authTransferId').dataset.licenseId;
-  const toOrg = document.getElementById('authTransferId').dataset.toOrg;
-  const toEmail = document.getElementById('authTransferId').dataset.toEmail;
+  const authDataset = document.getElementById('authTransferId').dataset;
+  const licenseId = authDataset.licenseId;
+  const toOrg = authDataset.toOrg;
+  const toEmail = authDataset.toEmail;
+  const toContact = authDataset.toContact;
+  const toPhone = authDataset.toPhone;
   const adminNotes = document.getElementById('authAdminNotes').value;
   try {
     const now = new Date().toISOString();
     if (licenseId) {
-      await adm('update_license', { id: licenseId, holder_org: toOrg, holder_email: toEmail, is_owner_held: 'false', status: 'active' });
+      await adm('update_license', { 
+        id: licenseId, 
+        holder_org: toOrg, 
+        holder_email: toEmail, 
+        holder_contact: toContact, 
+        holder_phone: toPhone, 
+        notes: '', 
+        is_owner_held: 'false', 
+        status: 'active' 
+      });
       await logEvent(licenseId, 'transfer_completed', `License transferred to ${toOrg}`);
     }
     await adm('update_transfer', { id: transferId, status: 'completed', owner_authorized: 'true', owner_authorized_at: now, completed_at: now, admin_notes: adminNotes });
@@ -1018,6 +1069,38 @@ async function openHistoryModal(licenseId, isCaltrans) {
       </div>
     `).join('');
   } catch(e) { document.getElementById('historyList').innerHTML = '<p class="empty">Error loading history.</p>'; }
+}
+
+// ── EDIT INFO ──
+function openEditInfoModal(id) {
+  const l = licensesData.find(x => x.id === id);
+  if (!l) return;
+  document.getElementById('editInfoLicenseId').value = id;
+  document.getElementById('ei_contact').value = l.holder_contact || '';
+  document.getElementById('ei_email').value = l.holder_email || '';
+  document.getElementById('ei_phone').value = l.holder_phone || '';
+  document.getElementById('ei_notes').value = l.notes || '';
+  openModal('editInfoModal');
+}
+
+async function saveInfo() {
+  const id = document.getElementById('editInfoLicenseId').value;
+  const contact = document.getElementById('ei_contact').value;
+  const email = document.getElementById('ei_email').value;
+  const phone = document.getElementById('ei_phone').value;
+  const notes = document.getElementById('ei_notes').value;
+  try {
+    await adm('update_license', { 
+      id, 
+      holder_contact: contact, 
+      holder_email: email, 
+      holder_phone: phone, 
+      notes 
+    });
+    closeModal('editInfoModal');
+    loadLicenses();
+    showToast('Info updated successfully');
+  } catch(e) { alert('Error: ' + e.message); }
 }
 
 // ── HELPERS ──
