@@ -1,0 +1,14 @@
+---
+deployment:
+  tasks:
+    # Set production environment
+    - export NODE_ENV=production
+    
+    # Install dependencies
+    - npm install --production
+    
+    # Optional: If your cPanel Git repo is separate from your Node.js application root,
+    # you can uncomment and adjust the following lines to copy the files over automatically.
+    # - export DEPLOYPATH=/home/primereachgov/YOUR_APP_DIRECTORY
+    # - /bin/cp -R * $DEPLOYPATH
+    # - /bin/cp -R .env* $DEPLOYPATH
