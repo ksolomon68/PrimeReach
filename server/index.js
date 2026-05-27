@@ -51,6 +51,12 @@ const startServer = async () => {
             next();
         });
 
+        // license-gate.js must be embeddable cross-origin (loaded via <script> from licensed domains)
+        app.get('/license-gate.js', (req, res, next) => {
+            res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+            next();
+        });
+
         // CORS — restrict to the configured production domain and localhost.
         const allowedOrigins = [
             'https://' + agencyConfig.domain,
