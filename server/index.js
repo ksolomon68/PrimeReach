@@ -142,6 +142,12 @@ const startServer = async () => {
             next();
         });
 
+        // Serve license-gate.js with Cross-Origin-Resource-Policy header
+        app.get('/license-gate.js', (req, res, next) => {
+            res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+            next();
+        });
+
         // 2. Fix static asset caching
         const publicPath = path.join(__dirname, '../');
         console.log(`${agencyConfig.name}: Serving static files from:`, publicPath);
