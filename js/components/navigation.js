@@ -10,7 +10,7 @@
 const _navAgency    = window.AGENCY || {};
 const _navUserKey   = ((_navAgency.storagePrefix) || 'app') + '_user';
 const _navTokenKey  = ((_navAgency.storagePrefix) || 'app') + '_token';
-const _navLogoPath  = _navAgency.logoPath  || 'assets/logo.png';
+const _navLogoPath  = _navAgency.logoDarkPath || _navAgency.logoPath  || 'assets/logo.png';
 const _navLogoAlt   = _navAgency.logoAlt   || 'Platform Logo';
 const _navAppName   = _navAgency.name      || 'Platform';
 const _navStaffDash = 'dashboard-caltrans.html'; // configurable: update if the staff dashboard page is renamed

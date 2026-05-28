@@ -26,6 +26,8 @@ window.AGENCY = {
   domain: 'primereachgov.com',
   /** Path to the agency logo (relative to site root). */
   logoPath: 'images/logo-light.png',
+  /** Path to the dark agency logo (for light backgrounds). */
+  logoDarkPath: 'images/logo.png',
   /** Alternate text for the logo image. */
   logoAlt: 'PrimeReach Logo',
 
