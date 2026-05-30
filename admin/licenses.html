@@ -819,13 +819,23 @@ async function revokeConfirm() {
 }
 
 async function triggerMaintenanceMode(licenseId, action) {
-  const { data, error } = await sb.functions.invoke('suspend-license-site', {
-    body: { license_id: licenseId, action },
-  });
-  if (error) {
-    let detail = error.message;
-    try { const body = await error.context?.json?.(); detail = body?.error || body?.message || detail; } catch(_) {}
-    throw new Error(`Site toggle failed: ${detail}`);
+  try {
+    const res = await fetch(`${FUNCTIONS_URL}/suspend-license-site`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON}`,
+        'apikey': SUPABASE_ANON
+      },
+      body: JSON.stringify({ license_id: licenseId, action }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || body.message || `HTTP ${res.status}`);
+    }
+    return await res.json();
+  } catch (e) {
+    throw new Error(`Site toggle failed: ${e.message}`);
   }
 }
 

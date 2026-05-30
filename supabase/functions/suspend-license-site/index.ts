@@ -14,14 +14,24 @@ const GH_HEADERS = {
   'User-Agent': 'PrimeReach-License-System',
 };
 
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
 Deno.serve(async (req: Request) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: CORS });
+  }
+
   if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 });
+    return new Response('Method not allowed', { status: 405, headers: CORS });
   }
 
   if (!GITHUB_TOKEN) {
     return new Response(JSON.stringify({ error: 'GITHUB_TOKEN secret not configured' }), {
-      status: 500, headers: { 'Content-Type': 'application/json' },
+      status: 500, headers: { 'Content-Type': 'application/json', ...CORS },
     });
   }
 
@@ -30,7 +40,7 @@ Deno.serve(async (req: Request) => {
 
     if (!license_id || !['suspend', 'reactivate'].includes(action)) {
       return new Response(JSON.stringify({ error: 'license_id and action (suspend|reactivate) required' }), {
-        status: 400, headers: { 'Content-Type': 'application/json' },
+        status: 400, headers: { 'Content-Type': 'application/json', ...CORS },
       });
     }
 
@@ -44,7 +54,7 @@ Deno.serve(async (req: Request) => {
 
     if (licErr || !license) {
       return new Response(JSON.stringify({ error: 'License not found' }), {
-        status: 404, headers: { 'Content-Type': 'application/json' },
+        status: 404, headers: { 'Content-Type': 'application/json', ...CORS },
       });
     }
 
@@ -58,7 +68,7 @@ Deno.serve(async (req: Request) => {
       const txt = await getRes.text();
       console.error('GitHub GET failed:', txt);
       return new Response(JSON.stringify({ error: 'Failed to read .env.production from GitHub' }), {
-        status: 502, headers: { 'Content-Type': 'application/json' },
+        status: 502, headers: { 'Content-Type': 'application/json', ...CORS },
       });
     }
 
@@ -69,7 +79,7 @@ Deno.serve(async (req: Request) => {
 
     if (currentContent === updatedContent) {
       return new Response(JSON.stringify({ ok: true, note: 'Already in target state — no commit needed' }), {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...CORS },
       });
     }
 
@@ -95,16 +105,16 @@ Deno.serve(async (req: Request) => {
       const txt = await putRes.text();
       console.error('GitHub PUT failed:', txt);
       return new Response(JSON.stringify({ error: 'Failed to commit .env.production to GitHub' }), {
-        status: 502, headers: { 'Content-Type': 'application/json' },
+        status: 502, headers: { 'Content-Type': 'application/json', ...CORS },
       });
     }
 
     return new Response(JSON.stringify({ ok: true, action, org: license.holder_org }), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...CORS },
     });
 
   } catch (err) {
     console.error(err);
-    return new Response(JSON.stringify({ error: String(err) }), { status: 500 });
+    return new Response(JSON.stringify({ error: String(err) }), { status: 500, headers: { 'Content-Type': 'application/json', ...CORS } });
   }
 });

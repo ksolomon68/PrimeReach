@@ -243,6 +243,7 @@ textarea {
 
     .mobile-toggle-btn:hover {
         background: var(--color-border-light);
+        color: var(--color-primary) !important;
         transform: scale(1.05);
     }
 
@@ -299,7 +300,7 @@ textarea {
 
     .mobile-signout-btn:hover {
         background: #fee2e2;
-        color: #ef4444;
+        color: #ef4444 !important;
     }
 
     .dashboard-v2 {
