@@ -91,7 +91,7 @@ const CapabilityUpload = {
             // Optionally update user in localStorage
             if (user) {
                 user.capability_statement = result.path;
-                localStorage.setItem('caltrans_user', JSON.stringify(user));
+                if (window.Auth) { localStorage.setItem((window.AGENCY ? window.AGENCY.storagePrefix : 'app') + '_user', JSON.stringify(user)); } else { localStorage.setItem('caltrans_user', JSON.stringify(user)); }
             }
         } catch (error) {
             console.error('Upload error:', error);

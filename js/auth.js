@@ -196,7 +196,7 @@ async function registerSmallBusiness(formData) {
                 type: 'small_business',
                 password: null
             };
-            localStorage.setItem('caltrans_user', JSON.stringify(mockUser));
+            localStorage.setItem(USER_KEY, JSON.stringify(mockUser));
             return mockUser;
         }
         throw error;
@@ -241,7 +241,7 @@ async function registerPrimeContractor(formData) {
                 type: 'agency',
                 password: null
             };
-            localStorage.setItem('caltrans_user', JSON.stringify(mockUser));
+            localStorage.setItem(USER_KEY, JSON.stringify(mockUser));
             return mockUser;
         }
         throw error;

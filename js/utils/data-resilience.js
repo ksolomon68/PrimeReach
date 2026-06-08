@@ -7,7 +7,7 @@ const DataService = {
         const url = `${window.APP_CONFIG ? window.APP_CONFIG.API_URL : '/api'}${endpoint}`;
 
         // Auto-attach JWT token if present
-        const token = localStorage.getItem('caltrans_token');
+        const token = window.Auth ? window.Auth.getToken() : localStorage.getItem('caltrans_token');
         if (token) {
             options.headers = options.headers || {};
             if (!options.headers['Authorization']) {

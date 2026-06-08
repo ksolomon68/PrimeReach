@@ -359,7 +359,7 @@ function setupEventListeners() {
 
 // Global function for saving opportunity
 window.saveOpportunity = async function (opportunityId, btnElement) {
-    const user = typeof getCurrentUser === 'function' ? getCurrentUser() : JSON.parse(localStorage.getItem('caltrans_user'));
+    const user = window.Auth ? window.Auth.getUser() : (typeof getCurrentUser === 'function' ? getCurrentUser() : JSON.parse(localStorage.getItem('caltrans_user')));
 
     if (!user) {
         alert('Please log in to save opportunities.');
@@ -403,7 +403,7 @@ window.saveOpportunity = async function (opportunityId, btnElement) {
             if (!savedOpps.includes(opportunityId)) {
                 savedOpps.push(opportunityId);
                 user.saved_opportunities = JSON.stringify(savedOpps);
-                localStorage.setItem('caltrans_user', JSON.stringify(user));
+                if (window.Auth) { localStorage.setItem((window.AGENCY ? window.AGENCY.storagePrefix : 'app') + '_user', JSON.stringify(user)); } else { localStorage.setItem('caltrans_user', JSON.stringify(user)); }
             }
         } else {
             const err = await response.json();
@@ -421,7 +421,7 @@ window.saveOpportunity = async function (opportunityId, btnElement) {
 
 // Helper function to unsave an opportunity
 async function unsaveOpportunity(opportunityId, btnElement) {
-    const user = typeof getCurrentUser === 'function' ? getCurrentUser() : JSON.parse(localStorage.getItem('caltrans_user'));
+    const user = window.Auth ? window.Auth.getUser() : (typeof getCurrentUser === 'function' ? getCurrentUser() : JSON.parse(localStorage.getItem('caltrans_user')));
 
     if (!user) return;
 
@@ -450,7 +450,7 @@ async function unsaveOpportunity(opportunityId, btnElement) {
                     let savedOpps = JSON.parse(user.saved_opportunities);
                     savedOpps = savedOpps.filter(id => id !== opportunityId);
                     user.saved_opportunities = JSON.stringify(savedOpps);
-                    localStorage.setItem('caltrans_user', JSON.stringify(user));
+                    if (window.Auth) { localStorage.setItem((window.AGENCY ? window.AGENCY.storagePrefix : 'app') + '_user', JSON.stringify(user)); } else { localStorage.setItem('caltrans_user', JSON.stringify(user)); }
                 } catch (e) {
                     console.error('Error updating saved opportunities:', e);
                 }
@@ -469,5 +469,5 @@ async function unsaveOpportunity(opportunityId, btnElement) {
 
 // Helper to check if logged in
 function isLoggedIn() {
-    return localStorage.getItem('caltrans_user') !== null;
+    return window.Auth ? window.Auth.isLoggedIn() : localStorage.getItem('caltrans_user') !== null;
 }
