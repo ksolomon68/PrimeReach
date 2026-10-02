@@ -100,6 +100,14 @@ const startServer = async () => {
                     return next();
                 }
 
+                // Always allow the license admin console. Suspending a license turns
+                // maintenance mode on for this server, so blocking this page would make
+                // it impossible to reach the "Reactivate" button. The page is
+                // self-contained and talks directly to Supabase.
+                if (req.path === '/admin/licenses.html' || req.path === '/admin/licenses') {
+                    return next();
+                }
+
                 // Return 503 JSON for all other API routes
                 if (req.path.startsWith('/api/')) {
                     return res.status(503).json({ error: 'Service Unavailable', message: 'Platform upgrade in progress.' });

@@ -46,11 +46,10 @@
     try {
       const cached = sessionStorage.getItem(CACHE_KEY);
       if (cached) {
-        const { ts, active, status } = JSON.parse(cached);
-        if (Date.now() - ts < CACHE_TTL) {
-          if (!active) showLockout(status);
-          return;
-        }
+        // Only trust a cached "active" result; always re-check an inactive one
+        // so a reactivated license unlocks on the next page load.
+        const { ts, active } = JSON.parse(cached);
+        if (active && Date.now() - ts < CACHE_TTL) return;
       }
     } catch (_) {}
 
