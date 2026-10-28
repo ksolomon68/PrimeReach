@@ -3,7 +3,7 @@
   // Public anon key (same one used in admin/licenses.html) — required by the Supabase gateway.
   const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVqcmZ0eGNyb216a3RmdGdpa3poIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMDIwNTcsImV4cCI6MjA5NDg3ODA1N30.FmoqBdWE2yb2_BmkhGtSVftnmMtasm9FQChXAeBOXcg';
   const CACHE_KEY = 'pr_license_status';
-  const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+  const CACHE_TTL = 60 * 1000; // 1 minute
 
   function showLockout(status) {
     const reason = status === 'suspended'

@@ -771,21 +771,19 @@ async function loadTransfers() {
 async function activateLicense(id) {
   try {
     await adm('update_license', { id, status: 'active', activated_at: new Date().toISOString() });
-    await logEvent(id, 'status_change', 'License activated — maintenance mode deactivated');
-    await triggerMaintenanceMode(id, 'reactivate');
+    await logEvent(id, 'status_change', 'License activated — site unlocked');
     loadLicenses();
     showToast('License activated. Site will come back online within ~60 seconds.');
   } catch(e) { alert('Error: ' + e.message); }
 }
 
 async function suspendLicense(id) {
-  if (!confirm('Suspend this license? The site will enter maintenance mode within ~60 seconds.')) return;
+  if (!confirm('Suspend this license? The licensed site will be locked within ~60 seconds.')) return;
   try {
     await adm('update_license', { id, status: 'suspended' });
-    await logEvent(id, 'status_change', 'License suspended — maintenance mode activated');
-    await triggerMaintenanceMode(id, 'suspend');
+    await logEvent(id, 'status_change', 'License suspended — site locked');
     loadLicenses();
-    showToast('License suspended. Site will enter maintenance mode within ~60 seconds.');
+    showToast('License suspended. The site will be locked within ~60 seconds.');
   } catch(e) { alert('Error: ' + e.message); }
 }
 
@@ -793,7 +791,7 @@ function openRevokeModal(id, agencyName, currentStatus) {
   document.getElementById('revokeLicenseId').value = id;
   document.getElementById('revokeLicenseStatus').value = currentStatus;
   document.getElementById('revokeReason').value = '';
-  const siteWarn = currentStatus === 'active' ? ' The associated site will enter maintenance mode within ~60 seconds.' : '';
+  const siteWarn = currentStatus === 'active' ? ' The associated site will be locked within ~60 seconds.' : '';
   document.getElementById('revokeWarning').textContent =
     `You are about to permanently revoke the license for ${agencyName}. This will cancel the license and cannot be undone.${siteWarn}`;
   openModal('revokeModal');
@@ -807,36 +805,12 @@ async function revokeConfirm() {
   try {
     await adm('update_license', { id, status: 'cancelled' });
     await logEvent(id, 'license_revoked', `License revoked: ${reason}`);
-    if (currentStatus === 'active') {
-      await triggerMaintenanceMode(id, 'suspend');
-    }
     closeModal('revokeModal');
     loadLicenses();
     showToast(currentStatus === 'active'
-      ? 'License revoked. Site will enter maintenance mode within ~60 seconds.'
+      ? 'License revoked. The site will be locked within ~60 seconds.'
       : 'License revoked.');
   } catch(e) { alert('Error: ' + e.message); }
-}
-
-async function triggerMaintenanceMode(licenseId, action) {
-  try {
-    const res = await fetch(`${FUNCTIONS_URL}/suspend-license-site`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${SUPABASE_ANON}`,
-        'apikey': SUPABASE_ANON
-      },
-      body: JSON.stringify({ license_id: licenseId, action }),
-    });
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body.error || body.message || `HTTP ${res.status}`);
-    }
-    return await res.json();
-  } catch (e) {
-    throw new Error(`Site toggle failed: ${e.message}`);
-  }
 }
 
 function showToast(msg) {
