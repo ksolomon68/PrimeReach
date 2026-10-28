@@ -284,7 +284,7 @@
 
             try {
                 const API_BASE = window.APP_CONFIG ? window.APP_CONFIG.API_URL : '/api';
-                const token = localStorage.getItem('caltrans_token');
+                const token = localStorage.getItem('primereach_token');
                 const response = await fetch(`${API_BASE}/upload-cs`, {
                     method: 'POST',
                     headers: token ? { 'Authorization': `Bearer ${token}` } : {},
@@ -347,7 +347,7 @@
 
             try {
                 const API_BASE = window.APP_CONFIG ? window.APP_CONFIG.API_URL : '/api';
-                const token = localStorage.getItem('caltrans_token');
+                const token = localStorage.getItem('primereach_token');
                 const headers = { 'Content-Type': 'application/json' };
                 if (token) headers['Authorization'] = `Bearer ${token}`;
 
@@ -360,7 +360,7 @@
                 if (!response.ok) throw new Error('Failed to save');
 
                 const updatedUser = await response.json();
-                localStorage.setItem('caltrans_user', JSON.stringify(updatedUser));
+                localStorage.setItem('primereach_user', JSON.stringify(updatedUser));
 
                 showSuccessMessage('Capability Statement saved successfully!', this);
             } catch (error) {

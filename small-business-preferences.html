@@ -186,7 +186,7 @@
         });
 
         function loadPreferences() {
-            const user = JSON.parse(localStorage.getItem('caltrans_user'));
+            const user = JSON.parse(localStorage.getItem('primereach_user'));
             if (!user) return;
 
             // Load existing preferences
@@ -214,9 +214,9 @@
             };
 
             // Update user preferences
-            const user = JSON.parse(localStorage.getItem('caltrans_user'));
+            const user = JSON.parse(localStorage.getItem('primereach_user'));
             user.preferences = preferences;
-            localStorage.setItem('caltrans_user', JSON.stringify(user));
+            localStorage.setItem('primereach_user', JSON.stringify(user));
 
             alert('Preferences saved successfully!');
         }

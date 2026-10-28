@@ -1,4 +1,4 @@
-name: Deploy CaltransBizConnect
+name: Deploy PrimeReach
 
 on:
   push:

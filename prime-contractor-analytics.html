@@ -428,13 +428,13 @@
         // Initialize Prime Contractor Analytics dashboard with enhanced design
         document.addEventListener('DOMContentLoaded', async function () {
             setTimeout(() => {
-                const _navUser = JSON.parse(localStorage.getItem('caltrans_user'));
+                const _navUser = JSON.parse(localStorage.getItem('primereach_user'));
                 Navigation.init(_navUser ? _navUser.type : 'agency');
                 initAnalyticsData();
             }, 50);
         });
         async function initAnalyticsData() {
-            const user = JSON.parse(localStorage.getItem('caltrans_user'));
+            const user = JSON.parse(localStorage.getItem('primereach_user'));
             if (!user) return;
 
             try {

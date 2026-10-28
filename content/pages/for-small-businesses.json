@@ -4,12 +4,12 @@
   "updatedAt": "2026-03-17T00:00:00.000Z",
   "meta": {
     "title": "For Small Businesses - PrimeReach",
-    "description": "Small Businesses: Find contracting opportunities, upload your capability statement, and connect with Caltrans agencies."
+    "description": "Small Businesses: Find contracting opportunities, upload your capability statement, and connect with agencies."
   },
   "header": {
     "backgroundImage": "",
     "logoImage": "images/logo.png",
-    "logoAlt": "Caltrans"
+    "logoAlt": "PrimeReach"
   },
   "sections": [
     {
@@ -17,7 +17,7 @@
       "type": "hero-inner",
       "fields": {
         "title": "For Small Businesses",
-        "subtitle": "Connect with Caltrans contracting opportunities, showcase your capabilities, and grow your business through our streamlined platform.",
+        "subtitle": "Connect with contracting opportunities, showcase your capabilities, and grow your business through our streamlined platform.",
         "primaryButton": { "label": "Create Your Account", "href": "register-small-business.html" },
         "secondaryButton": { "label": "Browse Opportunities", "href": "opportunities.html" }
       }
@@ -31,7 +31,7 @@
           {
             "id": "find-opportunities",
             "title": "Find Opportunities",
-            "body": "Search and filter contracting opportunities across all Caltrans districts. Receive notifications for opportunities matching your expertise and service areas."
+            "body": "Search and filter contracting opportunities across all districts. Receive notifications for opportunities matching your expertise and service areas."
           },
           {
             "id": "showcase-capabilities",
@@ -55,7 +55,7 @@
           { "label": "Create Your Account",            "detail": "Register as a Small Business with your business information and contact details." },
           { "label": "Complete Your Profile",           "detail": "Add your business details, certifications, and service areas to help prime contractors find you." },
           { "label": "Upload Capability Statement",     "detail": "Showcase your core competencies, past performance, key personnel, and qualifications." },
-          { "label": "Select Districts and Categories", "detail": "Choose the Caltrans districts and work categories that match your expertise." },
+          { "label": "Select Districts and Categories", "detail": "Choose the districts and work categories that match your expertise." },
           { "label": "Search and Apply",                "detail": "Browse opportunities, filter by your preferences, and submit proposals directly through the platform." }
         ]
       }

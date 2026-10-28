@@ -146,7 +146,7 @@
         var annEl = document.getElementById('site-announcement');
         if (ann && annEl) {
             var version   = ann.version || 'v1';
-            var dismissed = localStorage.getItem('caltrans-announcement-dismissed');
+            var dismissed = localStorage.getItem('primereach-announcement-dismissed');
             if (ann.enabled && dismissed !== version) {
                 annEl.style.display = 'block';
             } else {
@@ -158,7 +158,7 @@
                 var newBtn = dismissBtn.cloneNode(true);
                 dismissBtn.parentNode.replaceChild(newBtn, dismissBtn);
                 newBtn.addEventListener('click', function () {
-                    localStorage.setItem('caltrans-announcement-dismissed', version);
+                    localStorage.setItem('primereach-announcement-dismissed', version);
                     annEl.style.display = 'none';
                 });
             }

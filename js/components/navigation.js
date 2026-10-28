@@ -13,7 +13,7 @@ const _navTokenKey  = ((_navAgency.storagePrefix) || 'app') + '_token';
 const _navLogoPath  = _navAgency.logoDarkPath || _navAgency.logoPath  || 'assets/logo.png';
 const _navLogoAlt   = _navAgency.logoAlt   || 'Platform Logo';
 const _navAppName   = _navAgency.name      || 'Platform';
-const _navStaffDash = 'dashboard-caltrans.html'; // configurable: update if the staff dashboard page is renamed
+const _navStaffDash = 'dashboard-staff.html'; // configurable: update if the staff dashboard page is renamed
 
 const Navigation = {
     // Role configurations — keys must match Navigation.init() call values

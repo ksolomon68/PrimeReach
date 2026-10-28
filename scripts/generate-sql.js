@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const dataExportPath = path.resolve(__dirname, '../data-export.json');
-const sqlOutputPath = path.resolve(__dirname, '../caltrans-db.sql');
+const sqlOutputPath = path.resolve(__dirname, '../primereach-db.sql');
 
 async function generateSQL() {
     console.log('Generating SQL dump from data-export.json...');

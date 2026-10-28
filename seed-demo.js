@@ -191,7 +191,7 @@ const DEMO_OPPORTUNITIES = [
     submission_method: 'Email bid package to summit.construction@demo.com',
     status:            'published',
     duration:          '4 months',
-    requirements:      'SBE or DVBE certification required. CA C-27 Landscaping contractor license. Familiar with Caltrans Standard Plans and Stormwater Quality Handbooks.',
+    requirements:      'SBE or DVBE certification required. CA C-27 Landscaping contractor license. Familiar with agency standard plans and Stormwater Quality Handbooks.',
     certifications:    'SBE,DVBE',
     experience:        'Minimum 3 years revegetation and erosion control on state highway projects.'
   },
@@ -227,7 +227,7 @@ const DEMO_OPPORTUNITIES = [
     submission_method: 'Email SOQ to apex.builders@demo.com — subject: "D11 Bridge Plan Review SOQ"',
     status:            'published',
     duration:          '12 months',
-    requirements:      'WBE or DBE certification. Licensed Civil/Structural Engineer (PE) in California. Experience with AASHTO LRFD and Caltrans Bridge Design Specifications.',
+    requirements:      'WBE or DBE certification. Licensed Civil/Structural Engineer (PE) in California. Experience with AASHTO LRFD and agency bridge design specifications.',
     certifications:    'WBE,DBE',
     experience:        'Minimum 6 years structural bridge design or plan review on state or local transportation projects.'
   },

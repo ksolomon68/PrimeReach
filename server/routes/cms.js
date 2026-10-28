@@ -29,7 +29,7 @@ const { db }  = require('../database');
 
 const router = express.Router();
 
-const CMS_JWT_SECRET = process.env.JWT_SECRET || 'caltrans-fallback-secret-change-in-production';
+const CMS_JWT_SECRET = process.env.JWT_SECRET || 'primereach-fallback-secret-change-in-production';
 
 // ─── Directory paths ────────────────────────────────────────────────────────
 const ROOT_DIR    = path.join(__dirname, '../../');
@@ -348,7 +348,7 @@ router.post('/pages', requireAdmin, (req, res) => {
         header: {
             backgroundImage: '',
             logoImage:       'images/logo.png',
-            logoAlt:         'Caltrans'
+            logoAlt:         'PrimeReach'
         },
         sections:  sections || [],
         createdAt: new Date().toISOString(),
@@ -426,7 +426,7 @@ router.post('/media', requireAdmin, upload.single('image'), (req, res) => {
         // Delete the uploaded file — alt text is mandatory per style guide
         fs.unlinkSync(path.join(MEDIA_DIR, req.file.filename));
         return res.status(400).json({
-            error: 'Alt text is required for every uploaded image (Caltrans accessibility policy)'
+            error: 'Alt text is required for every uploaded image (accessibility policy)'
         });
     }
 

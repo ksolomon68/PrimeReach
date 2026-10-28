@@ -1006,7 +1006,7 @@ async function renderMediaLibrary(container, onSelect) {
           <div class="cms-panel-header"><h3 class="cms-panel-title">Upload Image</h3></div>
           <div class="cms-panel-body">
             <div class="cms-alert cms-alert-warning cms-mb">
-              ⚠️ Caltrans Accessibility Policy: Alt text is <strong>required</strong> for every uploaded image.
+              ⚠️ Accessibility Policy: Alt text is <strong>required</strong> for every uploaded image.
             </div>
             <label class="cms-upload-zone" id="upload-zone" for="media-file-input" tabindex="0"
                    role="button" aria-label="Upload image — click or drag & drop">

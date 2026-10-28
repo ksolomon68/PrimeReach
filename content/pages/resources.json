@@ -9,7 +9,7 @@
   "header": {
     "backgroundImage": "",
     "logoImage": "images/logo.png",
-    "logoAlt": "Caltrans"
+    "logoAlt": "PrimeReach"
   },
   "sections": [
     {
@@ -36,7 +36,7 @@
           {
             "id": "eligibility-checklist",
             "title": "Small Business Eligibility Checklist",
-            "body": "Review all eligibility requirements for Small Business certification with Caltrans.",
+            "body": "Review all eligibility requirements for Small Business certification with your agency.",
             "buttonLabel": "View Checklist",
             "buttonHref": "eligibility.html"
           },
@@ -88,10 +88,10 @@
         "cards": [
           {
             "id": "district-map",
-            "title": "Caltrans District Map",
-            "body": "View the map of all 12 Caltrans districts and their coverage areas.",
+            "title": "District Map",
+            "body": "View the map of all districts and their coverage areas.",
             "buttonLabel": "View Map",
-            "buttonHref": "https://dot.ca.gov/caltrans-near-me",
+            "buttonHref": "https://primereachgov.com/districts",
             "external": true
           }
         ]

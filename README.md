@@ -1,10 +1,10 @@
-# CaltransBizConnect Platform
+# PrimeReach Platform
 
 A mission-critical digital platform connecting Small Businesses (Small Businesses) with contracting opportunities and Prime Contractors/Prime Contractors with qualified partners.
 
 ## Overview
 
-CaltransBizConnect serves as the central hub for the Small Business Supportive Services Business Development Program (Small Business/BDP). The platform streamlines the contracting process by providing:
+PrimeReach serves as the central hub for the Small Business Supportive Services Business Development Program (Small Business/BDP). The platform streamlines the contracting process by providing:
 
 - **For Small Businesses/Small Businesses**: Opportunity discovery, profile management, capability statement uploads, and application tracking
 - **For Prime Contractors**: Structured opportunity posting, small business search, and submission management
@@ -54,7 +54,7 @@ Antig2/
 │       ├── file-upload.js      # File upload with validation
 │       └── form-validation.js  # Form validation utilities
 └── data/
-    ├── districts.json          # Caltrans district data
+    ├── districts.json          # District data
     ├── work-categories.json    # Work category taxonomy
     └── sample-opportunities.json # Sample opportunity data
 ```

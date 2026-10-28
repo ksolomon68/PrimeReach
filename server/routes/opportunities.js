@@ -204,7 +204,7 @@ router.post('/:id/approve', async (req, res) => {
 
         if (existing[0].status !== 'published') {
             const senderId = existing[0].posted_by || req.user?.id || 1;
-            const senderName = existing[0].posted_by_name || 'Caltrans Admin';
+            const senderName = existing[0].posted_by_name || 'Admin';
             await notifyApplicantsOfStatusChange(id, existing[0].title, 'published', senderId, senderName);
         }
 

@@ -40,22 +40,22 @@ body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--off-whi
 /* ── MAIN LAYOUT ── */
 main{max-width:1280px;margin:0 auto;padding:32px 24px}
 
-/* ── CALTRANS CARD ── */
-.caltrans-card{background:linear-gradient(135deg,rgba(201,168,76,0.09) 0%,rgba(10,22,40,0) 100%);border:1.5px solid rgba(201,168,76,0.4);border-radius:16px;padding:36px 40px;margin-bottom:36px;position:relative;overflow:hidden}
-.caltrans-card::after{content:'PRIORITY LICENSE';position:absolute;top:20px;right:28px;font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.22em;color:rgba(201,168,76,0.35)}
-.caltrans-header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:24px}
-.caltrans-header-left{}
-.caltrans-label{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
-.caltrans-title{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;margin-bottom:4px}
-.caltrans-sub{font-size:14px;color:var(--muted)}
+/* ── PRIORITY CARD ── */
+.priority-card{background:linear-gradient(135deg,rgba(201,168,76,0.09) 0%,rgba(10,22,40,0) 100%);border:1.5px solid rgba(201,168,76,0.4);border-radius:16px;padding:36px 40px;margin-bottom:36px;position:relative;overflow:hidden}
+.priority-card::after{content:'PRIORITY LICENSE';position:absolute;top:20px;right:28px;font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.22em;color:rgba(201,168,76,0.35)}
+.priority-header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:24px}
+.priority-header-left{}
+.priority-label{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.priority-title{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;margin-bottom:4px}
+.priority-sub{font-size:14px;color:var(--muted)}
 .owner-held-badge{display:inline-flex;align-items:center;gap:6px;background:var(--gold-dim);border:1px solid rgba(201,168,76,0.35);border-radius:20px;padding:6px 16px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold)}
-.caltrans-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px}
-.caltrans-meta-item{}
-.caltrans-meta-label{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(201,168,76,0.6);margin-bottom:4px}
-.caltrans-meta-value{font-size:15px;font-weight:500;color:var(--off-white)}
-.caltrans-notes{background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.15);border-radius:8px;padding:14px 18px;font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:24px}
-.caltrans-notes strong{color:var(--gold)}
-.caltrans-actions{display:flex;gap:12px;flex-wrap:wrap}
+.priority-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px}
+.priority-meta-item{}
+.priority-meta-label{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(201,168,76,0.6);margin-bottom:4px}
+.priority-meta-value{font-size:15px;font-weight:500;color:var(--off-white)}
+.priority-notes{background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.15);border-radius:8px;padding:14px 18px;font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:24px}
+.priority-notes strong{color:var(--gold)}
+.priority-actions{display:flex;gap:12px;flex-wrap:wrap}
 .btn-gold{background:var(--gold);color:var(--navy);padding:12px 32px;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;border:none;cursor:pointer;transition:background 0.2s}
 .btn-gold:hover{background:#b8932e}
 .btn-outline-gold{background:transparent;color:var(--gold);padding:12px 24px;border-radius:8px;font-family:'Syne',sans-serif;font-weight:600;font-size:14px;border:1.5px solid rgba(201,168,76,0.4);cursor:pointer;transition:all 0.2s}
@@ -158,9 +158,9 @@ main{max-width:1280px;margin:0 auto;padding:32px 24px}
 @media(max-width:900px){
   .stats-grid{grid-template-columns:1fr 1fr}
   .modal-grid{grid-template-columns:1fr}
-  .caltrans-meta{grid-template-columns:1fr 1fr}
+  .priority-meta{grid-template-columns:1fr 1fr}
   main{padding:20px 16px}
-  .caltrans-card{padding:24px 20px}
+  .priority-card{padding:24px 20px}
 }
 @media(max-width:580px){
   .stats-grid{grid-template-columns:1fr 1fr}
@@ -207,32 +207,32 @@ main{max-width:1280px;margin:0 auto;padding:32px 24px}
 <!-- MAIN -->
 <main>
 
-  <!-- CALTRANS PRIORITY CARD -->
-  <div class="caltrans-card" id="caltransCard" style="display:none">
-    <div class="caltrans-header">
-      <div class="caltrans-header-left">
-        <div class="caltrans-label">Priority License — Owner Held</div>
-        <div class="caltrans-title" id="caltransAgency">—</div>
-        <div class="caltrans-sub" id="caltransDept">—</div>
+  <!-- PRIORITY LICENSE CARD -->
+  <div class="priority-card" id="priorityCard" style="display:none">
+    <div class="priority-header">
+      <div class="priority-header-left">
+        <div class="priority-label">Priority License — Owner Held</div>
+        <div class="priority-title" id="priorityAgency">—</div>
+        <div class="priority-sub" id="priorityDept">—</div>
       </div>
       <span class="owner-held-badge">
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#C9A84C" stroke-width="1.2"/><path d="M3.5 6l2 2 3-4" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Owner Held
       </span>
     </div>
-    <div class="caltrans-meta">
-      <div class="caltrans-meta-item"><div class="caltrans-meta-label">License Key</div><div class="caltrans-meta-value" id="caltransKey">—</div></div>
-      <div class="caltrans-meta-item"><div class="caltrans-meta-label">Domain</div><div class="caltrans-meta-value" id="caltransDomain">—</div></div>
-      <div class="caltrans-meta-item"><div class="caltrans-meta-label">Tier</div><div class="caltrans-meta-value" id="caltransTier">—</div></div>
-      <div class="caltrans-meta-item"><div class="caltrans-meta-label">Monthly Rate</div><div class="caltrans-meta-value" id="caltransMonthly">—</div></div>
-      <div class="caltrans-meta-item"><div class="caltrans-meta-label">Annual Rate</div><div class="caltrans-meta-value" id="caltransAnnual">—</div></div>
-      <div class="caltrans-meta-item"><div class="caltrans-meta-label">Activated</div><div class="caltrans-meta-value" id="caltransActivated">—</div></div>
+    <div class="priority-meta">
+      <div class="priority-meta-item"><div class="priority-meta-label">License Key</div><div class="priority-meta-value" id="priorityKey">—</div></div>
+      <div class="priority-meta-item"><div class="priority-meta-label">Domain</div><div class="priority-meta-value" id="priorityDomain">—</div></div>
+      <div class="priority-meta-item"><div class="priority-meta-label">Tier</div><div class="priority-meta-value" id="priorityTier">—</div></div>
+      <div class="priority-meta-item"><div class="priority-meta-label">Monthly Rate</div><div class="priority-meta-value" id="priorityMonthly">—</div></div>
+      <div class="priority-meta-item"><div class="priority-meta-label">Annual Rate</div><div class="priority-meta-value" id="priorityAnnual">—</div></div>
+      <div class="priority-meta-item"><div class="priority-meta-label">Activated</div><div class="priority-meta-value" id="priorityActivated">—</div></div>
     </div>
-    <div class="caltrans-notes" id="caltransNotes"></div>
-    <div class="caltrans-actions">
-      <button class="btn-gold" id="caltransTransferBtn" onclick="openCaltransTransfer()">Transfer to Caltrans</button>
+    <div class="priority-notes" id="priorityNotes"></div>
+    <div class="priority-actions">
+      <button class="btn-gold" id="priorityTransferBtn" onclick="openPriorityTransfer()">Transfer License</button>
       <button class="btn-outline-gold" onclick="openHistoryModal(null, true)">View History</button>
-      <button class="btn-outline-gold" id="caltransEditNotesBtn">Edit Notes</button>
+      <button class="btn-outline-gold" id="priorityEditNotesBtn">Edit Notes</button>
     </div>
   </div>
 
@@ -585,7 +585,7 @@ const FUNCTIONS_URL = `${SUPABASE_URL}/functions/v1`;
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
 
-let caltransLicense = null;
+let priorityLicense = null;
 let activeRequestData = null;
 let licensesData = [];
 let transfersData = [];
@@ -665,22 +665,21 @@ async function loadLicenses() {
   document.getElementById('statARR').textContent = '$' + Math.round(arr).toLocaleString();
   document.getElementById('licenseCount').textContent = data.length;
 
-  caltransLicense = data.find(l => l.is_owner_held && l.holder_domain === 'caltransbizconnect.org')
-    || data.find(l => l.is_owner_held);
+  priorityLicense = data.find(l => l.is_owner_held);
 
-  if (caltransLicense) {
-    const c = caltransLicense;
-    document.getElementById('caltransCard').style.display = 'block';
-    document.getElementById('caltransAgency').textContent = c.agency_name;
-    document.getElementById('caltransDept').textContent = c.department || '';
-    document.getElementById('caltransKey').textContent = c.license_key;
-    document.getElementById('caltransDomain').textContent = c.holder_domain || '—';
-    document.getElementById('caltransTier').textContent = capitalize(c.tier);
-    document.getElementById('caltransMonthly').textContent = c.monthly_rate ? '$' + Number(c.monthly_rate).toLocaleString() + '/mo' : '—';
-    document.getElementById('caltransAnnual').textContent = c.annual_rate ? '$' + Number(c.annual_rate).toLocaleString() + '/yr' : '—';
-    document.getElementById('caltransActivated').textContent = c.activated_at ? fmtDate(c.activated_at) : '—';
-    document.getElementById('caltransNotes').innerHTML = '<strong>Notes:</strong> ' + (c.notes || 'None');
-    document.getElementById('caltransEditNotesBtn').onclick = () => openEditInfoModal(c.id);
+  if (priorityLicense) {
+    const c = priorityLicense;
+    document.getElementById('priorityCard').style.display = 'block';
+    document.getElementById('priorityAgency').textContent = c.agency_name;
+    document.getElementById('priorityDept').textContent = c.department || '';
+    document.getElementById('priorityKey').textContent = c.license_key;
+    document.getElementById('priorityDomain').textContent = c.holder_domain || '—';
+    document.getElementById('priorityTier').textContent = capitalize(c.tier);
+    document.getElementById('priorityMonthly').textContent = c.monthly_rate ? '$' + Number(c.monthly_rate).toLocaleString() + '/mo' : '—';
+    document.getElementById('priorityAnnual').textContent = c.annual_rate ? '$' + Number(c.annual_rate).toLocaleString() + '/yr' : '—';
+    document.getElementById('priorityActivated').textContent = c.activated_at ? fmtDate(c.activated_at) : '—';
+    document.getElementById('priorityNotes').innerHTML = '<strong>Notes:</strong> ' + (c.notes || 'None');
+    document.getElementById('priorityEditNotesBtn').onclick = () => openEditInfoModal(c.id);
   }
 
   const tbody = document.getElementById('licensesBody');
@@ -835,16 +834,16 @@ function openTransferModal(licenseId, holderOrg, holderEmail) {
   openModal('transferModal');
 }
 
-function openCaltransTransfer() {
-  if (!caltransLicense) return;
-  document.getElementById('transferLicenseId').value = caltransLicense.id;
-  document.getElementById('tfFromOrg').value = caltransLicense.holder_org;
-  document.getElementById('tfFromEmail').value = caltransLicense.holder_email;
+function openPriorityTransfer() {
+  if (!priorityLicense) return;
+  document.getElementById('transferLicenseId').value = priorityLicense.id;
+  document.getElementById('tfFromOrg').value = priorityLicense.holder_org;
+  document.getElementById('tfFromEmail').value = priorityLicense.holder_email;
   document.getElementById('tfToOrg').value = 'California Department of Transportation';
   document.getElementById('tfToEmail').value = '';
   document.getElementById('tfToContact').value = '';
-  document.getElementById('tfReason').value = 'Settlement of scope/payment dispute with MWS & Associates. Transfer of caltransbizconnect.org license to Caltrans upon payment resolution.';
-  document.getElementById('transferModalTitle').textContent = 'Transfer to Caltrans';
+  document.getElementById('tfReason').value = 'License transfer authorized by the license owner.';
+  document.getElementById('transferModalTitle').textContent = 'Transfer License';
   openModal('transferModal');
 }
 
@@ -1037,8 +1036,8 @@ async function createLicense() {
 }
 
 // ── HISTORY ──
-async function openHistoryModal(licenseId, isCaltrans) {
-  const id = isCaltrans && caltransLicense ? caltransLicense.id : licenseId;
+async function openHistoryModal(licenseId, isPriority) {
+  const id = isPriority && priorityLicense ? priorityLicense.id : licenseId;
   document.getElementById('historyList').innerHTML = '<p class="empty">Loading...</p>';
   openModal('historyModal');
   if (!id) { document.getElementById('historyList').innerHTML = '<p class="empty">No license linked.</p>'; return; }

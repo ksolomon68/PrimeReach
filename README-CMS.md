@@ -1,4 +1,4 @@
-# CaltransBizConnect — CMS Guide
+# PrimeReach — CMS Guide
 
 A file-based CMS built on the existing Node.js/Express stack. Content is stored as JSON in `content/`, served via `/api/cms/*`, and hydrated into each public page by `js/cms-renderer.js`. Non-technical admins manage everything through the visual admin UI at `/admin-cms.html`.
 
@@ -15,7 +15,7 @@ A file-based CMS built on the existing Node.js/Express stack. Content is stored 
 7. [Managing Assets (Media Library)](#7-managing-assets-media-library)
 8. [Global Settings](#8-global-settings)
 9. [Wiring a New HTML Page into the CMS](#9-wiring-a-new-html-page-into-the-cms)
-10. [Caltrans Style Guide Enforcement](#10-caltrans-style-guide-enforcement)
+10. [Style Guide Enforcement](#10-style-guide-enforcement)
 11. [API Reference](#11-api-reference)
 12. [Component Type Reference](#12-component-type-reference)
 
@@ -72,7 +72,7 @@ Public page loads → GET /api/cms/pages/:slug + GET /api/cms/global
 ## 3. Admin UI — How to Use
 
 ### Login
-Go to `/admin-cms.html`. Sign in with your Caltrans admin credentials (the same account used for the main admin dashboard).
+Go to `/admin-cms.html`. Sign in with your admin credentials (the same account used for the main admin dashboard).
 
 ### Pages Tab
 - Lists all managed pages with their slug and system/custom badge.
@@ -88,13 +88,13 @@ Go to `/admin-cms.html`. Sign in with your Caltrans admin credentials (the same 
 
 ### Global Settings Tab
 - **Site Information** — site name, contact email, copyright text.
-- **External Portal URLs** — CCOP, UCP, Caltrans.gov links used throughout the site.
+- **External Portal URLs** — CCOP, UCP, agency links used throughout the site.
 - **Smartsheet Form URLs** — the four form links in the footer.
 - **Navigation Menu** — toggle items on/off; edit labels and hrefs.
 - **District Look-Ahead Dropdown** — edit district labels/values used in all filters.
 
 ### Media Library Tab
-- Upload images (alt text required — Caltrans accessibility policy).
+- Upload images (alt text required — accessibility policy).
 - Browse existing images; click **Delete** to remove one.
 - When editing a field that takes an image URL, click **🖼️ Browse Media** to pick from the library.
 
@@ -114,13 +114,13 @@ Every page file follows this schema:
   "isSystem": true,
   "updatedAt": "2026-03-17T00:00:00.000Z",
   "meta": {
-    "title": "For Small Businesses - CaltransBizConnect",
+    "title": "For Small Businesses - PrimeReach",
     "description": "SEO description here."
   },
   "header": {
     "backgroundImage": "/uploads/cms-media/hero-bg.jpg",
-    "logoImage": "images/caltrans-logo.png",
-    "logoAlt": "Caltrans"
+    "logoImage": "images/logo.png",
+    "logoAlt": "PrimeReach"
   },
   "sections": [
     {
@@ -159,7 +159,7 @@ Add an entry to the `sections` array in `content/pages/<slug>.json`:
   "type": "text-block",
   "fields": {
     "heading": "About Our Program",
-    "body": "The CaltransBizConnect platform provides…"
+    "body": "The PrimeReach platform provides…"
   }
 }
 ```
@@ -221,7 +221,7 @@ Then add a `data-cms-field` attribute to the corresponding HTML element on the p
 | `site.programName`         | Footer second line                                             |
 | `navigation.items[]`       | Main nav labels, hrefs, active flags                           |
 | `footer.columns[]`         | Footer link columns (rendered by the CMS renderer)             |
-| `externalPortals.*`        | CCOP, UCP, Caltrans.gov URLs — auto-updates `data-cms-portal` links |
+| `externalPortals.*`        | CCOP, UCP, agency URLs — auto-updates `data-cms-portal` links |
 | `smartsheetForms.*`        | Smartsheet form URLs — auto-updates `data-cms-smartsheet` links |
 | `districtLookahead[]`      | District filter dropdown labels and values                     |
 
@@ -290,9 +290,9 @@ The renderer runs after `DOMContentLoaded`, so it never blocks the initial rende
 
 ---
 
-## 10. Caltrans Style Guide Enforcement
+## 10. Style Guide Enforcement
 
-The CMS enforces the Caltrans style guide in the following ways:
+The CMS enforces the style guide in the following ways:
 
 | Rule                         | Enforcement mechanism                                                        |
 |------------------------------|------------------------------------------------------------------------------|
@@ -372,4 +372,4 @@ To add a new component type:
 
 ---
 
-*CaltransBizConnect CMS — File-based, self-contained, no external CMS service required.*
+*PrimeReach CMS — File-based, self-contained, no external CMS service required.*

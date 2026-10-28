@@ -1068,7 +1068,7 @@
 
                     // Update Local Storage for Session consistency
                     const updatedUser = { ...user, ...result };
-                    localStorage.setItem('caltrans_user', JSON.stringify(updatedUser));
+                    localStorage.setItem('primereach_user', JSON.stringify(updatedUser));
 
                     // Show success message
                     showSuccessMessage('✅ Profile saved successfully');
@@ -1154,7 +1154,7 @@
                 const updatedUser = { ...user, capability_statement: result.path };
 
                 // Persist to local storage
-                localStorage.setItem('caltrans_user', JSON.stringify(updatedUser));
+                localStorage.setItem('primereach_user', JSON.stringify(updatedUser));
 
                 // CRITICAL: Persist to Backend Database
                 try {
@@ -1207,7 +1207,7 @@
             status.style.color = 'var(--color-success)';
 
             const updatedUser = { ...user, capability_statement: null };
-            localStorage.setItem('caltrans_user', JSON.stringify(updatedUser));
+            localStorage.setItem('primereach_user', JSON.stringify(updatedUser));
             calculateProgress(updatedUser);
             setTimeout(() => { status.textContent = ''; }, 3000);
 

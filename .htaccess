@@ -1,4 +1,4 @@
-# CaltransBizConnect .htaccess
+# PrimeReach .htaccess
 # HTTPS Redirect
 RewriteEngine On
 RewriteCond %{HTTPS} off

@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'caltrans-fallback-secret-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || 'primereach-fallback-secret-change-in-production';
 
 /**
  * Middleware to require authentication via JWT bearer token.

@@ -192,7 +192,7 @@
         });
 
         function loadSettings() {
-            const user = JSON.parse(localStorage.getItem('caltrans_user'));
+            const user = JSON.parse(localStorage.getItem('primereach_user'));
             if (!user) return;
 
             // Load user data into form
@@ -233,9 +233,9 @@
             };
 
             // Update user data
-            const user = JSON.parse(localStorage.getItem('caltrans_user'));
+            const user = JSON.parse(localStorage.getItem('primereach_user'));
             const updatedUser = { ...user, ...settings };
-            localStorage.setItem('caltrans_user', JSON.stringify(updatedUser));
+            localStorage.setItem('primereach_user', JSON.stringify(updatedUser));
 
             alert('Settings saved successfully!');
         }

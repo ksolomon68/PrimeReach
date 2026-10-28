@@ -179,7 +179,7 @@
   <script>
     // Update navigation based on login status
     function updateNavigation() {
-      const user = JSON.parse(localStorage.getItem('caltrans_user') || 'null');
+      const user = JSON.parse(localStorage.getItem('primereach_user') || 'null');
       const nav = document.querySelector('#dynamicNav ul');
 
       // Remove existing login/logout buttons
@@ -261,7 +261,7 @@
         if (response.ok) {
           const updatedUser = await response.json();
           const SessionUser = { ...user, ...updatedUser };
-          localStorage.setItem('caltrans_user', JSON.stringify(SessionUser));
+          localStorage.setItem('primereach_user', JSON.stringify(SessionUser));
 
           const btn = document.getElementById('saveOppBtn');
           if (btn) {

@@ -535,7 +535,7 @@
 
         // Initialize small business search
         document.addEventListener('DOMContentLoaded', async function () {
-            const user = JSON.parse(localStorage.getItem('caltrans_user'));
+            const user = JSON.parse(localStorage.getItem('primereach_user'));
             const userRole = user ? user.type : 'staff';
 
             // Check for ?invite=true — normalize type so 'prime_contractor' (legacy DB value) also works

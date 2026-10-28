@@ -1,6 +1,6 @@
 # Platform Upgrade - Maintenance Mode Instructions
 
-This guide explains how to manage the Maintenance Mode for the Caltrans Biz Connect platform.
+This guide explains how to manage the Maintenance Mode for the PrimeReach platform.
 
 ## Overview
 A high-end, premium maintenance landing page has been integrated into the Node.js/Express application. When activated, all standard web traffic is routed to `maintenance.html`, while API requests gracefully return JSON 503 errors. 
@@ -31,7 +31,7 @@ Developers and administrators can bypass the maintenance page to review the live
 
 ### Method 1: URL Parameter
 Append `?admin=true` to the end of any site URL:
-`https://caltransbizconnect.org/?admin=true`
+`https://primereachgov.com/?admin=true`
 
 This will set a hidden cookie (`admin_bypass=true`) securely on your browser. Once set, you can navigate the entire site normally without needing the URL parameter again for 24 hours.
 
@@ -43,7 +43,7 @@ By default, requests coming from `localhost` natively bypass the maintenance blo
 The implementation added/modified the following items:
 
 ```text
-caltransbizconnect/
+primereach/
 ├── .env                       # (Environment variables)
 ├── .env.production            # (Live environment variables)
 ├── server/

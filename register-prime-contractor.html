@@ -75,7 +75,7 @@
                                         class="text-error">*</span></label>
                                 <select id="organizationType" name="organizationType" class="form-input" required>
                                     <option value="">Select organization type</option>
-                                    <option value="caltrans-district">Your Agency District</option>
+                                    <option value="agency-district">Your Agency District</option>
                                     <option value="state-agency">State Agency</option>
                                     <option value="local-agency">Local Agency</option>
                                     <option value="agency">Prime Contractor</option>
@@ -275,7 +275,7 @@
         // Show district dropdown for your agency districts
         document.getElementById('organizationType').addEventListener('change', function () {
             const districtGroup = document.getElementById('districtGroup');
-            if (this.value === 'caltrans-district') {
+            if (this.value === 'agency-district') {
                 districtGroup.style.display = 'block';
                 document.getElementById('district').required = true;
             } else {

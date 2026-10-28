@@ -6,9 +6,9 @@
 
 /**
  * @type {string[]}
- * All Caltrans districts from 1-12 plus Statewide
+ * All districts from 1-12 plus Statewide
  */
-export const CALTRANS_DISTRICTS = [
+export const DISTRICTS = [
     'District 1',
     'District 2',
     'District 3',

@@ -1,5 +1,5 @@
 #!/bin/bash
-# CaltransBizConnect Deployment Script
+# PrimeReach Deployment Script
 
 echo "--- Starting Deployment Preparation ---"
 

@@ -105,7 +105,7 @@ window.AGENCY = {
    * The data/districts.json file mirrors this list and is used
    * by server-side code that cannot access window.AGENCY.
    *
-   * Example (Caltrans deployment — 12 districts):
+   * Example (12-district deployment — 12 districts):
    */
   districts: [
     { id: '1',  name: 'District 1',  region: 'Region A' },
@@ -162,7 +162,6 @@ window.AGENCY = {
   function patchTitle() {
     if (document.title && cfg.name) {
       document.title = document.title
-        .replace(/CaltransBizConnect/gi, cfg.name)
         .replace(/PrimeReach/gi, cfg.name);
     }
   }
@@ -171,7 +170,7 @@ window.AGENCY = {
   function patchLogos() {
     // Match any logo image by common path patterns
     document.querySelectorAll('img[src*="logo"]').forEach(img => {
-      if (img.src.includes('caltrans-logo') || img.src.includes('logo.png')) {
+      if (img.src.includes('logo.png')) {
         img.src = cfg.logoPath;
         img.alt = cfg.logoAlt;
       }
@@ -193,8 +192,7 @@ window.AGENCY = {
     });
     // Also update any hard-coded copyright text
     document.querySelectorAll('.footer-bottom p').forEach(el => {
-      if (el.textContent.includes('California Department of Transportation') ||
-          el.textContent.includes('CaltransBizConnect') ||
+      if (el.textContent.includes('PrimeReach') ||
           el.textContent.includes('PrimeReach')) {
         if (el.textContent.includes('© ') || el.textContent.startsWith('\u00A9')) {
           el.textContent = `\u00A9 ${year} ${cfg.organizationName}. All rights reserved.`;
