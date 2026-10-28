@@ -37,3 +37,7 @@ logs/
 *.log
 DESIGN.md
 SITE.md
+
+# AI / Agents
+.claude/
+
