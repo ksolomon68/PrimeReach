@@ -44,6 +44,10 @@
   function check() {
     const domain = window.location.hostname;
 
+    // Command center / dev hosts never need a license.
+    const EXEMPT = ['primereachgov.com', 'www.primereachgov.com', 'localhost', '127.0.0.1'];
+    if (EXEMPT.indexOf(domain) !== -1 || /\.netlify\.app$/.test(domain)) return;
+
     // Check session cache first
     try {
       const cached = sessionStorage.getItem(CACHE_KEY);
